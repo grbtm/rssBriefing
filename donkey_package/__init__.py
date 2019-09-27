@@ -41,4 +41,8 @@ def create_app(test_config=None):
     from . import auth
     app.register_blueprint(auth.bp)
 
+    from . import rss_reader
+    app.register_blueprint(rss_reader.bp)
+    app.add_url_rule('/', endpoint='index')
+
     return app
