@@ -19,3 +19,9 @@ def index():
         ' ORDER BY created DESC'
     ).fetchall()
     return render_template('rss_reader/index.html', items=items)
+
+
+@bp.route('add_feed', methods=('GET', 'POST'))
+@login_required
+def add_feed():
+    if request.method == 'POST':
