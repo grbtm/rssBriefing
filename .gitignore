@@ -1,14 +1,16 @@
-venv/
-
 *.pyc
 __pycache__/
 
+# Flask database
 instance/
 
+# Unit test / coverage reports
 .pytest_cache/
 .coverage
 htmlcov/
 
+# Distribution / packaging
+donkey_env/
 dist/
 build/
 *.egg-info/
