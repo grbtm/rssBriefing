@@ -21,7 +21,21 @@ def index():
     return render_template('rss_reader/index.html', items=items)
 
 
-# @bp.route('add_feed', methods=('GET', 'POST'))
-# @login_required
-# def add_feed():
-#     if request.method == 'POST':
+@bp.route('add_feed', methods=('GET', 'POST'))
+@login_required
+def add_feed():
+    if request.method == 'POST':
+        xml_file = request.form['xml_file']
+        error = None
+
+        if not xml_file:
+            error = 'XML file is required!'
+
+        if error is not None:
+            flash(error)
+        else:
+            db = get_db()
+            db.execute(
+                'INSERT INTO feed (title, description, link)'
+            )
+            db.commit()
