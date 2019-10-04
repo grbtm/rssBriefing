@@ -4,6 +4,7 @@ from werkzeug.exceptions import abort
 
 from donkey_package.auth import login_required
 from donkey_package.db import get_db
+from donkey_package.feed import parse_feed
 
 bp = Blueprint('rss_reader', __name__)
 
@@ -25,17 +26,27 @@ def index():
 @login_required
 def add_feed():
     if request.method == 'POST':
-        xml_file = request.form['xml_file']
+        xml_href = request.form['xml_href']
         error = None
 
-        if not xml_file:
+        if not xml_href:
             error = 'XML file is required!'
 
         if error is not None:
             flash(error)
         else:
+            feed = parse_feed(xml_href)
+            title = feed.feed.title if feed.feed.title else 'No title'
+            description = feed.feed.description if feed.feed.description else 'No description'
+            link = feed.feed.link if feed.feed.link else 'No link'
+
             db = get_db()
             db.execute(
-                'INSERT INTO feed (title, description, link)'
+                'INSERT INTO feed (title, description, link, href)'
+                ' VALUES (?, ?, ?, ?)',
+                (title, description, link, xml_href)
             )
             db.commit()
+            return redirect(url_for('rss_reader.index'))
+
+    return render_template('rss_reader/add_feed.html')

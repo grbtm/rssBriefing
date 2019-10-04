@@ -11,10 +11,10 @@ CREATE TABLE user (
 
 CREATE TABLE feed (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  title TEXT NOT NULL,
-  description TEXT NOT NULL,
-  link NVARCHAR NOT NULL,
-  href TEXT NOT NULL
+  title TEXT,
+  description TEXT,
+  link NVARCHAR,
+  href NVARCHAR NOT NULL
 );
 
 CREATE TABLE user_feed (
