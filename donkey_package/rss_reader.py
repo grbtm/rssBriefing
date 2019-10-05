@@ -13,11 +13,8 @@ bp = Blueprint('rss_reader', __name__)
 def index():
     db = get_db()
     items = db.execute(
-        'SELECT i.id, i.title, i.description, created, f.title as feed_title'
-        ' FROM item i JOIN feed f ON i.feed_id = f.id'
-        ' JOIN user_feed uf on uf.feed_id = f.id'
-        ' JOIN user u on u.id = uf.user_id'
-        ' ORDER BY created DESC'
+        'SELECT f.title, f.description, f.href, f.link'
+        ' FROM feed f JOIN user u ON f.user_id = u.id'
     ).fetchall()
     return render_template('rss_reader/index.html', items=items)
 
@@ -42,11 +39,17 @@ def add_feed():
 
             db = get_db()
             db.execute(
-                'INSERT INTO feed (title, description, link, href)'
-                ' VALUES (?, ?, ?, ?)',
-                (title, description, link, xml_href)
+                'INSERT INTO feed (title, description, link, href, user_id)'
+                ' VALUES (?, ?, ?, ?, ?)',
+                (title, description, link, xml_href, g.user['id'])
             )
             db.commit()
             return redirect(url_for('rss_reader.index'))
 
     return render_template('rss_reader/add_feed.html')
+
+
+# def get_feed(id, check_user=True):
+#     feed = get_db().execute(
+#         'SELECT '
+#     ).fetchone()

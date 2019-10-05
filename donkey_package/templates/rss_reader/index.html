@@ -4,7 +4,6 @@
 <h1>{% block title %}Feed items{% endblock %}</h1>
 {% if g.user %}
 <a class="action" href="{{ url_for('rss_reader.add_feed') }}">Add feed</a>
-<a class="action" href="{{ url_for('rss_reader.edit_feeds') }}">Edit feeds</a>
 {% endif %}
 {% endblock %}
 
@@ -14,7 +13,7 @@
     <header>
         <div>
             <h1>{{ item['title'] }}</h1>
-            <div class="about">from {{ item['feed_title'] }} on {{ item['created'].strftime('%Y-%m-%d') }}</div>
+            <div class="about">Href: {{ item['href'] }}, link: {{ item['link'] }}</div>
         </div>
     </header>
     <p class="body">{{ item['description'] }}</p>

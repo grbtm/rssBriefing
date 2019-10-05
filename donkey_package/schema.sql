@@ -14,12 +14,16 @@ CREATE TABLE feed (
   title TEXT,
   description TEXT,
   link NVARCHAR,
-  href NVARCHAR NOT NULL
+  href NVARCHAR NOT NULL,
+  user_id INTEGER,
+  FOREIGN KEY (user_id) REFERENCES user (id)
 );
 
 CREATE TABLE user_feed (
   user_id INTEGER NOT NULL,
-  feed_id INTEGER NOT NULL
+  feed_id INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES user (id),
+  FOREIGN KEY (feed_id) REFERENCES feed (id)
 );
 
 CREATE TABLE item (

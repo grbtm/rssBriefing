@@ -27,7 +27,7 @@ def create_app(test_config=None):
     # URL --> function
     # to go function --> URL, use url_for(function_string)
     # By default, a route only answers to GET requests
-    @app.route('/')
+    @app.route('/hello')
     # The function is given a name which is also used to generate URLs for that particular function,
     # and returns the message we want to display in the user’s browser
     def hello_world():
