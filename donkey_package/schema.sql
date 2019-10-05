@@ -28,10 +28,10 @@ CREATE TABLE user_feed (
 
 CREATE TABLE item (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  feed_id INTEGER,
+  feed_id INTEGER NOT NULL,
   title TEXT NOT NULL,
-  description TEXT NOT NULL,
-  url NVARCHAR,
+  description TEXT,
+  link NVARCHAR,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   guid TEXT,
   FOREIGN KEY (feed_id) REFERENCES feed (id)

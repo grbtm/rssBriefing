@@ -4,7 +4,7 @@ from werkzeug.exceptions import abort
 
 from donkey_package.auth import login_required
 from donkey_package.db import get_db
-from donkey_package.feed import parse_feed
+from donkey_package.feed import parse_feed, update_feed_db
 
 bp = Blueprint('rss_reader', __name__)
 
@@ -13,8 +13,8 @@ bp = Blueprint('rss_reader', __name__)
 def index():
     db = get_db()
     items = db.execute(
-        'SELECT f.title, f.description, f.href, f.link'
-        ' FROM feed f JOIN user u ON f.user_id = u.id'
+        'SELECT i.title, i.description, i.link'
+        ' FROM item i'
     ).fetchall()
     return render_template('rss_reader/index.html', items=items)
 
@@ -44,6 +44,9 @@ def add_feed():
                 (title, description, link, xml_href, g.user['id'])
             )
             db.commit()
+
+            update_feed_db(feed)
+
             return redirect(url_for('rss_reader.index'))
 
     return render_template('rss_reader/add_feed.html')
