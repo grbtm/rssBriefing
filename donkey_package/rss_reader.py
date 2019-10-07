@@ -33,9 +33,9 @@ def add_feed():
             flash(error)
         else:
             feed = parse_feed(xml_href)
-            title = feed.feed.title if feed.feed.title else 'No title'
-            description = feed.feed.description if feed.feed.description else 'No description'
-            link = feed.feed.link if feed.feed.link else 'No link'
+            title = feed.feed.title if feed.feed.get('title', None) else 'No title'
+            description = feed.feed.description if feed.feed.get('description', None) else 'No description'
+            link = feed.feed.link if feed.feed.get('link', None) else 'No link'
 
             db = get_db()
             db.execute(
