@@ -10,11 +10,15 @@ bp = Blueprint('rss_reader', __name__)
 
 
 @bp.route('/')
+@login_required
 def index():
     db = get_db()
     items = db.execute(
         'SELECT i.title, i.description, i.link'
-        ' FROM item i'
+        ' FROM item i '
+        ' JOIN feed f on i.feed_id = f.id'
+        ' JOIN user u on u.id = f.user_id'
+        ' WHERE u.id = ?', (g.user['id'],)
     ).fetchall()
     return render_template('rss_reader/index.html', items=items)
 
