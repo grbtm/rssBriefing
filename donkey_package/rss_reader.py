@@ -20,7 +20,33 @@ def index():
         ' JOIN user u on u.id = f.user_id'
         ' WHERE u.id = ?', (g.user['id'],)
     ).fetchall()
-    return render_template('rss_reader/index.html', items=items)
+    feeds = db.execute(
+        'SELECT feed.id, title'
+        ' FROM feed'
+        ' JOIN user on user.id = feed.user_id'
+        ' WHERE user.id = ?', (g.user['id'],)
+    ).fetchall()
+    return render_template('rss_reader/index.html', items=items, feeds=feeds)
+
+
+@bp.route('/single/<int:feed_id>')
+@login_required
+def single(feed_id):
+    db = get_db()
+    items = db.execute(
+        'SELECT i.title, i.description, i.link, f.id'
+        ' FROM item i '
+        ' JOIN feed f on i.feed_id = f.id'
+        ' JOIN user u on u.id = f.user_id'
+        ' WHERE u.id = ? AND f.id = ?', (g.user['id'], feed_id)
+    ).fetchall()
+    feeds = db.execute(
+        'SELECT feed.id, title'
+        ' FROM feed'
+        ' JOIN user on user.id = feed.user_id'
+        ' WHERE user.id = ?', (g.user['id'],)
+    ).fetchall()
+    return render_template('rss_reader/index.html', items=items, feeds=feeds)
 
 
 @bp.route('/add_feed', methods=('GET', 'POST'))
