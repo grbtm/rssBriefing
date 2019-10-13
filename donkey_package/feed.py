@@ -1,3 +1,6 @@
+import calendar
+from datetime import datetime
+
 import feedparser
 
 from donkey_package.db import get_db
@@ -18,6 +21,14 @@ def get_feed_id(feed_dict):
     return db_id
 
 
+def datetime_from_time_struct(time_struct_time):
+    # convert struct time to unix timestamp
+    ts = calendar.timegm(time_struct_time)
+    # then create datetime object in UTC
+    dt = datetime.utcfromtimestamp(ts)
+    return dt
+
+
 def update_feed_db(feed_dict):
     # Get latest feed items
     entries = feed_dict.entries
@@ -31,11 +42,12 @@ def update_feed_db(feed_dict):
         title = entry.title
         description = entry.description if entry.description else 'No description'
         link = entry.link
+        created = datetime_from_time_struct(entry.published_parsed)
 
         db.execute(
-            'INSERT INTO item (feed_id, title, description, link)'
-            ' VALUES (?, ?, ?, ?)',
-            (feed_id, title, description, link)
+            'INSERT INTO item (feed_id, title, description, link, created)'
+            ' VALUES (?, ?, ?, ?, ?)',
+            (feed_id, title, description, link, created)
         )
 
     db.commit()
