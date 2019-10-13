@@ -2,7 +2,7 @@
 
 {% block header %}
 <li class="nav-item">
-    <a class="nav-link" href="#">{% block title %}Feed items{% endblock %}</a>
+    <a class="nav-link" href="#">{% block title %}Latest{% endblock %}</a>
 </li>
 {% if g.user %}
 <li class="nav-item">
@@ -16,8 +16,8 @@
 <article class="item">
     <header>
         <div>
-            <h1>{{ item['title'] }}</h1>
-            <div class="about">Link: {{ item['link'] }}</div>
+            {{ item['title'] }}
+            <div class="about">Published: {{ item['created'] }} Link: {{ item['link'] }}</div>
         </div>
     </header>
     <p class="body">{{ item['description'] }}</p>

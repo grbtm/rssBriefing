@@ -9,12 +9,12 @@ from donkey_package.feed import parse_feed, update_feed_db
 bp = Blueprint('rss_reader', __name__)
 
 
-@bp.route('/')
+@bp.route('/latest')
 @login_required
-def index():
+def latest():
     db = get_db()
     items = db.execute(
-        'SELECT i.title, i.description, i.link'
+        'SELECT i.title, i.description, i.link, i.created'
         ' FROM item i '
         ' JOIN feed f on i.feed_id = f.id'
         ' JOIN user u on u.id = f.user_id'
@@ -26,7 +26,7 @@ def index():
         ' JOIN user on user.id = feed.user_id'
         ' WHERE user.id = ?', (g.user['id'],)
     ).fetchall()
-    return render_template('rss_reader/index.html', items=items, feeds=feeds)
+    return render_template('rss_reader/latest.html', items=items, feeds=feeds)
 
 
 @bp.route('/single/<int:feed_id>')
@@ -34,7 +34,7 @@ def index():
 def single(feed_id):
     db = get_db()
     items = db.execute(
-        'SELECT i.title, i.description, i.link, f.id'
+        'SELECT i.title, i.description, i.link, i.created, f.id'
         ' FROM item i '
         ' JOIN feed f on i.feed_id = f.id'
         ' JOIN user u on u.id = f.user_id'
@@ -46,7 +46,7 @@ def single(feed_id):
         ' JOIN user on user.id = feed.user_id'
         ' WHERE user.id = ?', (g.user['id'],)
     ).fetchall()
-    return render_template('rss_reader/index.html', items=items, feeds=feeds)
+    return render_template('rss_reader/latest.html', items=items, feeds=feeds)
 
 
 @bp.route('/add_feed', methods=('GET', 'POST'))
@@ -63,21 +63,32 @@ def add_feed():
             flash(error)
         else:
             feed = parse_feed(xml_href)
-            title = feed.feed.title if feed.feed.get('title', None) else 'No title'
-            description = feed.feed.description if feed.feed.get('description', None) else 'No description'
-            link = feed.feed.link if feed.feed.get('link', None) else 'No link'
+            title = feed.feed.get('title', 'No title')
+            description = feed.feed.get('description', 'No description')
+            link = feed.feed.get('link', 'No link')
 
             db = get_db()
-            db.execute(
-                'INSERT INTO feed (title, description, link, href, user_id)'
-                ' VALUES (?, ?, ?, ?, ?)',
-                (title, description, link, xml_href, g.user['id'])
-            )
+            query = db.execute(
+                'SELECT * FROM feed'
+                '   WHERE (title = ? AND description = ? AND link = ? AND user_id = ?)',
+                (title, description, link, g.user['id'])
+            ).fetchone()
             db.commit()
 
-            update_feed_db(feed)
+            if query is not None:
+                error = 'Feed was already added!'
+                flash(error)
+            else:
+                db.execute(
+                    'INSERT INTO feed (title, description, link, href, user_id)'
+                    'VALUES (?, ?, ?, ?, ?)',
+                    (title, description, link, xml_href, g.user['id'])
+                )
+                db.commit()
 
-            return redirect(url_for('rss_reader.index'))
+                update_feed_db(feed)
+
+            return redirect(url_for('rss_reader.latest'))
 
     return render_template('rss_reader/add_feed.html')
 

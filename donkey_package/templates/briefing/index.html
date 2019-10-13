@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<li class="nav-item">
+    <a class="nav-link" href="#">{% block title %}Briefing{% endblock %}</a>
+</li>
+{% endblock %}
+
+{% block content %}
+{% for item in items %}
+<article class="item">
+    <header>
+        <div>
+            <h1>{{ item['title'] }}</h1>
+            <div class="about">Link: {{ item['link'] }}</div>
+        </div>
+    </header>
+    <p class="body">{{ item['description'] }}</p>
+</article>
+{% if not loop.last %}
+<hr>
+{% endif %}
+{% endfor %}
+{% endblock %}
