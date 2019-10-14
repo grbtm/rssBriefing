@@ -18,7 +18,8 @@ def latest():
         ' FROM item i '
         ' JOIN feed f on i.feed_id = f.id'
         ' JOIN user u on u.id = f.user_id'
-        ' WHERE u.id = ?', (g.user['id'],)
+        ' WHERE u.id = ?'
+        ' ORDER BY created DESC', (g.user['id'],)
     ).fetchall()
     feeds = db.execute(
         'SELECT feed.id, title'
@@ -73,7 +74,6 @@ def add_feed():
                 '   WHERE (title = ? AND description = ? AND link = ? AND user_id = ?)',
                 (title, description, link, g.user['id'])
             ).fetchone()
-            db.commit()
 
             if query is not None:
                 error = 'Feed was already added!'

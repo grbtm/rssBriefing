@@ -1,11 +1,5 @@
 {% extends 'base.html' %}
 
-{% block header %}
-<li class="nav-item">
-    <a class="nav-link" href="#">{% block title %}Briefing{% endblock %}</a>
-</li>
-{% endblock %}
-
 {% block content %}
 {% for item in items %}
 <article class="item">
