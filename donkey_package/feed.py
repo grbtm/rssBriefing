@@ -39,7 +39,7 @@ def update_feed_db(feed_dict):
     # Insert new entries to db
     for entry in entries:
         feed_id = get_feed_id(feed_dict)
-        if entry.get('title') and entry.title: # ensure that attribute exists and is not empty string
+        if entry.get('title') and entry.title:  # ensure that attribute exists and is not empty string
             title = entry.title
         if entry.get('description') and entry.description:
             description = entry.description
