@@ -1,1 +1,1 @@
-# RSS READER * work in progress *
+# RSS READER APP * work in progress *
