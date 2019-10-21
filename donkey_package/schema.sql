@@ -35,5 +35,4 @@ CREATE TABLE item (
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   guid TEXT,
   FOREIGN KEY (feed_id) REFERENCES feed (id)
-  UNIQUE (feed_id, title, description)
 );
