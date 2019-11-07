@@ -11,6 +11,14 @@ def parse_feed(href):
     return feed_dict
 
 
+def well_formed(feed_dict):
+    if feed_dict.bozo:
+        result = False
+    else:
+        result = True
+    return result
+
+
 def get_feed_id(feed_dict):
     title = feed_dict.feed.title
 

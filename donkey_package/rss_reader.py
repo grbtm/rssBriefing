@@ -1,10 +1,8 @@
 from flask import Blueprint, flash, g, redirect, render_template, request, url_for
 
-from werkzeug.exceptions import abort
-
 from donkey_package.auth import login_required
 from donkey_package.db import get_db
-from donkey_package.feed import parse_feed, update_feed_db
+from donkey_package.feed import parse_feed, update_feed_db, well_formed
 
 bp = Blueprint('rss_reader', __name__)
 
@@ -64,34 +62,37 @@ def add_feed():
             flash(error)
         else:
             feed = parse_feed(xml_href)
-            title = feed.feed.get('title', 'No title')
-            description = feed.feed.get('description', 'No description')
-            link = feed.feed.get('link', 'No link')
-
-            db = get_db()
-            query = db.execute(
-                'SELECT * FROM feed'
-                '   WHERE (title = ? AND description = ? AND link = ? AND user_id = ?)',
-                (title, description, link, g.user['id'])
-            ).fetchone()
-
-            if query is not None:
-                error = 'Feed was already added!'
+            if not well_formed(feed):
+                error = 'Feed is not well-formed!'
                 flash(error)
             else:
-                db.execute(
-                    'INSERT INTO feed (title, description, link, href, user_id)'
-                    'VALUES (?, ?, ?, ?, ?)',
-                    (title, description, link, xml_href, g.user['id'])
-                )
-                db.commit()
+                title = feed.feed.get('title', 'No title')
+                description = feed.feed.get('description', 'No description')
+                link = feed.feed.get('link', 'No link')
 
-                update_feed_db(feed)
+                db = get_db()
+                query = db.execute(
+                    'SELECT * FROM feed'
+                    '   WHERE (title = ? AND description = ? AND link = ? AND user_id = ?)',
+                    (title, description, link, g.user['id'])
+                ).fetchone()
+
+                if query is not None:
+                    error = 'Feed was already added!'
+                    flash(error)
+                else:
+                    db.execute(
+                        'INSERT INTO feed (title, description, link, href, user_id)'
+                        'VALUES (?, ?, ?, ?, ?)',
+                        (title, description, link, xml_href, g.user['id'])
+                    )
+                    db.commit()
+
+                    update_feed_db(feed)
 
             return redirect(url_for('rss_reader.latest'))
 
     return render_template('rss_reader/add_feed.html')
-
 
 # def get_feed(id, check_user=True):
 #     feed = get_db().execute(
