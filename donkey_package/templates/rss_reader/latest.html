@@ -1,13 +1,5 @@
 {% extends 'base.html' %}
 
-{% block header %}
-{% if g.user %}
-<li class="nav-item">
-    <a class="nav-link" href="{{ url_for('rss_reader.add_feed') }}">Add feed</a>
-</li>
-{% endif %}
-{% endblock %}
-
 {% block content %}
 {% for item in items %}
 <article class="item">
