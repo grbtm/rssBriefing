@@ -12,7 +12,8 @@ def parse_feed(href):
 
 
 def well_formed(feed_dict):
-    if feed_dict.bozo:
+    # consider a feed malformed if 1. feedparser bozo attribute declares an error (value: 1) and 2. no entry list loaded
+    if feed_dict.bozo and len(feed_dict.entries) is 0:
         result = False
     else:
         result = True
