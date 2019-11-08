@@ -67,7 +67,10 @@ def update_feed_db(feed_dict):
         else:
             description = 'No description'
 
-        link = entry.link
+        if entry.get('link'):
+            link = entry.link
+        else:
+            link = 'No link'
 
         if entry.get('published_parsed'):
             created = datetime_from_time_struct(entry.published_parsed)
