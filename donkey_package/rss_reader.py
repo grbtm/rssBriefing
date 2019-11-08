@@ -30,7 +30,8 @@ def latest():
 
 @bp.route('/single/<int:feed_id>')
 @login_required
-def single(feed_id, refresh=False):
+def single(feed_id):
+    refresh = request.args.get('refresh', None)
     if refresh:
         feed_dict = get_latest_feed_dict(feed_id)
         update_feed_db(feed_dict)
