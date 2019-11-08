@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<li class="nav-item">
+    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">
+        {% block title %}{{ single_feed['title'] }}{% endblock %}
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('rss_reader.latest') }}">
+        Latest
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('rss_reader.add_feed') }}">
+        Add feed
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('rss_reader.single', feed_id=single_feed.id, refresh=1) }}">
+        Refresh
+    </a>
+</li>
+{% endblock %}
+
+
+{% block content %}
+{% for item in items %}
+<article class="item">
+    <header>
+        <div>
+            {{ item['title'] }}
+            <div class="about">
+                Published: {{ item['created'] }} Link: {{ item['link'] }}
+            </div>
+        </div>
+    </header>
+    <p class="body">{{ item['description'] }}</p>
+</article>
+{% if not loop.last %}
+<hr>
+{% endif %}
+{% endfor %}
+{% endblock %}

@@ -29,6 +29,14 @@ def get_feed_id(feed_dict):
     return db_id
 
 
+def get_latest_feed_dict(feed_id):
+    db = get_db()
+    feed_href = db.execute(
+        'SELECT href from feed WHERE id = ?', (feed_id,)
+    ).fetchone()[0]
+    return parse_feed(feed_href)
+
+
 def datetime_from_time_struct(time_struct_time):
     # convert struct time to unix timestamp
     ts = calendar.timegm(time_struct_time)
@@ -47,20 +55,35 @@ def update_feed_db(feed_dict):
     # Insert new entries to db
     for entry in entries:
         feed_id = get_feed_id(feed_dict)
+
         if entry.get('title') and entry.title:  # ensure that attribute exists and is not empty string
             title = entry.title
+        else:
+            title = 'No title'
+
         if entry.get('description') and entry.description:
             description = entry.description
+        else:
+            description = 'No description'
+
         link = entry.link
+
         if entry.get('published_parsed'):
             created = datetime_from_time_struct(entry.published_parsed)
         else:
             created = datetime.now()
 
-        db.execute(
-            'INSERT INTO item (feed_id, title, description, link, created)'
-            ' VALUES (?, ?, ?, ?, ?)',
-            (feed_id, title, description, link, created)
-        )
+        found = db.execute(
+            'SELECT * FROM item'
+            '   WHERE (feed_id = ? AND title = ? AND description = ? AND link = ?)',
+            (feed_id, title, description, link)
+        ).fetchone()
+
+        if not found:
+            db.execute(
+                'INSERT INTO item (feed_id, title, description, link, created)'
+                ' VALUES (?, ?, ?, ?, ?)',
+                (feed_id, title, description, link, created)
+            )
 
     db.commit()

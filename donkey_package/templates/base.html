@@ -13,7 +13,9 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="{{ url_for('briefing.index') }}">DonkeyBriefing</a>
+    <a class="navbar-brand" href="{{ url_for('briefing.index') }}">
+        DonkeyBriefing
+    </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -29,16 +31,11 @@
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                     {% for feed in feeds %}
-                    <a class="dropdown-item" href="{{ url_for('rss_reader.single', feed_id=feed.id) }}">{{ feed['title']
-                        }}</a>
+                    <a class="dropdown-item" href="{{ url_for('rss_reader.single', feed_id=feed.id) }}">
+                        {{ feed['title'] }}
+                    </a>
                     {% endfor %}
                 </div>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('rss_reader.latest') }}">Latest</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('rss_reader.add_feed') }}">Add feed</a>
             </li>
             {% endif %}
         </ul>

@@ -1,5 +1,15 @@
 {% extends 'base.html' %}
 
+{% block header %}
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('rss_reader.latest') }}">Latest</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Add feed</a>
+</li>
+{% endblock %}
+{% block title %}Briefing{% endblock %}
+
 {% block content %}
 {% for item in items %}
 <article class="item">
