@@ -46,6 +46,20 @@ def datetime_from_time_struct(time_struct_time):
     return dt
 
 
+def parse_entry_attribute(entry, attribute):
+    if entry.get(attribute) and entry[attribute]:  # ensure that attribute exists and is not empty string
+        if attribute == 'published_parsed':  # special handling of date information
+            value = datetime_from_time_struct(entry[attribute])
+        else:
+            value = entry[attribute]
+    else:
+        if attribute == 'published_parsed':
+            value = datetime.now()
+        else:
+            value = 'No {}'.format(attribute)
+    return value
+
+
 def update_feed_db(feed_dict):
     # Get latest feed items
     entries = feed_dict.entries
@@ -57,25 +71,10 @@ def update_feed_db(feed_dict):
     for entry in entries:
         feed_id = get_feed_id(feed_dict)
 
-        if entry.get('title') and entry.title:  # ensure that attribute exists and is not empty string
-            title = entry.title
-        else:
-            title = 'No title'
-
-        if entry.get('description') and entry.description:
-            description = entry.description
-        else:
-            description = 'No description'
-
-        if entry.get('link'):
-            link = entry.link
-        else:
-            link = 'No link'
-
-        if entry.get('published_parsed'):
-            created = datetime_from_time_struct(entry.published_parsed)
-        else:
-            created = datetime.now()
+        title = parse_entry_attribute(entry, 'title')
+        description = parse_entry_attribute(entry, 'description')
+        link = parse_entry_attribute(entry, 'link')
+        created = parse_entry_attribute(entry, 'published_parsed')
 
         found = db.execute(
             'SELECT * FROM item'
