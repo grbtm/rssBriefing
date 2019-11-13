@@ -44,8 +44,8 @@ def create_app(test_config=None):
     from . import rss_reader
     app.register_blueprint(rss_reader.bp)
 
-    from . import briefing
-    app.register_blueprint(briefing.bp)
+    from . import briefing_view
+    app.register_blueprint(briefing_view.bp)
     app.add_url_rule('/', endpoint='index')
 
     return app
