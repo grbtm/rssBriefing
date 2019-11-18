@@ -99,6 +99,7 @@ class Briefing(object):
     def __init__(self):
         self.corpus = self.get_reference_corpus()
         self.dictionary = get_corpus_dictionary(self.corpus)
+        self.docsim = self.calculate_similarity_index()
 
     def get_reference_corpus(self):
         """ Load the current corpus.
@@ -143,6 +144,11 @@ class Briefing(object):
         docsim_index = SoftCosineSimilarity(bow_corpus, similarity_matrix, num_best=10)
 
         return docsim_index
+
+    def get_similarities(self, query):
+        similarities = self.docsim[query]
+        return similarities
+
 
     def save_to_db(self):
         """ Save given corpus and respective feed item selection to db.
