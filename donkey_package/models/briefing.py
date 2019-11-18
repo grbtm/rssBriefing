@@ -42,9 +42,11 @@ Entry
 
 
 """
-
+from gensim.corpora import Dictionary
 from gensim.models import Word2Vec, WordEmbeddingSimilarityIndex
+from gensim.similarities import SoftCosineSimilarity, SparseTermSimilarityMatrix
 from nltk import word_tokenize
+from nltk.corpus import stopwords
 
 MODEL_PATH = ''
 
@@ -59,7 +61,7 @@ def preprocess(doc):
     doc = doc.lower()
     doc = word_tokenize(doc)
 
-    commonlist = set('for a of the and to in'.split())
+    commonlist = stopwords.words('english')
 
     doc = [word for word in doc if word not in commonlist]  # remove common words
     doc = [word for word in doc if word.isalpha()]  # remove numbers and special characters
@@ -73,38 +75,74 @@ def get_reference_documents():
 
     :return:
     """
+
     documents =
+
     return documents
+
+
+def get_corpus_dictionary(corpus):
+    """ Wrapper for gensim Dictionary function.
+
+    From gensim docs: Dictionary encapsulates the mapping between normalized words and their integer ids.
+
+    :return: [gensim.corpora.Dictionary]
+    """
+
+    dictionary = Dictionary(corpus)
+
+    return dictionary
 
 
 class Briefing(object):
 
     def __init__(self):
-        self.corpus_dict = self.get_reference_corpus()
+        self.corpus = self.get_reference_corpus()
+        self.dictionary = get_corpus_dictionary(self.corpus)
 
     def get_reference_corpus(self):
-        """ Load the current corpus as a Dictionary.
+        """ Load the current corpus.
 
         Since the corpus is relatively small it can be loaded fully into memory.
 
-        :return: [gensim.corpora.Dictionary]
+        :return: [Lst[Str]] List of Strings containing the preprocessed text bodies
         """
 
-    def curate(self):
-        """ Use pre-trained Word2Vec model. Calculate similarities. Select items for briefing.
+        corpus = [preprocess(doc) for doc in get_reference_documents()]
+        return corpus
 
-        :return: Reference to the selected items from the "item" database table
+    def calculate_similarity_index(self):
+        """ Use pre-trained Word2Vec model for word embeddings. Calculate similarities based on Soft Cosine Measure.
+
+        References
+            Grigori Sidorov et al.
+            Soft Similarity and Soft Cosine Measure: Similarity of Features in Vector Space Model, 2014.
+
+            Delphine Charlet and Geraldine Damnati, SimBow at SemEval-2017 Task 3:
+            Soft-Cosine Semantic Similarity between Questions for Community Question Answering, 2017.
+
+            Gensim notebook on: Finding similar documents with Word2Vec and Soft Cosine Measure
+            https://github.com/RaRe-Technologies/gensim/blob/develop/docs/notebooks/soft_cosine_tutorial.ipynb
+
+        :return: [numpy.ndarray] similarity index matrix, stored in memory
         """
 
+        # Load pre-trained Word2Vec model
         model = load_model(MODEL_PATH)
 
         # Construct the WordEmbeddingSimilarityIndex model based on cosine similarities between word embeddings
-        termsim_index = WordEmbeddingSimilarityIndex(model.wv)
+        similarity_index = WordEmbeddingSimilarityIndex(model.wv)
 
-        dictionary = self.get_reference_corpus()
+        # Construct similarity matrix
+        similarity_matrix = SparseTermSimilarityMatrix(similarity_index, self.dictionary)
 
-        # TODO need the corpus once as preprossed and tokenized and once it respective mapping as a dictionary!
-        bow_corpus = [dictionary.doc2bow(document) for document in preprocessed]
+        # Convert the corpus into the bag-of-words vector representation
+        bow_corpus = [self.dictionary.doc2bow(document) for document in self.corpus]
+
+        # Build the similarity index for corpus-based queries
+        docsim_index = SoftCosineSimilarity(bow_corpus, similarity_matrix, num_best=10)
+
+        return docsim_index
 
     def save_to_db(self):
         """ Save given corpus and respective feed item selection to db.
