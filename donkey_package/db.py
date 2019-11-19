@@ -35,6 +35,15 @@ def init_db():
         db.executescript(f.read().decode('utf8'))
 
 
+def get_id_feedtitle_lookup_dict():
+    """ Returns a lookup dictionary mapping feed id -> feed title. """
+
+    db = get_db()
+    id_feedtitle = db.execute('SELECT id, title FROM feed').fetchall()
+    lookup_dict = {key: value for (key, value) in id_feedtitle}
+    return lookup_dict
+
+
 @click.command('init-db')
 @with_appcontext
 def init_db_command():

@@ -42,11 +42,15 @@ Entry
 
 
 """
+import time
+
 from gensim.corpora import Dictionary
 from gensim.models import Word2Vec, WordEmbeddingSimilarityIndex
 from gensim.similarities import SoftCosineSimilarity, SparseTermSimilarityMatrix
 from nltk import word_tokenize
 from nltk.corpus import stopwords
+
+from donkey_package.db import get_db, get_id_feedtitle_lookup_dict
 
 MODEL_PATH = ''
 
@@ -145,13 +149,45 @@ class Briefing(object):
 
         return docsim_index
 
+    def get_candidates(self):
+        db = get_db()
+
+        timestamp_24h_ago = time.time() - 86400
+
+        candidates = db.execute(f"SELECT * FROM item WHERE created > {timestamp_24h_ago}").fetchall()
+
+        feedtitle_lookup = get_id_feedtitle_lookup_dict()
+
+        candidates = [FeedItem(idx_id=candidate['id'],
+                               feed_id=candidate['feed_id'],
+                               feed_name=feedtitle_lookup[candidate['feed_id']],
+                               title=candidate['title'],
+                               description=candidate['description'],
+                               link=candidate['link'],
+                               created=candidate['created'],
+                               guid=candidate['guid']) for candidate in candidates]
+
+        return candidates
+
     def get_similarities(self, query):
         similarities = self.docsim[query]
         return similarities
-
 
     def save_to_db(self):
         """ Save given corpus and respective feed item selection to db.
 
         :return:
         """
+
+
+class FeedItem(object):
+
+    def __init__(self, idx_id, feed_id, feed_name, title, description, link, created, guid):
+        self.idx_id = idx_id
+        self.feed_id = feed_id
+        self.feed_name = feed_name
+        self.title = title
+        self.description = description
+        self.link = link
+        self.created = created
+        self.guid = guid
