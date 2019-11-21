@@ -82,6 +82,7 @@ def add_feed():
                 flash(error)
             else:
                 title = feed.feed.get('title', 'No title')
+                # TODO add html parsing to extract text and img link in description:
                 description = feed.feed.get('description', 'No description')
                 link = feed.feed.get('link', 'No link')
 

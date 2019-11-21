@@ -42,22 +42,11 @@ Entry
 
 
 """
-import time
-
 from gensim.corpora import Dictionary
-from gensim.models import Word2Vec, WordEmbeddingSimilarityIndex
-from gensim.similarities import SoftCosineSimilarity, SparseTermSimilarityMatrix
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 
-from donkey_package.db import get_db, get_id_feedtitle_lookup_dict
-
-MODEL_PATH = ''
-
-
-def load_model(path):
-    model = Word2Vec.load(path)
-    return model
+from donkey_package.models.ranking import calculate_similarity_index
 
 
 def preprocess(doc):
@@ -80,7 +69,7 @@ def get_reference_documents():
     :return:
     """
 
-    documents =
+    documents = ''
 
     return documents
 
@@ -98,96 +87,36 @@ def get_corpus_dictionary(corpus):
     return dictionary
 
 
-class Briefing(object):
+def get_reference_corpus(self):
+    """ Load the current corpus.
 
-    def __init__(self):
-        self.corpus = self.get_reference_corpus()
-        self.dictionary = get_corpus_dictionary(self.corpus)
-        self.docsim = self.calculate_similarity_index()
+    Since the corpus is relatively small it can be loaded fully into memory.
 
-    def get_reference_corpus(self):
-        """ Load the current corpus.
+    :return: [Lst[Str]] List of Strings containing the preprocessed text bodies
+    """
 
-        Since the corpus is relatively small it can be loaded fully into memory.
-
-        :return: [Lst[Str]] List of Strings containing the preprocessed text bodies
-        """
-
-        corpus = [preprocess(doc) for doc in get_reference_documents()]
-        return corpus
-
-    def calculate_similarity_index(self):
-        """ Use pre-trained Word2Vec model for word embeddings. Calculate similarities based on Soft Cosine Measure.
-
-        References
-            Grigori Sidorov et al.
-            Soft Similarity and Soft Cosine Measure: Similarity of Features in Vector Space Model, 2014.
-
-            Delphine Charlet and Geraldine Damnati, SimBow at SemEval-2017 Task 3:
-            Soft-Cosine Semantic Similarity between Questions for Community Question Answering, 2017.
-
-            Gensim notebook on: Finding similar documents with Word2Vec and Soft Cosine Measure
-            https://github.com/RaRe-Technologies/gensim/blob/develop/docs/notebooks/soft_cosine_tutorial.ipynb
-
-        :return: [numpy.ndarray] similarity index matrix, stored in memory
-        """
-
-        # Load pre-trained Word2Vec model
-        model = load_model(MODEL_PATH)
-
-        # Construct the WordEmbeddingSimilarityIndex model based on cosine similarities between word embeddings
-        similarity_index = WordEmbeddingSimilarityIndex(model.wv)
-
-        # Construct similarity matrix
-        similarity_matrix = SparseTermSimilarityMatrix(similarity_index, self.dictionary)
-
-        # Convert the corpus into the bag-of-words vector representation
-        bow_corpus = [self.dictionary.doc2bow(document) for document in self.corpus]
-
-        # Build the similarity index for corpus-based queries
-        docsim_index = SoftCosineSimilarity(bow_corpus, similarity_matrix, num_best=10)
-
-        return docsim_index
-
-    def get_candidates(self):
-        db = get_db()
-
-        timestamp_24h_ago = time.time() - 86400
-
-        candidates = db.execute(f"SELECT * FROM item WHERE created > {timestamp_24h_ago}").fetchall()
-
-        feedtitle_lookup = get_id_feedtitle_lookup_dict()
-
-        candidates = [FeedItem(idx_id=candidate['id'],
-                               feed_id=candidate['feed_id'],
-                               feed_name=feedtitle_lookup[candidate['feed_id']],
-                               title=candidate['title'],
-                               description=candidate['description'],
-                               link=candidate['link'],
-                               created=candidate['created'],
-                               guid=candidate['guid']) for candidate in candidates]
-
-        return candidates
-
-    def get_similarities(self, query):
-        similarities = self.docsim[query]
-        return similarities
-
-    def save_to_db(self):
-        """ Save given corpus and respective feed item selection to db.
-
-        :return:
-        """
+    corpus = [preprocess(doc) for doc in get_reference_documents()]
+    return corpus
 
 
-class FeedItem(object):
+def save_to_db(self):
+    """ Save given corpus and respective feed item selection to db.
 
-    def __init__(self, idx_id, feed_id, feed_name, title, description, link, created, guid):
-        self.idx_id = idx_id
-        self.feed_id = feed_id
-        self.feed_name = feed_name
-        self.title = title
-        self.description = description
-        self.link = link
-        self.created = created
-        self.guid = guid
+    :return:
+    """
+
+
+def generate_briefing():
+
+    corpus = get_reference_corpus()
+
+    dictionary = get_corpus_dictionary(corpus)
+
+    docsim = calculate_similarity_index(corpus, dictionary)
+
+    candidates = get_candidates()
+
+    selected = rank_candidates(candidates, docsim, dictionary)
+
+    save_to_db(selected)
+
