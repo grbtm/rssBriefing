@@ -89,7 +89,7 @@ def query_most_similar_reference(feeditem, docsim, dictionary):
     query = dictionary.doc2bow(query)
 
     similarities = docsim[query]
-    similarities = sorted(similarities, key=lambda tuple: tuple[1], reverse=True)
+    similarities = sorted(similarities, key=lambda tupl: tupl[1], reverse=True)
 
     top_ranked = similarities[0]
 
@@ -113,6 +113,16 @@ def rank_candidates(candidates, docsim, dictionary):
     # If multiple candidates with same similarity reference only consider the candidate with highest score
     if multiple_assignments:
         for reference in multiple_assignments:
-            candidates = [candidate for candidate in candidates if candidate.reference == reference]
-            # TODO consider stateless implementation
+
+            same_ref_candidates = [candidate for candidate in candidates if candidate.reference == reference]
+            same_ref_candidates = sorted(same_ref_candidates, key=lambda cand:cand.score, reverse=True)
+
+            # Reset the reference for all candidates except for the one with the highest score
+            for candidate in same_ref_candidates[1:]:
+                candidate.reference = None
+
+        candidates = [candidate for candidate in candidates if candidate.reference is not None]
+
+    return candidates
+
 
