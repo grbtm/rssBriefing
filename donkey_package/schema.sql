@@ -36,3 +36,18 @@ CREATE TABLE item (
   guid TEXT,
   FOREIGN KEY (feed_id) REFERENCES feed (id)
 );
+
+CREATE TABLE briefing (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  feed_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  feed_title TEXT,
+  title TEXT NOT NULL,
+  description TEXT,
+  link NVARCHAR,
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  briefing_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  guid TEXT,
+  FOREIGN KEY (feed_id) REFERENCES feed (id)
+  FOREIGN KEY (user_id) REFERENCES user (id)
+);

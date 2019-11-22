@@ -19,12 +19,6 @@ Briefing
         A     B    C        A    B    C
         0.9   0.2  0.9      0.0  0.9  0.8
 
-        -> briefing ranking w threshold e.g. 0.7:
-            A
-            C
-            B
-            C
-
         -> consider multiple posts (A, B, C) covering same topic (ref1, ref2):
             - additional criteria (e.g. highest similarity score) needed to filter:
                 A for ref1
@@ -34,19 +28,17 @@ Briefing
 
     assumption now: briefing calculation to be run once per day, but potentially more often
 
-Entry
-
-    similarity score wrt ref
-
-    attributes as given from db
-
-
 """
 from gensim.corpora import Dictionary
+from gensim.models import Word2Vec, WordEmbeddingSimilarityIndex
+from gensim.similarities import SoftCosineSimilarity, SparseTermSimilarityMatrix
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 
-from donkey_package.models.ranking import calculate_similarity_index
+from donkey_package.db import get_db
+from donkey_package.models.ranking import get_candidates, rank_candidates
+
+MODEL_PATH = ''
 
 
 def preprocess(doc):
@@ -99,14 +91,70 @@ def get_reference_corpus(self):
     return corpus
 
 
-def save_to_db(self):
-    """ Save given corpus and respective feed item selection to db.
+def load_model(path):
+    model = Word2Vec.load(path)
+    return model
 
-    :return:
+
+def calculate_similarity_index(corpus, dictionary):
+    """ Use pre-trained Word2Vec model for word embeddings. Calculate similarities based on Soft Cosine Measure.
+
+    References
+        Grigori Sidorov et al.
+        Soft Similarity and Soft Cosine Measure: Similarity of Features in Vector Space Model, 2014.
+
+        Delphine Charlet and Geraldine Damnati, SimBow at SemEval-2017 Task 3:
+        Soft-Cosine Semantic Similarity between Questions for Community Question Answering, 2017.
+
+        Gensim notebook on: Finding similar documents with Word2Vec and Soft Cosine Measure
+        https://github.com/RaRe-Technologies/gensim/blob/develop/docs/notebooks/soft_cosine_tutorial.ipynb
+
+    :return: [numpy.ndarray] similarity index matrix, stored in memory
     """
 
+    # Load pre-trained Word2Vec model
+    model = load_model(MODEL_PATH)
 
-def generate_briefing():
+    # Construct the WordEmbeddingSimilarityIndex model based on cosine similarities between word embeddings
+    similarity_index = WordEmbeddingSimilarityIndex(model.wv)
+
+    # Construct similarity matrix
+    similarity_matrix = SparseTermSimilarityMatrix(similarity_index, dictionary)
+
+    # Convert the corpus into the bag-of-words vector representation
+    bow_corpus = [dictionary.doc2bow(document) for document in corpus]
+
+    # Build the similarity index for corpus-based queries
+    docsim_index = SoftCosineSimilarity(bow_corpus, similarity_matrix, num_best=10)
+
+    return docsim_index
+
+
+def save_to_db(briefing_items, user_id):
+
+    db = get_db()
+
+    for item in briefing_items:
+
+        feed_id = item.idx_id
+        user_id = user_id
+        feed_title = item.feed_title
+        title = item.title
+        description = item.description
+        link = item.link
+        created = item.created
+        guid = item.guid
+
+        db.execute(
+            'INSERT INTO briefing (feed_id, user_id, feed_title, title, description, link, created, guid)'
+            'VALUES (?, ?, ?, ?, ?, ?, ?)',
+            (feed_id, user_id, feed_title, title, description, link, created, guid)
+        )
+
+    db.commit()
+
+
+def generate_briefing(user_id='public'):
 
     corpus = get_reference_corpus()
 
@@ -118,5 +166,11 @@ def generate_briefing():
 
     selected = rank_candidates(candidates, docsim, dictionary)
 
-    save_to_db(selected)
+    save_to_db(selected, user_id)
+
+
+if __name__ == '__main__':
+
+    generate_briefing()
+
 
