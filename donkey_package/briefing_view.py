@@ -2,6 +2,7 @@ from flask import Blueprint, g, render_template
 
 from donkey_package.auth import login_required
 from donkey_package.db import get_db
+from donkey_package.models import briefing
 
 bp = Blueprint('briefing', __name__)
 
@@ -9,14 +10,16 @@ bp = Blueprint('briefing', __name__)
 @bp.route('/')
 @login_required
 def index():
+
+    briefing.generate_briefing(user_id=g.user['id'])
+    import time
+    time.sleep(5)
+
     db = get_db()
     items = db.execute(
-        'SELECT i.title, i.description, i.link'
-        ' FROM item i '
-        ' JOIN feed f on i.feed_id = f.id'
-        ' JOIN user u on u.id = f.user_id'
-        ' WHERE u.id = ?'
-        ' LIMIT 10', (g.user['id'],)
+        'SELECT b.title, b.description, b.link, b.reference, b.score, b.feed_title'
+        ' FROM briefing b'
+#        ' WHERE b.user_id = ?', (g.user['id'],)
     ).fetchall()
     feeds = db.execute(
         'SELECT feed.id, title'

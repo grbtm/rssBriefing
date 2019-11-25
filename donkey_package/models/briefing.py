@@ -29,28 +29,17 @@ Briefing
     assumption now: briefing calculation to be run once per day, but potentially more often
 
 """
+import json
+
 from gensim.corpora import Dictionary
 from gensim.models import Word2Vec, WordEmbeddingSimilarityIndex
 from gensim.similarities import SoftCosineSimilarity, SparseTermSimilarityMatrix
-from nltk import word_tokenize
-from nltk.corpus import stopwords
 
 from donkey_package.db import get_db
+from donkey_package.models.preparation import preprocess
 from donkey_package.models.ranking import get_candidates, rank_candidates
 
-MODEL_PATH = ''
-
-
-def preprocess(doc):
-    doc = doc.split(' - ', 1)[0]  # remove news source at end of each headline from NEWS API
-    doc = doc.lower()
-    doc = word_tokenize(doc)
-
-    commonlist = stopwords.words('english')
-
-    doc = [word for word in doc if word not in commonlist]  # remove common words
-    doc = [word for word in doc if word.isalpha()]  # remove numbers and special characters
-    return doc
+MODEL_PATH = '/Users/T/Documents/Programmieren/Python/project_donkey/instance/corpus_word2vec.model'
 
 
 def get_reference_documents():
@@ -61,9 +50,12 @@ def get_reference_documents():
     :return:
     """
 
-    documents = ''
+    with open('/Users/T/Downloads/test.json') as f:
+        news_api = json.load(f)
 
-    return documents
+    corpus_titles = [dictionary['title'] for dictionary in news_api['articles']]
+
+    return corpus_titles
 
 
 def get_corpus_dictionary(corpus):
@@ -79,7 +71,7 @@ def get_corpus_dictionary(corpus):
     return dictionary
 
 
-def get_reference_corpus(self):
+def get_reference_corpus():
     """ Load the current corpus.
 
     Since the corpus is relatively small it can be loaded fully into memory.
@@ -131,31 +123,30 @@ def calculate_similarity_index(corpus, dictionary):
 
 
 def save_to_db(briefing_items, user_id):
-
     db = get_db()
 
     for item in briefing_items:
-
         feed_id = item.idx_id
         user_id = user_id
         feed_title = item.feed_title
         title = item.title
         description = item.description
         link = item.link
+        reference = item.reference
+        score = item.score
         created = item.created
         guid = item.guid
 
         db.execute(
-            'INSERT INTO briefing (feed_id, user_id, feed_title, title, description, link, created, guid)'
-            'VALUES (?, ?, ?, ?, ?, ?, ?)',
-            (feed_id, user_id, feed_title, title, description, link, created, guid)
+            'INSERT INTO briefing (feed_id, user_id, feed_title, title, description, link, reference, score, created, guid)'
+            'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            (feed_id, user_id, feed_title, title, description, link, reference, score, created, guid)
         )
 
     db.commit()
 
 
 def generate_briefing(user_id='public'):
-
     corpus = get_reference_corpus()
 
     dictionary = get_corpus_dictionary(corpus)
@@ -164,13 +155,10 @@ def generate_briefing(user_id='public'):
 
     candidates = get_candidates()
 
-    selected = rank_candidates(candidates, docsim, dictionary)
+    selected = rank_candidates(candidates, docsim, corpus, dictionary)
 
     save_to_db(selected, user_id)
 
 
 if __name__ == '__main__':
-
     generate_briefing()
-
-

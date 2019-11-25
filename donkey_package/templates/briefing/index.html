@@ -16,7 +16,11 @@
     <header>
         <div>
             <h1>{{ item['title'] }}</h1>
-            <div class="about">Link: {{ item['link'] }}</div>
+            <div class="about">
+                Link: {{ item['link'] }},
+                Source: {{ item['feed_title'] }},
+                Ref: {{ item['reference'] }}, Score: {{ item['score'] }}
+            </div>
         </div>
     </header>
     <p class="body">{{ item['description'] }}</p>

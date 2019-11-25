@@ -45,6 +45,8 @@ CREATE TABLE briefing (
   title TEXT NOT NULL,
   description TEXT,
   link NVARCHAR,
+  reference TEXT,
+  score FLOAT,
   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   briefing_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   guid TEXT,
