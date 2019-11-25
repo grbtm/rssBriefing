@@ -32,7 +32,7 @@ Briefing
 import json
 
 from gensim.corpora import Dictionary
-from gensim.models import Word2Vec, WordEmbeddingSimilarityIndex
+from gensim.models import Word2Vec, WordEmbeddingSimilarityIndex, KeyedVectors
 from gensim.similarities import SoftCosineSimilarity, SparseTermSimilarityMatrix
 
 from donkey_package.db import get_db
@@ -84,7 +84,10 @@ def get_reference_corpus():
 
 
 def load_model(path):
-    model = Word2Vec.load(path)
+    #model = Word2Vec.load(path)
+    model = KeyedVectors.load_word2vec_format(
+                            '/Users/T/gensim-data/word2vec-google-news-300/word2vec-google-news-300.gz',
+                            binary=True)
     return model
 
 
