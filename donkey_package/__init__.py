@@ -1,8 +1,14 @@
 import os
+import logging
+
 from flask import Flask
 
 
 def create_app(test_config=None):
+
+    logging.basicConfig(format='%(asctime)s | %(module)s | %(levelname)s | %(message)s',
+                        level=logging.DEBUG)
+
     # create and configure the WSGI application
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(

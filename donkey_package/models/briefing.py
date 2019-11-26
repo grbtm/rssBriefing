@@ -30,6 +30,7 @@ Briefing
 
 """
 import json
+from threading import Semaphore
 
 from gensim.corpora import Dictionary
 from gensim.models import Word2Vec, WordEmbeddingSimilarityIndex, KeyedVectors
@@ -84,10 +85,17 @@ def get_reference_corpus():
 
 
 def load_model(path):
-    #model = Word2Vec.load(path)
-    model = KeyedVectors.load_word2vec_format(
-                            '/Users/T/gensim-data/word2vec-google-news-300/word2vec-google-news-300.gz',
-                            binary=True)
+    model = KeyedVectors.load('/Users/T/Documents/Programmieren/Python/models/word2vec-1m-normed/GoogleNews-1mil-vectors-gensim-normed', mmap='r')
+
+    # The vectors can also be instantiated from an existing file on disk
+    # in the original Google’s word2vec C format as a KeyedVectors instance
+    # model = KeyedVectors.load(
+    #         '/Users/T/Documents/Programmieren/Python/models/word2vec-1m-normed/GoogleNews-1k-vectors-gensim-normed')
+
+    #model.syn0norm = model.syn0
+
+    #Semaphore(0).acquire()
+
     return model
 
 
@@ -150,6 +158,7 @@ def save_to_db(briefing_items, user_id):
 
 
 def generate_briefing(user_id='public'):
+
     corpus = get_reference_corpus()
 
     dictionary = get_corpus_dictionary(corpus)

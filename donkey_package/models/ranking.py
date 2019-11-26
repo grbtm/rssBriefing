@@ -29,7 +29,8 @@ def get_candidates():
 
 
 def query_most_similar_reference(feeditem, docsim, corpus, dictionary):
-    query = feeditem.title + ' ' + feeditem.description
+    # TODO fix description html parsing
+    query = feeditem.title #+ ' ' + feeditem.description
     query = dictionary.doc2bow(preprocess(query))
 
     similarities = docsim[query]
