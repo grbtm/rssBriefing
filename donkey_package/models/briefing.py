@@ -51,10 +51,10 @@ def get_reference_documents():
     :return:
     """
 
-    with open('/Users/T/Downloads/test.json') as f:
-        news_api = json.load(f)
+    with open('final.json') as f:
+        documents = json.load(f)
 
-    corpus_titles = [dictionary['title'] for dictionary in news_api['articles']]
+    corpus_titles = [doc for doc in documents['articles']]
 
     return corpus_titles
 
