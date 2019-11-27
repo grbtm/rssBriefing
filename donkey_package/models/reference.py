@@ -14,13 +14,15 @@ default_url = ('https://newsapi.org/v2/top-headlines?'
 
 def get_api_response(url=default_url):
 
-    response = requests.get(url)
+    resp = requests.get(url)
 
-    return response
+    return resp
 
 
 def write_json(content):
+
     with open('current.json', 'w') as file:
+
         json.dump(content, file)
 
 
@@ -28,4 +30,4 @@ if __name__ == '__main__':
 
     response = get_api_response()
 
-    write_json(response)
+    write_json(response.json())
