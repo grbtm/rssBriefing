@@ -11,14 +11,12 @@ bp = Blueprint('briefing', __name__)
 @login_required
 def index():
 
-    briefing.generate_briefing(user_id=g.user['id'])
-
     db = get_db()
 
     items = db.execute(
         'SELECT b.title, b.description, b.link, b.reference, b.score, b.feed_title'
         ' FROM briefing b'
-#        ' WHERE b.user_id = ?', (g.user['id'],)
+        ' WHERE b.user_id = ?', (g.user['id'],)
     ).fetchall()
 
     feeds = db.execute(
