@@ -13,10 +13,18 @@ def index():
 
     db = get_db()
 
+    latest_date_row_obj = db.execute(
+        'SELECT max(briefing_created)'
+        ' FROM briefing b'
+        ' WHERE b.user_id = ?', (g.user['id'],)
+    ).fetchone()
+
+    latest_date = latest_date_row_obj['max(briefing_created)']
+
     items = db.execute(
         'SELECT b.title, b.description, b.link, b.reference, b.score, b.feed_title'
         ' FROM briefing b'
-        ' WHERE b.user_id = ?', (g.user['id'],)
+        ' WHERE (b.user_id = ? AND b.briefing_created = ?)', (g.user['id'], latest_date)
     ).fetchall()
 
     feeds = db.execute(
