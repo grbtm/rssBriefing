@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<li class="nav-item">
+    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">
+        {% block title %}Delete feed{% endblock %}
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('rss_reader.add_feed') }}">
+        Add feed
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('rss_reader.latest') }}">
+        Latest
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+
+<form action="{{ url_for('rss_reader.delete_feed') }}" method="post">
+
+    <div class="form-group">
+        <label for="FormControlSelect">Select feed to delete:</label>
+        <select class="form-control" name="FormControlSelect" id="FormControlSelect">
+            {% for feed in feeds %}
+            <option value="{{ feed['title'] }}">
+                {{ feed['title'] }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+</form>
+
+{% endblock %}

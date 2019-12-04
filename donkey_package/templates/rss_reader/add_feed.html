@@ -2,17 +2,28 @@
 
 {% block header %}
 <li class="nav-item">
-    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">{% block title %}Add feed{% endblock %}</a>
+    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">
+        {% block title %}Add feed{% endblock %}
+    </a>
 </li>
 <li class="nav-item">
-    <a class="nav-link" href="{{ url_for('rss_reader.latest') }}">Latest</a>
+    <a class="nav-link" href="{{ url_for('rss_reader.delete_feed') }}">
+        Delete feed
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('rss_reader.latest') }}">
+        Latest
+    </a>
 </li>
 {% endblock %}
 
 {% block content %}
 <form method="post">
-    <label for="xml_href">Link to xml file</label>
-    <input name="xml_href" id="xml_href" value="{{ request.form['xml_href'] }}" required>
-    <input type="submit" value="Save">
+    <div class="form-group">
+        <label for="xml_href">Link to xml file</label>
+        <input name="xml_href" class="form-control" id="xml_href" placeholder="for example https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml" value="{{ request.form['xml_href'] }}" required>
+    </div>
+    <button type="submit">Save</button>
 </form>
 {% endblock %}

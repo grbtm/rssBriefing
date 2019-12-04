@@ -7,10 +7,25 @@ from donkey_package.feed import parse_feed, update_feed_db, well_formed, get_lat
 bp = Blueprint('rss_reader', __name__)
 
 
+def get_feedlist_for_dropdown(db=None):
+    if not db:
+        db = get_db()
+
+    feeds = db.execute(
+        'SELECT feed.id, title'
+        ' FROM feed'
+        ' JOIN user on user.id = feed.user_id'
+        ' WHERE user.id = ?', (g.user['id'],)
+    ).fetchall()
+
+    return feeds
+
+
 @bp.route('/latest')
 @login_required
 def latest():
     db = get_db()
+
     items = db.execute(
         'SELECT i.title, i.description, i.link, i.created'
         ' FROM item i '
@@ -19,12 +34,9 @@ def latest():
         ' WHERE u.id = ?'
         ' ORDER BY created DESC', (g.user['id'],)
     ).fetchall()
-    feeds = db.execute(
-        'SELECT feed.id, title'
-        ' FROM feed'
-        ' JOIN user on user.id = feed.user_id'
-        ' WHERE user.id = ?', (g.user['id'],)
-    ).fetchall()
+
+    feeds = get_feedlist_for_dropdown(db)
+
     return render_template('rss_reader/latest.html', items=items, feeds=feeds)
 
 
@@ -49,12 +61,7 @@ def single(feed_id):
     ).fetchall()
 
     # Get all feeds of user for dropdown menu
-    feeds = db.execute(
-        'SELECT feed.id, title'
-        ' FROM feed'
-        ' JOIN user on user.id = feed.user_id'
-        ' WHERE user.id = ?', (g.user['id'],)
-    ).fetchall()
+    feeds = get_feedlist_for_dropdown(db)
 
     single_feed = db.execute(
         'SELECT * FROM feed WHERE feed.id = ?', (feed_id,)
@@ -109,5 +116,23 @@ def add_feed():
 
             return redirect(url_for('rss_reader.latest'))
 
-    return render_template('rss_reader/add_feed.html')
+    feeds = get_feedlist_for_dropdown()
 
+    return render_template('rss_reader/add_feed.html', feeds=feeds)
+
+
+@bp.route('/delete_feed', methods=('GET', 'POST'))
+@login_required
+def delete_feed():
+    if request.method == 'POST':
+        chosen_feed = request.form['FormControlSelect']
+
+        db = get_db()
+        db.execute('DELETE FROM feed WHERE (user_id = ? AND title = ?)', (g.user['id'], chosen_feed))
+        db.commit()
+
+        return redirect(url_for('rss_reader.latest'))
+
+    feeds = get_feedlist_for_dropdown()
+
+    return render_template('rss_reader/delete_feed.html', feeds=feeds)

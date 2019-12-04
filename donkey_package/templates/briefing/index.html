@@ -2,10 +2,19 @@
 
 {% block header %}
 <li class="nav-item">
-    <a class="nav-link" href="{{ url_for('rss_reader.latest') }}">Latest</a>
+    <a class="nav-link" href="{{ url_for('rss_reader.latest') }}">
+        Latest
+    </a>
 </li>
 <li class="nav-item">
-    <a class="nav-link" href="{{ url_for('rss_reader.add_feed') }}">Add feed</a>
+    <a class="nav-link" href="{{ url_for('rss_reader.add_feed') }}">
+        Add feed
+    </a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('rss_reader.delete_feed') }}">
+        Delete feed
+    </a>
 </li>
 {% endblock %}
 {% block title %}Briefing{% endblock %}
