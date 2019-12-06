@@ -29,6 +29,7 @@ Briefing
     assumption now: briefing calculation to be run once per day, but potentially more often
 
 """
+import argparse
 import json
 from threading import Semaphore
 
@@ -157,7 +158,21 @@ def save_to_db(briefing_items, user_id):
     db.commit()
 
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-u', '--users',
+                        nargs='+',
+                        help="<Required> Name users for whom briefing should be generated. Use 'all' to do for all.",
+                        required=True)
+
+    return parser.parse_args()
+
+
 def generate_briefing(user_id='public'):
+
+    # TODO set up db connection independently of app context (first db call here inside get_candidates())
+
+    args = parse_args()
 
     corpus = get_reference_corpus()
 
@@ -165,6 +180,9 @@ def generate_briefing(user_id='public'):
 
     docsim = calculate_similarity_index(corpus, dictionary)
 
+    # TODO insert loop here over list of users for which briefing should be generated
+
+    # TODO get_candidates function needs argument user to load only user specific feed posts
     candidates = get_candidates()
 
     selected = rank_candidates(candidates, docsim, corpus, dictionary)
