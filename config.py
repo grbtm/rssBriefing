@@ -22,7 +22,7 @@ class StagingConfig(Config):
 class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DEBUG = True
-    DATABASE = os.path.join(module_path, 'instance', 'donkey.sqlite'),
+    DATABASE = os.path.join(module_path, 'instance/donkey.sqlite')
 
 
 class TestingConfig(Config):
