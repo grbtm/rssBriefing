@@ -26,18 +26,6 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    # use route() decorator to tell Flask what URL should trigger our function
-    # URL --> function
-    # to go function --> URL, use url_for(function_string)
-    # By default, a route only answers to GET requests
-    @app.route('/hello')
-    # The function is given a name which is also used to generate URLs for that particular function,
-    # and returns the message we want to display in the user’s browser
-    def hello_world():
-        # The return value from a view function is automatically converted into a response object
-        # for you.
-        return 'Hello wurd!'
-
     from . import db
     db.init_app(app)
 
