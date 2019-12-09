@@ -2,7 +2,7 @@ from flask import Blueprint, g, render_template
 
 from donkey_package.auth import login_required
 from donkey_package.db import get_db
-from donkey_package.models import briefing
+from donkey_package.briefing_model import briefing
 
 bp = Blueprint('briefing', __name__)
 

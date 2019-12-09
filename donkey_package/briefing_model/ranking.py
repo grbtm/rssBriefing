@@ -2,8 +2,8 @@ import time
 import collections
 
 from donkey_package.db import get_db, get_id_feedtitle_lookup_dict
-from donkey_package.models.entry import FeedItem
-from donkey_package.models.preparation import preprocess
+from donkey_package.briefing_model.entry import FeedItem
+from donkey_package.briefing_model.preparation import preprocess
 
 
 def get_candidates():

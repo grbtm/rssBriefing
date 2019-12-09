@@ -38,8 +38,8 @@ from gensim.models import Word2Vec, WordEmbeddingSimilarityIndex, KeyedVectors
 from gensim.similarities import SoftCosineSimilarity, SparseTermSimilarityMatrix
 
 from donkey_package.db import get_db
-from donkey_package.models.preparation import preprocess
-from donkey_package.models.ranking import get_candidates, rank_candidates
+from donkey_package.briefing_model.preparation import preprocess
+from donkey_package.briefing_model.ranking import get_candidates, rank_candidates
 
 MODEL_PATH = '/Users/T/Documents/Programmieren/Python/project_donkey/instance/corpus_word2vec.model'
 

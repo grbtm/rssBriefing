@@ -1,15 +1,20 @@
-import os
 import logging
+import os
 
 from flask import Flask
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+
+# Create database and migration engine instance
+db = SQLAlchemy()
+migrate = Migrate()
 
 
 def create_app(test_config=None):
-
     logging.basicConfig(format='%(asctime)s | %(module)s | %(levelname)s | %(message)s',
                         level=logging.DEBUG)
 
-    # create and configure the WSGI application
+    # Create and configure the WSGI application
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(os.environ['APP_SETTINGS'])
 
@@ -26,8 +31,9 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    from . import db
+    # Bind database and migration engine to app
     db.init_app(app)
+    migrate.init_app(app, db)
 
     from . import auth
     app.register_blueprint(auth.bp)
