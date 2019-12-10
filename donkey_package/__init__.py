@@ -10,6 +10,10 @@ db = SQLAlchemy()
 migrate = Migrate()
 
 
+# SQLAlchemy models inherit from db.Model, therefore importing models after instantiating db
+from donkey_package import models
+
+
 def create_app(test_config=None):
     logging.basicConfig(format='%(asctime)s | %(module)s | %(levelname)s | %(message)s',
                         level=logging.DEBUG)

@@ -57,7 +57,7 @@ class Briefing(db.Model):
     briefing_created = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     guid = db.Column(db.String())
 
-    feed_title = db.Column(db.Integer, db.ForeignKey('feed.title'), nullable=False)
+    feed_title = db.Column(db.String(), db.ForeignKey('feed.title'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
