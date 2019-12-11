@@ -3,6 +3,8 @@ from datetime import datetime
 
 import feedparser
 
+from donkey_package import db
+from donkey_package.models import Item, Feed
 from donkey_package.db import get_db
 
 
@@ -20,21 +22,11 @@ def well_formed(feed_dict):
     return result
 
 
-def get_feed_id(feed_dict):
-    title = feed_dict.feed.title
-
-    db = get_db()
-    db_id = db.execute(
-        'SELECT id from feed WHERE title = ?', (title,)
-    ).fetchone()[0]
-    return db_id
-
-
 def get_latest_feed_dict(feed_id):
-    db = get_db()
-    feed_href = db.execute(
-        'SELECT href from feed WHERE id = ?', (feed_id,)
-    ).fetchone()[0]
+
+    feed = Feed.query.filter_by(id=feed_id).first()
+    feed_href = feed.href
+
     return parse_feed(feed_href)
 
 
@@ -60,33 +52,24 @@ def parse_entry_attribute(entry, attribute):
     return value
 
 
-def update_feed_db(feed_dict):
+def update_feed_db(feed_id, feed_dict):
+
     # Get latest feed items
     entries = feed_dict.entries
 
-    # Set up db connection
-    db = get_db()
-
     # Insert new entries to db
     for entry in entries:
-        feed_id = get_feed_id(feed_dict)
 
         title = parse_entry_attribute(entry, 'title')
         description = parse_entry_attribute(entry, 'description')
         link = parse_entry_attribute(entry, 'link')
         created = parse_entry_attribute(entry, 'published_parsed')
 
-        found = db.execute(
-            'SELECT * FROM item'
-            '   WHERE (feed_id = ? AND title = ? AND description = ? AND link = ?)',
-            (feed_id, title, description, link)
-        ).fetchone()
+        found = Item.query.filter_by(feed_id=feed_id, title=title, description=description, link=link).first()
 
         if not found:
-            db.execute(
-                'INSERT INTO item (feed_id, title, description, link, created)'
-                ' VALUES (?, ?, ?, ?, ?)',
-                (feed_id, title, description, link, created)
-            )
 
-    db.commit()
+            new_item = Item(title=title, description=description, link=link, created=created, feed_id=feed_id)
+            db.session.add(new_item)
+
+    db.session.commit()

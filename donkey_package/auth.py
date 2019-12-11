@@ -2,7 +2,9 @@ import functools
 
 from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
+from donkey_package.db import get_db
 from donkey_package import db
+from donkey_package.models import User
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -25,14 +27,14 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = get_db().execute(
-            'SELECT * FROM user WHERE id = ?', (user_id,)
-        ).fetchone()
+        g.user = User.query.get(user_id)
 
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
+
     if request.method == 'POST':
+
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
@@ -41,17 +43,21 @@ def register():
 
         if not username:
             error = 'Username is required.'
+
+        elif not email:
+            error = 'E-mail is required.'
+
         elif not password:
             error = 'Password is required.'
-        elif db.execute(
-                'SELECT id from user WHERE username = ?', (username,)
-        ).fetchone() is not None:
+
+        elif User.query.filter_by(username=username).first() is not None:
+
             error = 'User {} is already registered.'.format(username)
 
         if error is None:
             db.execute(
-                'INSERT INTO user (username, password) VALUES (?, ?)',
-                (username, generate_password_hash(password))
+                'INSERT INTO user (username, email, password_hash) VALUES (?, ?, ?)',
+                (username, email, generate_password_hash(password))
             )
             db.commit()
             return redirect(url_for('auth.login'))
@@ -76,7 +82,7 @@ def login():
 
         if user is None:
             error = 'Incorrect username.'
-        elif not check_password_hash(user['password'], password):
+        elif not check_password_hash(user['password_hash'], password):
             error = 'Incorrect password.'
 
         if error is None:

@@ -30,8 +30,6 @@ def index():
     feeds = db.execute(
         'SELECT feed.id, title'
         ' FROM feed'
-        ' JOIN user on user.id = feed.user_id'
-        ' WHERE user.id = ?', (g.user['id'],)
     ).fetchall()
 
     return render_template('briefing/index.html', items=items, feeds=feeds)
