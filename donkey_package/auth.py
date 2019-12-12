@@ -5,6 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from donkey_package.db import get_db
 from donkey_package import db
 from donkey_package.models import User
+from donkey_package.db_utils import get_user_from_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -50,16 +51,16 @@ def register():
         elif not password:
             error = 'Password is required.'
 
-        elif User.query.filter_by(username=username).first() is not None:
+        elif get_user_from_db(username) is not None:
 
-            error = 'User {} is already registered.'.format(username)
+            error = 'Username {} is already taken.'.format(username)
 
         if error is None:
-            db.execute(
-                'INSERT INTO user (username, email, password_hash) VALUES (?, ?, ?)',
-                (username, email, generate_password_hash(password))
-            )
-            db.commit()
+
+            new_user = User(username=username, email=email, password_hash=generate_password_hash(password))
+            db.session.add(new_user)
+            db.session.commit()
+
             return redirect(url_for('auth.login'))
 
         flash(error)
@@ -73,15 +74,13 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        db = get_db()
         error = None
 
-        user = db.execute(
-            'SELECT * FROM user WHERE username = ?', (username,)
-        ).fetchone()
+        user = get_user_from_db(username)
 
         if user is None:
             error = 'Incorrect username.'
+
         elif not check_password_hash(user['password_hash'], password):
             error = 'Incorrect password.'
 

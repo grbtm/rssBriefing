@@ -38,6 +38,8 @@ from gensim.models import Word2Vec, WordEmbeddingSimilarityIndex, KeyedVectors
 from gensim.similarities import SoftCosineSimilarity, SparseTermSimilarityMatrix
 
 from donkey_package.db import get_db
+from donkey_package import db
+from donkey_package.models import Briefing
 from donkey_package.briefing_model.preparation import preprocess
 from donkey_package.briefing_model.ranking import get_candidates, rank_candidates
 
@@ -135,9 +137,13 @@ def calculate_similarity_index(corpus, dictionary):
 
 
 def save_to_db(briefing_items, user_id):
-    db = get_db()
 
     for item in briefing_items:
+
+        item.user_id = user_id
+        item.briefing_created = #TODO
+        db.session.add(item)
+
         feed_id = item.idx_id
         user_id = user_id
         feed_title = item.feed_title
@@ -182,8 +188,7 @@ def generate_briefing(user_id='public'):
 
     # TODO insert loop here over list of users for which briefing should be generated
 
-    # TODO get_candidates function needs argument user to load only user specific feed posts
-    candidates = get_candidates()
+    candidates = get_candidates(user_id)
 
     selected = rank_candidates(candidates, docsim, corpus, dictionary)
 

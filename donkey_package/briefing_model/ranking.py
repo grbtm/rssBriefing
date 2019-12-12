@@ -1,36 +1,51 @@
-import time
 import collections
+from datetime import datetime, timedelta
 
-from donkey_package.db import get_db, get_id_feedtitle_lookup_dict
-from donkey_package.briefing_model.entry import FeedItem
+import pytz
+
 from donkey_package.briefing_model.preparation import preprocess
+from donkey_package.models import Item, Feed, User, Briefing
 
 
-def get_candidates():
+def get_candidates(user_id):
+    # Consider only feed entries from the last 24h
+    datetime_24h_ago = datetime.now(pytz.utc) - timedelta(days=1)
 
-    db = get_db()
+    # Get the feed entries from the Item table
+    candidates = Item.query. \
+        join(Feed). \
+        join(Feed.users). \
+        filter(User.id == user_id). \
+        filter(Item.created > datetime_24h_ago).all()
 
-    timestamp_24h_ago = time.time() - 86400
-
-    candidates = db.execute(f"SELECT * FROM item WHERE created > {timestamp_24h_ago}").fetchall()
-
-    feedtitle_lookup = get_id_feedtitle_lookup_dict()
-
-    candidates = [FeedItem(idx_id=candidate['id'],
-                           feed_id=candidate['feed_id'],
-                           feed_title=feedtitle_lookup[candidate['feed_id']],
-                           title=candidate['title'],
-                           description=candidate['description'],
-                           link=candidate['link'],
-                           created=candidate['created'],
-                           guid=candidate['guid']) for candidate in candidates]
+    # Instantiate new Briefing items
+    candidates = [Briefing(
+        title=item.title,
+        description=item.description,
+        link=item.link,
+        reference='None',
+        created=item.created,
+        guid=item.guid,
+        feed_title=item.feed.title,
+        user_id=user_id
+    ) for item in candidates]
 
     return candidates
 
 
-def query_most_similar_reference(feeditem, docsim, corpus, dictionary):
+def query_most_similar_reference(briefing_item, docsim, corpus, dictionary):
+    """ Get the reference with the highest similarity score for a given candidate <briefing_item>
+
+    Populate the reference and score attributes of the Briefing model.
+
+    :param briefing_item: [models.Briefing] representing an rss feed entry considered a candidate for final briefing
+    :param docsim:
+    :param corpus:
+    :param dictionary:
+    :return:
+    """
     # TODO fix description html parsing
-    query = feeditem.title #+ ' ' + feeditem.description
+    query = briefing_item.title  # + ' ' + feeditem.description
     query = dictionary.doc2bow(preprocess(query))
 
     similarities = docsim[query]
@@ -41,14 +56,13 @@ def query_most_similar_reference(feeditem, docsim, corpus, dictionary):
 
         corpus_ref_idx = top_ranked[0]
         reference_words = " ".join(corpus[corpus_ref_idx])
-        feeditem.reference = reference_words
+        briefing_item.reference = reference_words
 
         score = top_ranked[1]
-        feeditem.score = score
+        briefing_item.score = score
 
 
 def rank_candidates(candidates, docsim, corpus, dictionary):
-
     # Enrich candidates with most similar reference and respective similarity score
     for candidate in candidates:
         query_most_similar_reference(candidate, docsim, corpus, dictionary)
@@ -62,17 +76,15 @@ def rank_candidates(candidates, docsim, corpus, dictionary):
         for reference in multiple_assignments:
 
             same_ref_candidates = [candidate for candidate in candidates if candidate.reference == reference]
-            same_ref_candidates = sorted(same_ref_candidates, key=lambda cand:cand.score, reverse=True)
+            same_ref_candidates = sorted(same_ref_candidates, key=lambda cand: cand.score, reverse=True)
 
             # Reset the reference for all candidates except for the one with the highest score
             for candidate in same_ref_candidates[1:]:
-                candidate.reference = None
+                candidate.reference = 'None'
 
-        candidates = [candidate for candidate in candidates if candidate.reference is not None]
+        candidates = [candidate for candidate in candidates if candidate.reference is not 'None']
 
     # Remove candidates with a similarity score below the threshold
     candidates = [candidate for candidate in candidates if candidate.score > 0.9]
 
     return candidates
-
-
