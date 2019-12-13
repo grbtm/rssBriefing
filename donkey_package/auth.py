@@ -81,7 +81,7 @@ def login():
         if user is None:
             error = 'Incorrect username.'
 
-        elif not check_password_hash(user['password_hash'], password):
+        elif not check_password_hash(user.password_hash, password):
             error = 'Incorrect password.'
 
         if error is None:
@@ -93,7 +93,7 @@ def login():
             Flask securely signs the data so that it can’t be tampered with.
             '''
             session.clear()
-            session['user_id'] = user['id']
+            session['user_id'] = user.id
             return redirect(url_for('index'))
 
         flash(error)
