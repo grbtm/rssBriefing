@@ -1,1 +1,3 @@
-# RSS READER APP * work in progress *
+# donkeyBriefing
+
+A RSS/Atom fueled daily briefing app.

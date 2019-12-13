@@ -29,21 +29,22 @@ Briefing
     assumption now: briefing calculation to be run once per day, but potentially more often
 
 """
-import pytz
 import argparse
 import json
+import os
+import sys
 from datetime import datetime
-from threading import Semaphore
 
+import pytz
 from gensim.corpora import Dictionary
-from gensim.models import Word2Vec, WordEmbeddingSimilarityIndex, KeyedVectors
+from gensim.models import WordEmbeddingSimilarityIndex, KeyedVectors
 from gensim.similarities import SoftCosineSimilarity, SparseTermSimilarityMatrix
 
+from donkey_package import create_app
 from donkey_package import db
+from donkey_package.db_utils import get_user_by_id
 from donkey_package.briefing_model.preparation import preprocess
 from donkey_package.briefing_model.ranking import get_candidates, rank_candidates
-
-MODEL_PATH = '/Users/T/Documents/Programmieren/Python/project_donkey/instance/corpus_word2vec.model'
 
 
 def get_reference_documents():
@@ -88,16 +89,16 @@ def get_reference_corpus():
 
 
 def load_model(path):
-    model = KeyedVectors.load('/Users/T/Documents/Programmieren/Python/models/word2vec-1m-normed/GoogleNews-1mil-vectors-gensim-normed', mmap='r')
+    model = KeyedVectors.load(path, mmap='r')
 
     # The vectors can also be instantiated from an existing file on disk
     # in the original Google’s word2vec C format as a KeyedVectors instance
     # model = KeyedVectors.load(
     #         '/Users/T/Documents/Programmieren/Python/models/word2vec-1m-normed/GoogleNews-1k-vectors-gensim-normed')
 
-    #model.syn0norm = model.syn0
+    # model.syn0norm = model.syn0
 
-    #Semaphore(0).acquire()
+    # Semaphore(0).acquire()
 
     return model
 
@@ -119,7 +120,7 @@ def calculate_similarity_index(corpus, dictionary):
     """
 
     # Load pre-trained Word2Vec model
-    model = load_model(MODEL_PATH)
+    model = load_model(os.environ['MODEL_PATH'])
 
     # Construct the WordEmbeddingSimilarityIndex model based on cosine similarities between word embeddings
     similarity_index = WordEmbeddingSimilarityIndex(model.wv)
@@ -137,11 +138,9 @@ def calculate_similarity_index(corpus, dictionary):
 
 
 def save_to_db(briefing_items):
-
     current_utc_datetime = datetime.now(pytz.utc)
 
     for item in briefing_items:
-
         # Enrich the selected briefing items with current datetime for the 'briefing_created' attribute
         item.briefing_created = current_utc_datetime
 
@@ -153,33 +152,51 @@ def save_to_db(briefing_items):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-u', '--users',
-                        nargs='+',
-                        help="<Required> Name users for whom briefing should be generated. Use 'all' to do for all.",
-                        required=True)
+    command_group = parser.add_mutually_exclusive_group(required=True)
+    command_group.add_argument('-u', '--user_ids',
+                               nargs='+',
+                               action='store',  # the default value
+                               help="State user_ids for whom briefing should be generated.")
+    command_group.add_argument('-A', '--All',
+                               action='store_true',
+                               help="Generate briefing for all users.")
 
     return parser.parse_args()
 
 
-def generate_briefing(user_id='public'):
+def generate_briefing():
+    # Set up app context to be able to access extensions such as SQLAlchemy when this module is run independently
+    app = create_app()
+    app.app_context().push()
 
-    # TODO set up db connection independently of app context (first db call here inside get_candidates())
+    try:
 
-    args = parse_args()
+        args = parse_args()
 
-    corpus = get_reference_corpus()
+        if args.All:
 
-    dictionary = get_corpus_dictionary(corpus)
+            users = # TODO
 
-    docsim = calculate_similarity_index(corpus, dictionary)
+        else:
 
-    # TODO insert loop here over list of users for which briefing should be generated
+            users = [get_user_by_id(user_id) for user_id in args.user_ids]
 
-    candidates = get_candidates(user_id)
+        corpus = get_reference_corpus()
 
-    selected = rank_candidates(candidates, docsim, corpus, dictionary)
+        dictionary = get_corpus_dictionary(corpus)
 
-    save_to_db(selected)
+        docsim = calculate_similarity_index(corpus, dictionary)
+
+        for user in users:
+
+            candidates = get_candidates(user.id)
+
+            selected = rank_candidates(candidates, docsim, corpus, dictionary)
+
+            save_to_db(selected)
+
+    except:
+        app.logger.error('Unhandled exception', exc_info=sys.exc_info())
 
 
 if __name__ == '__main__':

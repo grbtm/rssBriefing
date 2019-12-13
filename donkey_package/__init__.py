@@ -14,20 +14,13 @@ migrate = Migrate()
 from donkey_package import models
 
 
-def create_app(test_config=None):
+def create_app():
     logging.basicConfig(format='%(asctime)s | %(module)s | %(levelname)s | %(message)s',
                         level=logging.DEBUG)
 
     # Create and configure the WSGI application
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(os.environ['APP_SETTINGS'])
-
-    if test_config is None:
-        # load the instance config, if it exists, when not testing
-        app.config.from_pyfile('config.py', silent=True)
-    else:
-        # load the test config if passed in
-        app.config.from_mapping(test_config)
 
     # ensure the instance folder exists
     try:
@@ -50,3 +43,4 @@ def create_app(test_config=None):
     app.add_url_rule('/', endpoint='index')
 
     return app
+
