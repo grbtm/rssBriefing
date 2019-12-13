@@ -14,13 +14,13 @@ def index():
 
     latest_briefing_subquery = db.session.query(
         db.func.max(Briefing.briefing_created).label('date')). \
-        filter(Briefing.user_id == g.user['id'])
+        filter(Briefing.user_id == g.user.id)
 
     items = Briefing.query. \
         join(latest_briefing_subquery, Briefing.created == latest_briefing_subquery.c.date). \
-        filter(Briefing.user_id == g.user['id']). \
+        filter(Briefing.user_id == g.user.id). \
         all()
 
-    feeds = get_feedlist_for_dropdown(g.user['id'])
+    feeds = get_feedlist_for_dropdown(g.user.id)
 
     return render_template('briefing/index.html', items=items, feeds=feeds)

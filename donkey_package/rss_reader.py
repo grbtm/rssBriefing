@@ -16,11 +16,11 @@ def latest():
     items = Item.query. \
         join(Feed). \
         join(Feed.users). \
-        filter(User.id == g.user['id']). \
+        filter(User.id == g.user.id). \
         order_by(Item.created.desc()). \
         all()
 
-    feeds = get_feedlist_for_dropdown(g.user['id'])
+    feeds = get_feedlist_for_dropdown(g.user.id)
 
     return render_template('rss_reader/latest.html', items=items, feeds=feeds)
 
@@ -42,7 +42,7 @@ def single(feed_id):
         all()
 
     # Get all feeds of user for dropdown menu
-    feeds = get_feedlist_for_dropdown(g.user['id'])
+    feeds = get_feedlist_for_dropdown(g.user.id)
 
     # Get the given feed entry from db
     single_feed = Feed.query.filter_by(id=feed_id).first()
@@ -83,7 +83,7 @@ def add_feed():
                 found_feed = Feed.query.filter_by(title=title).first()
 
                 # Check whether relation to given user exists
-                current_user = get_user_by_id(g.user['id'])
+                current_user = get_user_by_id(g.user.id)
 
                 if found_feed:
 
@@ -109,7 +109,7 @@ def add_feed():
 
             return redirect(url_for('rss_reader.latest'))
 
-    feeds = get_feedlist_for_dropdown(g.user['id'])
+    feeds = get_feedlist_for_dropdown(g.user.id)
 
     return render_template('rss_reader/add_feed.html', feeds=feeds)
 
@@ -123,13 +123,13 @@ def delete_feed():
         chosen_feed_title = request.form['FormControlSelect']
 
         feed_to_be_deleted = Feed.query.filter_by(title=chosen_feed_title).first()
-        current_user = get_user_by_id(g.user['id'])
+        current_user = get_user_by_id(g.user.id)
         current_user.feeds.remove(feed_to_be_deleted)
 
         db.session.commit()
 
         return redirect(url_for('rss_reader.latest'))
 
-    feeds = get_feedlist_for_dropdown(g.user['id'])
+    feeds = get_feedlist_for_dropdown(g.user.id)
 
     return render_template('rss_reader/delete_feed.html', feeds=feeds)
