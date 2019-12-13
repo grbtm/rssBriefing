@@ -2,10 +2,10 @@ import functools
 
 from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
-from donkey_package.db import get_db
+
 from donkey_package import db
 from donkey_package.models import User
-from donkey_package.db_utils import get_user_from_db
+from donkey_package.db_utils import get_user_by_username
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -51,7 +51,7 @@ def register():
         elif not password:
             error = 'Password is required.'
 
-        elif get_user_from_db(username) is not None:
+        elif get_user_by_username(username) is not None:
 
             error = 'Username {} is already taken.'.format(username)
 
@@ -76,7 +76,7 @@ def login():
 
         error = None
 
-        user = get_user_from_db(username)
+        user = get_user_by_username(username)
 
         if user is None:
             error = 'Incorrect username.'

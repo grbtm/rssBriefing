@@ -5,7 +5,6 @@ import feedparser
 
 from donkey_package import db
 from donkey_package.models import Item, Feed
-from donkey_package.db import get_db
 
 
 def parse_feed(href):
@@ -14,7 +13,10 @@ def parse_feed(href):
 
 
 def well_formed(feed_dict):
-    # consider a feed malformed if 1. feedparser bozo attribute declares an error (value: 1) and 2. no entry list loaded
+    # consider a feed malformed if
+    #   1. feedparser bozo attribute declares an error (value: 1) and
+    #   2. no entry list loaded
+
     if feed_dict.bozo and len(feed_dict.entries) is 0:
         result = False
     else:
@@ -31,24 +33,32 @@ def get_latest_feed_dict(feed_id):
 
 
 def datetime_from_time_struct(time_struct_time):
+
     # convert struct time to unix timestamp
     ts = calendar.timegm(time_struct_time)
+
     # then create datetime object in UTC
     dt = datetime.utcfromtimestamp(ts)
+
     return dt
 
 
 def parse_entry_attribute(entry, attribute):
+
     if entry.get(attribute) and entry[attribute]:  # ensure that attribute exists and is not empty string
+
         if attribute == 'published_parsed':  # special handling of date information
             value = datetime_from_time_struct(entry[attribute])
         else:
             value = entry[attribute]
+
     else:
+
         if attribute == 'published_parsed':
             value = datetime.now()
         else:
             value = 'No {}'.format(attribute)
+
     return value
 
 

@@ -1,8 +1,9 @@
 from flask import Blueprint, g, render_template
 
+from donkey_package import db
 from donkey_package.auth import login_required
-from donkey_package.db import get_db
-from donkey_package.briefing_model import briefing
+from donkey_package.db_utils import get_feedlist_for_dropdown
+from donkey_package.models import Briefing
 
 bp = Blueprint('briefing', __name__)
 
@@ -11,25 +12,15 @@ bp = Blueprint('briefing', __name__)
 @login_required
 def index():
 
-    db = get_db()
+    latest_briefing_subquery = db.session.query(
+        db.func.max(Briefing.briefing_created).label('date')). \
+        filter(Briefing.user_id == g.user['id'])
 
-    latest_date_row_obj = db.execute(
-        'SELECT max(briefing_created)'
-        ' FROM briefing b'
-        ' WHERE b.user_id = ?', (g.user['id'],)
-    ).fetchone()
+    items = Briefing.query. \
+        join(latest_briefing_subquery, Briefing.created == latest_briefing_subquery.c.date). \
+        filter(Briefing.user_id == g.user['id']). \
+        all()
 
-    latest_date = latest_date_row_obj['max(briefing_created)']
-
-    items = db.execute(
-        'SELECT b.title, b.description, b.link, b.reference, b.score, b.feed_title'
-        ' FROM briefing b'
-        ' WHERE (b.user_id = ? AND b.briefing_created = ?)', (g.user['id'], latest_date)
-    ).fetchall()
-
-    feeds = db.execute(
-        'SELECT feed.id, title'
-        ' FROM feed'
-    ).fetchall()
+    feeds = get_feedlist_for_dropdown(g.user['id'])
 
     return render_template('briefing/index.html', items=items, feeds=feeds)

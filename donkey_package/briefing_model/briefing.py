@@ -39,9 +39,7 @@ from gensim.corpora import Dictionary
 from gensim.models import Word2Vec, WordEmbeddingSimilarityIndex, KeyedVectors
 from gensim.similarities import SoftCosineSimilarity, SparseTermSimilarityMatrix
 
-from donkey_package.db import get_db
 from donkey_package import db
-from donkey_package.models import Briefing
 from donkey_package.briefing_model.preparation import preprocess
 from donkey_package.briefing_model.ranking import get_candidates, rank_candidates
 
@@ -140,10 +138,12 @@ def calculate_similarity_index(corpus, dictionary):
 
 def save_to_db(briefing_items):
 
+    current_utc_datetime = datetime.now(pytz.utc)
+
     for item in briefing_items:
 
         # Enrich the selected briefing items with current datetime for the 'briefing_created' attribute
-        item.briefing_created = datetime.now(pytz.utc)
+        item.briefing_created = current_utc_datetime
 
         db.session.add(item)
 

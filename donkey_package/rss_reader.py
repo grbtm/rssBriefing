@@ -2,19 +2,11 @@ from flask import Blueprint, flash, g, redirect, render_template, request, url_f
 
 from donkey_package import db
 from donkey_package.auth import login_required
-from donkey_package.db import get_db
 from donkey_package.feed import parse_feed, update_feed_db, well_formed, get_latest_feed_dict
-from donkey_package.models import Feed, User
-from donkey_package.models import Item
+from donkey_package.models import Feed, User, Item
+from donkey_package.db_utils import get_user_by_id, get_feedlist_for_dropdown
 
 bp = Blueprint('rss_reader', __name__)
-
-
-def get_feedlist_for_dropdown():
-
-    feeds = Feed.query.filter(Feed.users.any(User.id == g.user['id'])).all()
-
-    return feeds
 
 
 @bp.route('/latest')
@@ -28,7 +20,7 @@ def latest():
         order_by(Item.created.desc()). \
         all()
 
-    feeds = get_feedlist_for_dropdown()
+    feeds = get_feedlist_for_dropdown(g.user['id'])
 
     return render_template('rss_reader/latest.html', items=items, feeds=feeds)
 
@@ -50,7 +42,7 @@ def single(feed_id):
         all()
 
     # Get all feeds of user for dropdown menu
-    feeds = get_feedlist_for_dropdown()
+    feeds = get_feedlist_for_dropdown(g.user['id'])
 
     # Get the given feed entry from db
     single_feed = Feed.query.filter_by(id=feed_id).first()
@@ -91,7 +83,7 @@ def add_feed():
                 found_feed = Feed.query.filter_by(title=title).first()
 
                 # Check whether relation to given user exists
-                current_user = User.query.get(g.user['id'])
+                current_user = get_user_by_id(g.user['id'])
 
                 if found_feed:
 
@@ -117,7 +109,7 @@ def add_feed():
 
             return redirect(url_for('rss_reader.latest'))
 
-    feeds = get_feedlist_for_dropdown()
+    feeds = get_feedlist_for_dropdown(g.user['id'])
 
     return render_template('rss_reader/add_feed.html', feeds=feeds)
 
@@ -131,13 +123,13 @@ def delete_feed():
         chosen_feed_title = request.form['FormControlSelect']
 
         feed_to_be_deleted = Feed.query.filter_by(title=chosen_feed_title).first()
-        current_user = User.query.get(g.user['id'])
+        current_user = get_user_by_id(g.user['id'])
         current_user.feeds.remove(feed_to_be_deleted)
 
         db.session.commit()
 
         return redirect(url_for('rss_reader.latest'))
 
-    feeds = get_feedlist_for_dropdown()
+    feeds = get_feedlist_for_dropdown(g.user['id'])
 
     return render_template('rss_reader/delete_feed.html', feeds=feeds)
