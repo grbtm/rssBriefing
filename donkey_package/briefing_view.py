@@ -13,11 +13,11 @@ bp = Blueprint('briefing', __name__)
 def index():
 
     latest_briefing_subquery = db.session.query(
-        db.func.max(Briefing.briefing_created).label('date')). \
-        filter(Briefing.user_id == g.user.id)
+        db.func.max(Briefing.briefing_created)). \
+        filter(Briefing.user_id == g.user.id).subquery()
 
     items = Briefing.query. \
-        join(latest_briefing_subquery, Briefing.created == latest_briefing_subquery.c.date). \
+        join(latest_briefing_subquery, Briefing.created == latest_briefing_subquery). \
         filter(Briefing.user_id == g.user.id). \
         all()
 
