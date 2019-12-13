@@ -29,8 +29,10 @@ Briefing
     assumption now: briefing calculation to be run once per day, but potentially more often
 
 """
+import pytz
 import argparse
 import json
+from datetime import datetime
 from threading import Semaphore
 
 from gensim.corpora import Dictionary
@@ -136,32 +138,17 @@ def calculate_similarity_index(corpus, dictionary):
     return docsim_index
 
 
-def save_to_db(briefing_items, user_id):
+def save_to_db(briefing_items):
 
     for item in briefing_items:
 
-        item.user_id = user_id
-        item.briefing_created = #TODO
+        # Enrich the selected briefing items with current datetime for the 'briefing_created' attribute
+        item.briefing_created = datetime.now(pytz.utc)
+
         db.session.add(item)
 
-        feed_id = item.idx_id
-        user_id = user_id
-        feed_title = item.feed_title
-        title = item.title
-        description = item.description
-        link = item.link
-        reference = item.reference
-        score = item.score
-        created = item.created
-        guid = item.guid
-
-        db.execute(
-            'INSERT INTO briefing (feed_id, user_id, feed_title, title, description, link, reference, score, created, guid)'
-            'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            (feed_id, user_id, feed_title, title, description, link, reference, score, created, guid)
-        )
-
-    db.commit()
+    # Commit to db only after looping over all selected Briefing items
+    db.session.commit()
 
 
 def parse_args():
@@ -192,7 +179,7 @@ def generate_briefing(user_id='public'):
 
     selected = rank_candidates(candidates, docsim, corpus, dictionary)
 
-    save_to_db(selected, user_id)
+    save_to_db(selected)
 
 
 if __name__ == '__main__':

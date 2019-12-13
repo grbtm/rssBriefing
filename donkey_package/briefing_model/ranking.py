@@ -18,12 +18,14 @@ def get_candidates(user_id):
         filter(User.id == user_id). \
         filter(Item.created > datetime_24h_ago).all()
 
-    # Instantiate new Briefing items
+    # Instantiate new Briefing items as data structure for processing of the briefing
+    # and final write back to db
     candidates = [Briefing(
         title=item.title,
         description=item.description,
         link=item.link,
         reference='None',
+        score=0.0,
         created=item.created,
         guid=item.guid,
         feed_title=item.feed.title,
@@ -63,12 +65,13 @@ def query_most_similar_reference(briefing_item, docsim, corpus, dictionary):
 
 
 def rank_candidates(candidates, docsim, corpus, dictionary):
+
     # Enrich candidates with most similar reference and respective similarity score
     for candidate in candidates:
         query_most_similar_reference(candidate, docsim, corpus, dictionary)
 
     # Check for candidates with same reference
-    references = [candidate.reference for candidate in candidates]
+    references = [candidate.reference for candidate in candidates if candidate.reference is not 'None']
     multiple_assignments = [item for item, count in collections.Counter(references).items() if count > 1]
 
     # If multiple candidates with same similarity reference exist, keep only the candidate with highest score
