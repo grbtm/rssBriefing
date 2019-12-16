@@ -51,8 +51,8 @@ def query_most_similar_reference(briefing_item, docsim, corpus, dictionary):
     :param dictionary:
     :return:
     """
-    # TODO fix description html parsing
-    query = briefing_item.title  # + ' ' + feeditem.description
+
+    query = briefing_item.title + ' ' + briefing_item.description
     query = dictionary.doc2bow(preprocess(query))
 
     similarities = docsim[query]

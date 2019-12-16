@@ -1,6 +1,7 @@
 import calendar
 from datetime import datetime
 
+import html2text
 import feedparser
 
 from donkey_package import db
@@ -48,15 +49,29 @@ def parse_entry_attribute(entry, attribute):
     if entry.get(attribute) and entry[attribute]:  # ensure that attribute exists and is not empty string
 
         if attribute == 'published_parsed':  # special handling of date information
+
             value = datetime_from_time_struct(entry[attribute])
+
+        elif attribute == 'description':    # HTML parsing of description
+
+            text_maker = html2text.HTML2Text()
+            text_maker.ignore_links = False
+            text_maker.ignore_images = True
+
+            value = text_maker.handle(entry[attribute])
+
         else:
+
             value = entry[attribute]
 
     else:
 
         if attribute == 'published_parsed':
+
             value = datetime.now()
+
         else:
+
             value = 'No {}'.format(attribute)
 
     return value
