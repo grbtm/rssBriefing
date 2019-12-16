@@ -7,7 +7,10 @@ from donkey_package.briefing_model.preparation import preprocess
 from donkey_package.models import Item, Feed, User, Briefing
 
 
-def get_candidates(user_id):
+def get_candidates(app, user_id):
+
+    app.logger.info('Getting briefing candidates from last 24h...')
+
     # Consider only feed entries from the last 24h
     datetime_24h_ago = datetime.now(pytz.utc) - timedelta(days=1)
 
@@ -31,6 +34,8 @@ def get_candidates(user_id):
         feed_title=item.feed.title,
         user_id=user_id
     ) for item in candidates]
+
+    app.logger.info(f'Fetched {len(candidates)} candidates.')
 
     return candidates
 
@@ -64,9 +69,11 @@ def query_most_similar_reference(briefing_item, docsim, corpus, dictionary):
         briefing_item.score = score
 
 
-def rank_candidates(candidates, docsim, corpus, dictionary):
+def rank_candidates(app, candidates, docsim, corpus, dictionary):
 
     # Enrich candidates with most similar reference and respective similarity score
+    app.logger.info('Enriching candidates w most similar reference...')
+
     for candidate in candidates:
         query_most_similar_reference(candidate, docsim, corpus, dictionary)
 
@@ -74,8 +81,11 @@ def rank_candidates(candidates, docsim, corpus, dictionary):
     references = [candidate.reference for candidate in candidates if candidate.reference is not 'None']
     multiple_assignments = [item for item, count in collections.Counter(references).items() if count > 1]
 
+    app.logger.info(f'{len(multiple_assignments)} candidates with same reference.')
+
     # If multiple candidates with same similarity reference exist, keep only the candidate with highest score
     if multiple_assignments:
+
         for reference in multiple_assignments:
 
             same_ref_candidates = [candidate for candidate in candidates if candidate.reference == reference]

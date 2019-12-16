@@ -15,3 +15,7 @@ def get_feedlist_for_dropdown(user_id):
     feeds = Feed.query.filter(Feed.users.any(User.id == user_id)).all()
 
     return feeds
+
+
+def get_all_users():
+    return User.query.all()

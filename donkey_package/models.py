@@ -61,4 +61,4 @@ class Briefing(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
-        return '<Briefing item title {}, feed {}, user {}>'.format(self.title, self.feed_id, self.user_id)
+        return '<Briefing item title {}, feed title {}, user {}>'.format(self.title, self.feed_title, self.user_id)

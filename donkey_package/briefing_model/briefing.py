@@ -42,7 +42,7 @@ from gensim.similarities import SoftCosineSimilarity, SparseTermSimilarityMatrix
 
 from donkey_package import create_app
 from donkey_package import db
-from donkey_package.db_utils import get_user_by_id
+from donkey_package.db_utils import get_user_by_id, get_all_users
 from donkey_package.briefing_model.preparation import preprocess
 from donkey_package.briefing_model.ranking import get_candidates, rank_candidates
 
@@ -63,20 +63,23 @@ def get_reference_documents():
     return corpus_titles
 
 
-def get_corpus_dictionary(corpus):
+def get_corpus_dictionary(app, corpus):
     """ Wrapper for gensim Dictionary function.
 
     From gensim docs: Dictionary encapsulates the mapping between normalized words and their integer ids.
 
     :return: [gensim.corpora.Dictionary]
     """
+    app.logger.info('Creating gensim Dictionary for corpus...')
 
     dictionary = Dictionary(corpus)
+
+    app.logger.info('Dictionary created.')
 
     return dictionary
 
 
-def get_reference_corpus():
+def get_reference_corpus(app):
     """ Load the current corpus.
 
     Since the corpus is relatively small it can be loaded fully into memory.
@@ -84,7 +87,12 @@ def get_reference_corpus():
     :return: [Lst[Str]] List of Strings containing the preprocessed text bodies
     """
 
+    app.logger.info('Fetching reference corpus for briefing...')
+
     corpus = [preprocess(doc) for doc in get_reference_documents()]
+
+    app.logger.info(f'Successfully fetched {len(corpus)} reference documents for corpus.')
+
     return corpus
 
 
@@ -103,7 +111,7 @@ def load_model(path):
     return model
 
 
-def calculate_similarity_index(corpus, dictionary):
+def calculate_similarity_index(app, corpus, dictionary):
     """ Use pre-trained Word2Vec model for word embeddings. Calculate similarities based on Soft Cosine Measure.
 
     References
@@ -116,28 +124,37 @@ def calculate_similarity_index(corpus, dictionary):
         Gensim notebook on: Finding similar documents with Word2Vec and Soft Cosine Measure
         https://github.com/RaRe-Technologies/gensim/blob/develop/docs/notebooks/soft_cosine_tutorial.ipynb
 
+    :param corpus: [Lst[Str]] List of Strings containing the preprocessed text bodies
+    :param dictionary: [gensim.corpora.Dictionary]
     :return: [numpy.ndarray] similarity index matrix, stored in memory
     """
 
     # Load pre-trained Word2Vec model
-    model = load_model(os.environ['MODEL_PATH'])
+    model_path = os.environ['MODEL_PATH']
+    app.logger.info(f'Loading Word2Vec model from {model_path}')
+    model = load_model(model_path)
 
     # Construct the WordEmbeddingSimilarityIndex model based on cosine similarities between word embeddings
+    app.logger.info('Constructing the WordEmbeddingSimilarityIndex model...')
     similarity_index = WordEmbeddingSimilarityIndex(model.wv)
 
     # Construct similarity matrix
+    app.logger.info('Constructing the similarity matrix...')
     similarity_matrix = SparseTermSimilarityMatrix(similarity_index, dictionary)
 
     # Convert the corpus into the bag-of-words vector representation
+    app.logger.info('Constructing bow vector representation of corpus...')
     bow_corpus = [dictionary.doc2bow(document) for document in corpus]
 
     # Build the similarity index for corpus-based queries
+    app.logger.info('Calculating the similarity index...')
     docsim_index = SoftCosineSimilarity(bow_corpus, similarity_matrix, num_best=10)
 
     return docsim_index
 
 
 def save_to_db(briefing_items):
+
     current_utc_datetime = datetime.now(pytz.utc)
 
     for item in briefing_items:
@@ -159,12 +176,13 @@ def parse_args():
                                help="State user_ids for whom briefing should be generated.")
     command_group.add_argument('-A', '--All',
                                action='store_true',
-                               help="Generate briefing for all users.")
+                               help="Generate briefing for all users. Arguments '-u' and '-A' are mutually exclusive.")
 
     return parser.parse_args()
 
 
 def generate_briefing():
+
     # Set up app context to be able to access extensions such as SQLAlchemy when this module is run independently
     app = create_app()
     app.app_context().push()
@@ -175,25 +193,31 @@ def generate_briefing():
 
         if args.All:
 
-            users = # TODO
+            users = get_all_users()
 
         else:
 
             users = [get_user_by_id(user_id) for user_id in args.user_ids]
 
-        corpus = get_reference_corpus()
+        corpus = get_reference_corpus(app)
 
-        dictionary = get_corpus_dictionary(corpus)
+        dictionary = get_corpus_dictionary(app, corpus)
 
-        docsim = calculate_similarity_index(corpus, dictionary)
+        docsim = calculate_similarity_index(app, corpus, dictionary)
+
+        app.logger.info(f'Generating briefing for users {users}...')
 
         for user in users:
 
-            candidates = get_candidates(user.id)
+            app.logger.info(f'Generating briefing for user {user}...')
 
-            selected = rank_candidates(candidates, docsim, corpus, dictionary)
+            candidates = get_candidates(app, user.id)
 
+            selected = rank_candidates(app, candidates, docsim, corpus, dictionary)
+
+            app.logger.info(f'Writing {len(selected)} briefing items for user {user} to DB...')
             save_to_db(selected)
+            app.logger.info('DB write done.')
 
     except:
         app.logger.error('Unhandled exception', exc_info=sys.exc_info())

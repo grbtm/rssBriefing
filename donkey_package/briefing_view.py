@@ -12,13 +12,13 @@ bp = Blueprint('briefing', __name__)
 @login_required
 def index():
 
-    latest_briefing_subquery = db.session.query(
+    latest_briefing_date = db.session.query(
         db.func.max(Briefing.briefing_created)). \
-        filter(Briefing.user_id == g.user.id).subquery()
+        filter(Briefing.user_id == g.user.id).scalar()
 
     items = Briefing.query. \
-        join(latest_briefing_subquery, Briefing.created == latest_briefing_subquery). \
         filter(Briefing.user_id == g.user.id). \
+        filter(Briefing.briefing_created == latest_briefing_date). \
         all()
 
     feeds = get_feedlist_for_dropdown(g.user.id)
