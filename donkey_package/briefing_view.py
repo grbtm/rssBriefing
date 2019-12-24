@@ -23,4 +23,4 @@ def index():
 
     feeds = get_feedlist_for_dropdown(g.user.id)
 
-    return render_template('briefing/index.html', items=items, feeds=feeds)
+    return render_template('briefing/index.html', items=items, feeds=feeds, briefing_date=latest_briefing_date)
