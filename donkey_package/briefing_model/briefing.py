@@ -1,32 +1,6 @@
 """
-Requirements:
 
-Briefing
-
-    reference/corpus collection
-
-    similarity score calculation
-        - score is always wrt to a given corpus, which is relevant only for a given time until the next corpus update
-            -> therefore score inherent to corpus and not property of feed item to which the score is assigned to
-            -> score should be saved with Briefing object -> Briefing db table, not feed items
-
-        many to many:
-            ref1               ref2
-            / | \              / | \
-
-           /  |  \           /   |  \
-
-        A     B    C        A    B    C
-        0.9   0.2  0.9      0.0  0.9  0.8
-
-        -> consider multiple posts (A, B, C) covering same topic (ref1, ref2):
-            - additional criteria (e.g. highest similarity score) needed to filter:
-                A for ref1
-                B for ref2
-
-    view/write to db
-
-    assumption now: briefing calculation to be run once per day, but potentially more often
+Briefing generation module
 
 """
 import argparse
@@ -37,6 +11,8 @@ from datetime import datetime
 
 import pytz
 from gensim.corpora import Dictionary
+from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+from gensim.models.keyedvectors import WordEmbeddingsKeyedVectors
 from gensim.models import WordEmbeddingSimilarityIndex, KeyedVectors
 from gensim.similarities import SoftCosineSimilarity, SparseTermSimilarityMatrix
 
@@ -96,33 +72,37 @@ def get_reference_corpus(app):
     return corpus
 
 
-def load_model(path):
-    model = KeyedVectors.load(path, mmap='r')
+def load_model(app):
 
-    # The vectors can also be instantiated from an existing file on disk
-    # in the original Google’s word2vec C format as a KeyedVectors instance
-    # model = KeyedVectors.load(
-    #         '/Users/T/Documents/Programmieren/Python/models/word2vec-1m-normed/GoogleNews-1k-vectors-gensim-normed')
-
-    # model.syn0norm = model.syn0
-
-    # Semaphore(0).acquire()
+    model_path = os.environ['MODEL_PATH']
+    app.logger.info(f'Loading Word2Vec model from {model_path}')
+    model = Doc2Vec.load(model_path)
 
     return model
 
 
-def calculate_similarity_index(app, corpus, dictionary):
-    """ Use pre-trained Word2Vec model for word embeddings. Calculate similarities based on Soft Cosine Measure.
+def get_ref_vectors(model, corpus):
 
-    References
-        Grigori Sidorov et al.
-        Soft Similarity and Soft Cosine Measure: Similarity of Features in Vector Space Model, 2014.
+    inferred_vectors = []
 
-        Delphine Charlet and Geraldine Damnati, SimBow at SemEval-2017 Task 3:
-        Soft-Cosine Semantic Similarity between Questions for Community Question Answering, 2017.
+    for doc in corpus:
+        vec = model.infer_vector(doc)
+        inferred_vectors.append(vec)
 
-        Gensim notebook on: Finding similar documents with Word2Vec and Soft Cosine Measure
-        https://github.com/RaRe-Technologies/gensim/blob/develop/docs/notebooks/soft_cosine_tutorial.ipynb
+    return inferred_vectors
+
+
+def get_keyed_vectors(vector_size, inferred_vecs):
+
+    vectors = WordEmbeddingsKeyedVectors(vector_size=vector_size)
+    labels = list(range(len(inferred_vecs)))
+    vectors.add(entities=labels, weights=inferred_vecs)
+
+    return vectors
+
+
+def calculate_most_similar(app, corpus, dictionary):
+    """
 
     :param corpus: [Lst[Str]] List of Strings containing the preprocessed text bodies
     :param dictionary: [gensim.corpora.Dictionary]
@@ -131,24 +111,8 @@ def calculate_similarity_index(app, corpus, dictionary):
 
     # Load pre-trained Word2Vec model
     model_path = os.environ['MODEL_PATH']
-    app.logger.info(f'Loading Word2Vec model from {model_path}')
+    app.logger.info(f'Loading Doc2Vec model from {model_path}')
     model = load_model(model_path)
-
-    # Construct the WordEmbeddingSimilarityIndex model based on cosine similarities between word embeddings
-    app.logger.info('Constructing the WordEmbeddingSimilarityIndex model...')
-    similarity_index = WordEmbeddingSimilarityIndex(model.wv)
-
-    # Construct similarity matrix
-    app.logger.info('Constructing the similarity matrix...')
-    similarity_matrix = SparseTermSimilarityMatrix(similarity_index, dictionary)
-
-    # Convert the corpus into the bag-of-words vector representation
-    app.logger.info('Constructing bow vector representation of corpus...')
-    bow_corpus = [dictionary.doc2bow(document) for document in corpus]
-
-    # Build the similarity index for corpus-based queries
-    app.logger.info('Calculating the similarity index...')
-    docsim_index = SoftCosineSimilarity(bow_corpus, similarity_matrix, num_best=10)
 
     return docsim_index
 
@@ -199,11 +163,17 @@ def generate_briefing():
 
             users = [get_user_by_id(user_id) for user_id in args.user_ids]
 
+        # Get the current reference corpus
         corpus = get_reference_corpus(app)
 
-        dictionary = get_corpus_dictionary(app, corpus)
+        # Load trained Doc2Vec model
+        model = load_model(app)
 
-        docsim = calculate_similarity_index(app, corpus, dictionary)
+        # Use the model to infer document vectors from reference corpus
+        reference_vectors = get_ref_vectors(model=model, corpus=corpus)
+
+        # Construct Keyed Vectors set of vectors from reference vectors
+        keyed_vectors = get_keyed_vectors(vector_size=model.vector_size, inferred_vecs=reference_vectors)
 
         app.logger.info(f'Generating briefing for users {users}...')
 
@@ -213,7 +183,7 @@ def generate_briefing():
 
             candidates = get_candidates(app, user.id)
 
-            selected = rank_candidates(app, candidates, docsim, corpus, dictionary)
+            selected = rank_candidates(app, candidates, keyed_vectors, model, corpus)
 
             app.logger.info(f'Writing {len(selected)} briefing items for user {user} to DB...')
             save_to_db(selected)

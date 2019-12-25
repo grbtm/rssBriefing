@@ -40,7 +40,7 @@ def get_candidates(app, user_id):
     return candidates
 
 
-def query_most_similar_reference(briefing_item, docsim, corpus, dictionary):
+def query_most_similar_reference(briefing_item, keyed_vectors, model, corpus):
     """ Get the reference with the highest similarity score for a given candidate <briefing_item>
 
     Populate the reference and score attributes of the Briefing model.
@@ -51,7 +51,7 @@ def query_most_similar_reference(briefing_item, docsim, corpus, dictionary):
     :param dictionary:
     :return:
     """
-
+    # candidate, keyed_vectors, model, corpus
     query = briefing_item.title + ' ' + briefing_item.description
     query = dictionary.doc2bow(preprocess(query))
 
@@ -69,13 +69,13 @@ def query_most_similar_reference(briefing_item, docsim, corpus, dictionary):
         briefing_item.score = score
 
 
-def rank_candidates(app, candidates, docsim, corpus, dictionary):
+def rank_candidates(app, candidates, keyed_vectors, model, corpus):
 
     # Enrich candidates with most similar reference and respective similarity score
     app.logger.info('Enriching candidates w most similar reference...')
 
     for candidate in candidates:
-        query_most_similar_reference(candidate, docsim, corpus, dictionary)
+        query_most_similar_reference(candidate, keyed_vectors, model, corpus)
 
     # Check for candidates with same reference
     references = [candidate.reference for candidate in candidates if candidate.reference is not 'None']
