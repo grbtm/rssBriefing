@@ -32,9 +32,8 @@
 <article class="item">
     <header>
         <div>
-            <h3>{{ item['title'] }}</h3>
+            <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}"><h3>{{ item['title'] }}</h3></a>
             <div class="about">
-                Link: {{ item['link'] }},
                 Source: {{ item['feed_title'] }},
                 Ref: {{ item['reference'] }}, Score: {{ item['score'] }}
             </div>

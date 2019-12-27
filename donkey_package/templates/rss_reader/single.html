@@ -34,9 +34,9 @@
 <article class="item">
     <header>
         <div>
-            {{ item['title'] }}
+            <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}">{{ item['title'] }}</a>
             <div class="about">
-                Published: {{ item['created'] }} Link: {{ item['link'] }}
+                Published: {{ item['created'] }}
             </div>
         </div>
     </header>

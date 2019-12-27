@@ -1,11 +1,13 @@
-from nltk import word_tokenize
 from nltk.corpus import stopwords
+from gensim.utils import tokenize
 
+def preprocess(doc, encoding='utf8'):
+    #doc = doc.split(' - ', 1)[0]  # remove news source at end of each headline from NEWS API
 
-def preprocess(doc):
-    doc = doc.split(' - ', 1)[0]  # remove news source at end of each headline from NEWS API
-    doc = doc.lower()
-    doc = word_tokenize(doc)
+    doc = list(tokenize(doc,
+                        lowercase=True,
+                        deacc=True,     # Remove accentuation
+                        encoding=encoding))
 
     commonlist = stopwords.words('english')
 

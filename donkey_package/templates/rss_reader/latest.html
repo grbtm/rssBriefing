@@ -24,8 +24,10 @@
 <article class="item">
     <header>
         <div>
-            {{ item['title'] }}
-            <div class="about">Published: {{ item['created'] }} Link: {{ item['link'] }}</div>
+            <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}">{{ item['title'] }}</a>
+            <div class="about">
+                Published: {{ item['created'] }}
+            </div>
         </div>
     </header>
     <p class="body">{{ item['description'] }}</p>
