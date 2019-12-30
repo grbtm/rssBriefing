@@ -11,16 +11,14 @@ from datetime import datetime
 
 import pytz
 from gensim.corpora import Dictionary
-from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+from gensim.models.doc2vec import Doc2Vec
 from gensim.models.keyedvectors import WordEmbeddingsKeyedVectors
-from gensim.models import WordEmbeddingSimilarityIndex, KeyedVectors
-from gensim.similarities import SoftCosineSimilarity, SparseTermSimilarityMatrix
 
 from donkey_package import create_app
 from donkey_package import db
-from donkey_package.db_utils import get_user_by_id, get_all_users
 from donkey_package.briefing_model.preparation import preprocess
 from donkey_package.briefing_model.ranking import get_candidates, rank_candidates
+from donkey_package.db_utils import get_user_by_id, get_all_users
 
 
 def get_reference_documents():
@@ -75,7 +73,7 @@ def get_reference_corpus(app):
 def load_model(app):
 
     model_path = os.environ['MODEL_PATH']
-    app.logger.info(f'Loading Word2Vec model from {model_path}')
+    app.logger.info(f'Loading Doc2Vec model from {model_path}')
     model = Doc2Vec.load(model_path)
 
     return model
@@ -101,24 +99,7 @@ def get_keyed_vectors(vector_size, inferred_vecs):
     return vectors
 
 
-def calculate_most_similar(app, corpus, dictionary):
-    """
-
-    :param corpus: [Lst[Str]] List of Strings containing the preprocessed text bodies
-    :param dictionary: [gensim.corpora.Dictionary]
-    :return: [numpy.ndarray] similarity index matrix, stored in memory
-    """
-
-    # Load pre-trained Word2Vec model
-    model_path = os.environ['MODEL_PATH']
-    app.logger.info(f'Loading Doc2Vec model from {model_path}')
-    model = load_model(model_path)
-
-    return docsim_index
-
-
 def save_to_db(briefing_items):
-
     current_utc_datetime = datetime.now(pytz.utc)
 
     for item in briefing_items:

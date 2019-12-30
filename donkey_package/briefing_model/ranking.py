@@ -46,16 +46,21 @@ def query_most_similar_reference(briefing_item, keyed_vectors, model, corpus):
     Populate the reference and score attributes of the Briefing model.
 
     :param briefing_item: [models.Briefing] representing an rss feed entry considered a candidate for final briefing
-    :param docsim:
-    :param corpus:
-    :param dictionary:
+    :param keyed_vectors: [gensim.models.keyedvectors.WordEmbeddingsKeyedVectors] representing the reference vectors
+    :param model: [gensim.models.doc2vec.Doc2Vec] trained Doc2Vec model
+    :param corpus: [lst[str]] of tokenized documents
     :return:
     """
-    # candidate, keyed_vectors, model, corpus
-    query = briefing_item.title + ' ' + briefing_item.description
-    query = dictionary.doc2bow(preprocess(query))
 
-    similarities = docsim[query]
+    # Concatenate item title and description and preprocess it with the same function used before model training
+    query = briefing_item.title + ' ' + briefing_item.description
+    tokenized_query = preprocess(query)
+
+    # Generate a vector representation of the query, based on the trained model
+    inferred_vector = model.infer_vector(tokenized_query)
+
+    # Compute cosine similarity between set of keyed vectors and inferred vector
+    similarities = keyed_vectors.most_similar([inferred_vector], topn=3)
     similarities = sorted(similarities, key=lambda tupl: tupl[1], reverse=True)
 
     if similarities:
