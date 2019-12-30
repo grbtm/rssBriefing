@@ -86,7 +86,8 @@ def rank_candidates(app, candidates, keyed_vectors, model, corpus):
     references = [candidate.reference for candidate in candidates if candidate.reference is not 'None']
     multiple_assignments = [item for item, count in collections.Counter(references).items() if count > 1]
 
-    app.logger.info(f'{len(multiple_assignments)} candidates with same reference.')
+    app.logger.info(f'{len(references)} candidates were assigned a most similar reference item.')
+    app.logger.info(f'{len(multiple_assignments)} reference items occurred more than once as highest sim score ref.')
 
     # If multiple candidates with same similarity reference exist, keep only the candidate with highest score
     if multiple_assignments:
@@ -100,9 +101,13 @@ def rank_candidates(app, candidates, keyed_vectors, model, corpus):
             for candidate in same_ref_candidates[1:]:
                 candidate.reference = 'None'
 
-        candidates = [candidate for candidate in candidates if candidate.reference is not 'None']
+    candidates = [candidate for candidate in candidates if candidate.reference != 'None']
 
-    # Remove candidates with a similarity score below the threshold
-    candidates = [candidate for candidate in candidates if candidate.score > 0.9]
+    app.logger.info(f'After handling of candidates with same reference: {len(candidates)} candidates point to a ref.')
+    app.logger.info(f'Scores of the remaining candidates: {[candidate.score for candidate in candidates]}.')
+
+    # Sort candidates according to their similarity score and pick only top 10 candidates
+    candidates = sorted(candidates, key=lambda cand: cand.score, reverse=True)
+    candidates = candidates[:10]
 
     return candidates
