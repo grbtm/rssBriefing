@@ -2,9 +2,9 @@ from flask import Blueprint, flash, g, redirect, render_template, request, url_f
 
 from donkey_package import db
 from donkey_package.auth import login_required
+from donkey_package.db_utils import get_user_by_id, get_feedlist_for_dropdown
 from donkey_package.feed import parse_feed, update_feed_db, well_formed, get_latest_feed_dict
 from donkey_package.models import Feed, User, Item
-from donkey_package.db_utils import get_user_by_id, get_feedlist_for_dropdown
 
 bp = Blueprint('rss_reader', __name__)
 

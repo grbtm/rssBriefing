@@ -4,8 +4,8 @@ from flask import Blueprint, flash, g, redirect, render_template, request, sessi
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from donkey_package import db
-from donkey_package.models import User
 from donkey_package.db_utils import get_user_by_username
+from donkey_package.models import User
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 

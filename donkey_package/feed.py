@@ -1,8 +1,8 @@
 import calendar
 from datetime import datetime
 
-import html2text
 import feedparser
+import html2text
 
 from donkey_package import db
 from donkey_package.models import Item, Feed

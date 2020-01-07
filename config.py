@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 
 module_path = os.path.abspath(os.path.dirname(__file__))
