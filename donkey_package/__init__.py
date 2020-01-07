@@ -19,14 +19,10 @@ def create_app():
                         level=logging.DEBUG)
 
     # Create and configure the WSGI application
-    app = Flask(__name__, instance_relative_config=True)
-    app.config.from_object(os.environ['APP_SETTINGS'])
+    app = Flask(__name__)
 
-    # ensure the instance folder exists
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
+    # Load Config subclass according to environment variable
+    app.config.from_object(os.environ['APP_SETTINGS'])
 
     # Bind database and migration engine to app
     db.init_app(app)
