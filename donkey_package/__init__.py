@@ -14,7 +14,7 @@ migrate = Migrate()
 from donkey_package import models
 
 
-def create_app():
+def create_app(config_class=os.environ.get('APP_SETTINGS')):
     logging.basicConfig(format='%(asctime)s | %(module)s | %(levelname)s | %(message)s',
                         level=logging.DEBUG)
 
@@ -22,7 +22,7 @@ def create_app():
     app = Flask(__name__)
 
     # Load Config subclass according to environment variable
-    app.config.from_object(os.environ['APP_SETTINGS'])
+    app.config.from_object(config_class)
 
     # Bind database and migration engine to app
     db.init_app(app)
