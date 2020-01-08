@@ -1,5 +1,7 @@
 '''
-This module contains pytest fixtures based on the flask documentation test setup.
+This module contains pytest fixtures based on the flask documentation test setup:
+https://flask.palletsprojects.com/en/1.1.x/tutorial/tests/
+
 The fixtures are used by all tests in the test modules.
 '''
 import os
