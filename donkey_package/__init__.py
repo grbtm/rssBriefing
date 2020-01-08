@@ -9,20 +9,24 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 migrate = Migrate()
 
-
 # SQLAlchemy models inherit from db.Model, therefore importing models after instantiating db
 from donkey_package import models
 
 
-def create_app(config_class=os.environ.get('APP_SETTINGS')):
+def create_app(test_config=None):
+
     logging.basicConfig(format='%(asctime)s | %(module)s | %(levelname)s | %(message)s',
                         level=logging.DEBUG)
 
     # Create and configure the WSGI application
     app = Flask(__name__)
 
-    # Load Config subclass according to environment variable
-    app.config.from_object(config_class)
+    if test_config is None:
+        # Load Config subclass according to environment variable
+        app.config.from_object(os.environ.get('APP_SETTINGS'))
+    else:
+        # Load the test config if passed
+        app.config.update(test_config)
 
     # Bind database and migration engine to app
     db.init_app(app)
@@ -39,4 +43,3 @@ def create_app(config_class=os.environ.get('APP_SETTINGS')):
     app.add_url_rule('/', endpoint='index')
 
     return app
-
