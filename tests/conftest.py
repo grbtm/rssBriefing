@@ -18,8 +18,9 @@ with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
 def app():
     db_fd, db_path = tempfile.mkstemp()
 
-    app = create_app({"TESTING": True,
-                      "SQLALCHEMY_DATABASE_URI": 'sqlite:///' + db_path})
+    app = create_app({'TESTING': True,
+                      'SECRET_KEY': 'test',
+                      'SQLALCHEMY_DATABASE_URI': 'sqlite:///' + db_path})
 
     with app.app_context():
         # Create all tables in temp database

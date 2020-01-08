@@ -18,3 +18,17 @@ def test_register(client, app):
     with app.app_context():
 
         assert get_user_by_username('a') is not None
+
+
+@pytest.mark.parametrize(('username', 'email', 'password', 'message'), (
+        ('', '', '', b'Username is required.'),
+        ('a', '', 'a', b'E-mail is required.'),
+        ('a', 'a@a.com', '', b'Password is required.'),
+        ('test', 'a@b.com', 'test', b'Username test is already taken.'),
+))
+def test_register_validate_input(client, username, email, password, message):
+    response = client.post(
+        '/auth/register',
+        data={'username': username, 'email': email, 'password': password}
+    )
+    assert message in response.data
