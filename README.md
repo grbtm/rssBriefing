@@ -1,3 +1,5 @@
-# donkeyBriefing
+# DonkeyBriefing
 
-A RSS/Atom fueled daily briefing app.
+A RSS/Atom fuelled daily briefing app.
+
+Going live soon...
