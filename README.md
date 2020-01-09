@@ -1,4 +1,4 @@
-# DonkeyBriefing
+# rssBriefing
 
 A RSS/Atom fuelled daily briefing app.
 
