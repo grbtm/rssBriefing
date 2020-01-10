@@ -5,7 +5,7 @@ __pycache__/
 # Environment variables
 .env
 
-# Flask database
+# Flask instance folder
 instance/
 
 # Unit test / coverage reports
@@ -14,7 +14,9 @@ instance/
 htmlcov/
 
 # Distribution / packaging
-donkey_env/
 dist/
 build/
 *.egg-info/
+
+# Virtual environment
+donkey_env/
