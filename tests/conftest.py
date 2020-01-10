@@ -9,8 +9,8 @@ import tempfile
 
 import pytest
 
-from donkey_package import create_app
-from donkey_package import db
+from rssbriefing_package import create_app
+from rssbriefing_package import db
 
 with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
     _data_sql = f.read().decode('utf8')

@@ -1,4 +1,4 @@
-from donkey_package.db_utils import get_feedlist_for_dropdown
+from rssbriefing_package.db_utils import get_feedlist_for_dropdown
 
 
 def add_one_feed_to_users_feedlist(client):
@@ -51,7 +51,7 @@ def test_delete(client, auth, app):
 
         # Add one feed to feedlist
         add_one_feed_to_users_feedlist(client)
-        
+
         # Delete feed
         feed_list = get_feedlist_for_dropdown(user_id=1)
         response = client.post('/delete_feed', data={'FormControlSelect': feed_list[0].title})

@@ -1,4 +1,4 @@
-from donkey_package import create_app
+from rssbriefing_package import create_app
 
 
 def test_config():

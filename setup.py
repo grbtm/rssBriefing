@@ -8,7 +8,7 @@ setup(
     version='0.1',
     author="Tom",
     author_email="grbtm@posteo.net",
-    description="A RSS/Atom fueled daily briefing app",
+    description="A RSS/Atom fuelled daily briefing app",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/grbtm/rssBriefing",

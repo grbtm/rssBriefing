@@ -4,8 +4,8 @@ from datetime import datetime
 import feedparser
 import html2text
 
-from donkey_package import db
-from donkey_package.models import Item, Feed
+from rssbriefing_package import db
+from rssbriefing_package.models import Item, Feed
 
 
 def parse_feed(href):

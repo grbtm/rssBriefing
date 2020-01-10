@@ -1,9 +1,9 @@
 from flask import Blueprint, g, render_template
 
-from donkey_package import db
-from donkey_package.auth import login_required
-from donkey_package.db_utils import get_feedlist_for_dropdown
-from donkey_package.models import Briefing
+from rssbriefing_package import db
+from rssbriefing_package.auth import login_required
+from rssbriefing_package.db_utils import get_feedlist_for_dropdown
+from rssbriefing_package.models import Briefing
 
 bp = Blueprint('briefing', __name__)
 

@@ -10,7 +10,7 @@ db = SQLAlchemy()
 migrate = Migrate()
 
 # SQLAlchemy models inherit from db.Model, therefore importing models after instantiating db
-from donkey_package import models
+from rssbriefing_package import models
 
 
 def create_app(test_config=None):

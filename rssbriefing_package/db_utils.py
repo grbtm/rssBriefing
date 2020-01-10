@@ -1,4 +1,4 @@
-from donkey_package.models import User, Feed
+from rssbriefing_package.models import User, Feed
 
 
 def get_user_by_id(user_id):

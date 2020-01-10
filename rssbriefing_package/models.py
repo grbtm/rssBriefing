@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from donkey_package import db
+from rssbriefing_package import db
 
 user_feed = db.Table('user_feed',
                      db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
