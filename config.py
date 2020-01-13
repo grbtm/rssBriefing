@@ -2,8 +2,6 @@ import os
 
 from dotenv import load_dotenv
 
-from rssbriefing_package import app
-
 module_path = os.path.abspath(os.path.dirname(__file__))
 
 # Load environment variables from .env file
@@ -22,7 +20,6 @@ class Config(object):
 
 class ProductionConfig(Config):
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(app.instance_path, 'temp.db')
 
 
 class StagingConfig(Config):
@@ -33,4 +30,3 @@ class StagingConfig(Config):
 class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DEBUG = True
-
