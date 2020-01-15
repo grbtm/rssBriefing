@@ -21,11 +21,11 @@
 
 {% block content %}
 <p></p>
-<h1>Your DonkeyBriefing</h1>
+<h1>Your rssBriefing</h1>
 {% if items %}
     <p>Your briefing was generated on {{ briefing_date }}</p>
 {% else %}
-    <p>The donkey has to convey to you that you don't have a briefing yet. Add feeds to your profile and try again later!</p>
+    <p>Unfortunately you don't have a briefing yet. Add feeds to your profile and try again later!</p>
 {% endif %}
 
 {% for item in items %}
