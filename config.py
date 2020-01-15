@@ -18,8 +18,6 @@ class Config(object):
 
 
 class ProductionConfig(Config):
-    DEBUG = True
-    
     DB_NAME = os.environ.get('RDS_DB_NAME')
     USER = os.environ.get('RDS_USERNAME')
     PASSWORD = os.environ.get('RDS_PASSWORD')
