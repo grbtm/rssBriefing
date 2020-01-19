@@ -14,12 +14,17 @@ class Config(object):
     CSRF_ENABLED = True
     SECRET_KEY = os.environ.get('SECRET_FLASK_KEY')
     API_KEY = os.environ.get('API_KEY')
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
 class ProductionConfig(Config):
-    DEBUG = False
+    DB_NAME = os.environ.get('RDS_DB_NAME')
+    USER = os.environ.get('RDS_USERNAME')
+    PASSWORD = os.environ.get('RDS_PASSWORD')
+    HOST = os.environ.get('RDS_HOSTNAME')
+    PORT = os.environ.get('RDS_PORT')
+
+    SQLALCHEMY_DATABASE_URI = f'postgres://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}'
 
 
 class StagingConfig(Config):
@@ -30,4 +35,4 @@ class StagingConfig(Config):
 class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DEBUG = True
-
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
