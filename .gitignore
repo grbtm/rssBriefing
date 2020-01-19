@@ -26,4 +26,4 @@ donkey_env/
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
-.ebextensions/https*.config
+.ebextensions/options.config
