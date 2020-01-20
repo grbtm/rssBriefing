@@ -3,7 +3,7 @@ from datetime import datetime
 from rssbriefing_package import db
 
 user_feed = db.Table('user_feed',
-                     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+                     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
                      db.Column('feed_id', db.Integer, db.ForeignKey('feed.id'), primary_key=True)
                      )
 
@@ -58,7 +58,7 @@ class Briefing(db.Model):
     guid = db.Column(db.String())
 
     feed_title = db.Column(db.String(), db.ForeignKey('feed.title'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     def __repr__(self):
         return '<Briefing item title {}, feed title {}, user {}>'.format(self.title, self.feed_title, self.user_id)
