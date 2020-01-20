@@ -4,7 +4,7 @@ from rssbriefing_package import db
 from rssbriefing_package.auth import login_required
 from rssbriefing_package.db_utils import get_user_by_id, get_feedlist_for_dropdown
 from rssbriefing_package.feed import parse_feed, update_feed_db, well_formed, get_latest_feed_dict
-from rssbriefing_package.models import Feed, User, Item
+from rssbriefing_package.models import Feed, Users, Item
 
 bp = Blueprint('rss_reader', __name__)
 
@@ -16,7 +16,7 @@ def latest():
     items = Item.query. \
         join(Feed). \
         join(Feed.users). \
-        filter(User.id == g.user.id). \
+        filter(Users.id == g.user.id). \
         order_by(Item.created.desc()). \
         all()
 

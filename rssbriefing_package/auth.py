@@ -5,7 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from rssbriefing_package import db
 from rssbriefing_package.db_utils import get_user_by_username
-from rssbriefing_package.models import User
+from rssbriefing_package.models import Users
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -28,7 +28,7 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = User.query.get(user_id)
+        g.user = Users.query.get(user_id)
 
 
 @bp.route('/register', methods=('GET', 'POST'))
@@ -57,7 +57,7 @@ def register():
 
         if error is None:
 
-            new_user = User(username=username, email=email, password_hash=generate_password_hash(password))
+            new_user = Users(username=username, email=email, password_hash=generate_password_hash(password))
             db.session.add(new_user)
             db.session.commit()
 

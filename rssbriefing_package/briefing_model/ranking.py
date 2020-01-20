@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import pytz
 
 from rssbriefing_package.briefing_model.preparation import preprocess
-from rssbriefing_package.models import Item, Feed, User, Briefing
+from rssbriefing_package.models import Item, Feed, Users, Briefing
 
 
 def get_candidates(app, user_id):
@@ -18,7 +18,7 @@ def get_candidates(app, user_id):
     candidates = Item.query. \
         join(Feed). \
         join(Feed.users). \
-        filter(User.id == user_id). \
+        filter(Users.id == user_id). \
         filter(Item.created > datetime_24h_ago).all()
 
     # Instantiate new Briefing items as data structure for processing of the briefing
