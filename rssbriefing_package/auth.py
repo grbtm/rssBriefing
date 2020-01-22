@@ -1,3 +1,4 @@
+import os
 import functools
 
 from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for
@@ -38,6 +39,7 @@ def register():
 
         username = request.form['username']
         email = request.form['email']
+        beta_code = request.form['beta_code']
         password = request.form['password']
 
         error = None
@@ -47,6 +49,12 @@ def register():
 
         elif not email:
             error = 'E-mail is required.'
+
+        elif not beta_code:
+            error = 'Invitation code is required.'
+
+        elif beta_code != os.environ.get('BETA_CODE'):
+            error = 'Wrong invitation code.'
 
         elif not password:
             error = 'Password is required.'

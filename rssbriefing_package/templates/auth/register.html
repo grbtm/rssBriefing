@@ -7,15 +7,19 @@
 {% block content %}
 <form method="post">
     <p>
-    <label for="username">Username</label><br>
+    <label for="username">Username:</label><br>
     <input name="username" id="username" required>
     </p>
     <p>
-    <label for="email">Email</label><br>
+    <label for="email">Email:</label><br>
     <input name="email" id="email" required>
     </p>
     <p>
-    <label for="password">Password</label><br>
+        <label for="beta_code">Enter invitation code to participate in beta testing:</label><br>
+        <input name="beta_code" id="beta_code" required>
+    </p>
+    <p>
+    <label for="password">Password:</label><br>
     <input type="password" name="password" id="password" required>
     </p>
     <input type="submit" value="Register">
