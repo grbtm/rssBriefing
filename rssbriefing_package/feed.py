@@ -1,4 +1,5 @@
 import calendar
+import socket
 from datetime import datetime
 
 import feedparser
@@ -7,6 +8,9 @@ import html2text
 from rssbriefing_package import db
 from rssbriefing_package.models import Item, Feed
 
+# Set timeout in seconds for new socket objects, needed for feedparser connections
+socket.setdefaulttimeout(10)
+
 
 def parse_feed(href):
     feed_dict = feedparser.parse(href)
@@ -14,9 +18,11 @@ def parse_feed(href):
 
 
 def well_formed(feed_dict):
-    # consider a feed malformed if
-    #   1. feedparser bozo attribute declares an error (value: 1) and
-    #   2. no entry list loaded
+    """
+    consider a feed malformed if:
+       1. feedparser bozo attribute declares an error (value: 1) and
+       2. no entry list loaded
+    """
 
     if feed_dict.bozo and len(feed_dict.entries) is 0:
         result = False
@@ -26,7 +32,6 @@ def well_formed(feed_dict):
 
 
 def get_latest_feed_dict(feed_id):
-
     feed = Feed.query.filter_by(id=feed_id).first()
     feed_href = feed.href
 
@@ -34,7 +39,6 @@ def get_latest_feed_dict(feed_id):
 
 
 def datetime_from_time_struct(time_struct_time):
-
     # convert struct time to unix timestamp
     ts = calendar.timegm(time_struct_time)
 
@@ -45,14 +49,13 @@ def datetime_from_time_struct(time_struct_time):
 
 
 def parse_entry_attribute(entry, attribute):
-
     if entry.get(attribute) and entry[attribute]:  # ensure that attribute exists and is not empty string
 
         if attribute == 'published_parsed':  # special handling of date information
 
             value = datetime_from_time_struct(entry[attribute])
 
-        elif attribute == 'description':    # HTML parsing of description
+        elif attribute == 'description':  # HTML parsing of description
 
             text_maker = html2text.HTML2Text()
             text_maker.ignore_links = False
@@ -78,7 +81,6 @@ def parse_entry_attribute(entry, attribute):
 
 
 def update_feed_db(feed_id, feed_dict):
-
     # Get latest feed items
     entries = feed_dict.entries
 
@@ -93,7 +95,6 @@ def update_feed_db(feed_id, feed_dict):
         found = Item.query.filter_by(feed_id=feed_id, title=title, description=description, link=link).first()
 
         if not found:
-
             new_item = Item(title=title, description=description, link=link, created=created, feed_id=feed_id)
             db.session.add(new_item)
 

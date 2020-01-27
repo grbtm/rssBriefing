@@ -1,6 +1,11 @@
+import socket
+
 from rssbriefing_package import create_app
 from rssbriefing_package.feed import get_latest_feed_dict, update_feed_db
 from rssbriefing_package.models import Feed
+
+# Set timeout in seconds for new socket objects, needed for feedparser connections
+socket.setdefaulttimeout(10)
 
 
 def main():
