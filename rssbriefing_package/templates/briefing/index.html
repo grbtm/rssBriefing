@@ -30,15 +30,21 @@
 
 {% for item in items %}
 <article class="item">
-    <header>
-        <div>
-            <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}"><h3>{{ item['title'] }}</h3></a>
-            <div class="about">
-                Source: {{ item['feed_title'] }}
-            </div>
-        </div>
-    </header>
+
     <p class="body">{{ item['description'] }}</p>
+
+    <small>
+
+        <i>Source:</i> <mark>{{ item['feed_title'] }}</mark>
+
+        <i>Link:</i>
+            <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}">
+                {{ item['title'] }}
+            </a>
+
+    </small>
+
+
 </article>
 {% if not loop.last %}
 <hr>

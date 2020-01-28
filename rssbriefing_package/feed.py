@@ -58,7 +58,7 @@ def parse_entry_attribute(entry, attribute):
         elif attribute == 'description':  # HTML parsing of description
 
             text_maker = html2text.HTML2Text()
-            text_maker.ignore_links = False
+            text_maker.ignore_links = True
             text_maker.ignore_images = True
 
             value = text_maker.handle(entry[attribute])
