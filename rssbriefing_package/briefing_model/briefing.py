@@ -71,7 +71,6 @@ def get_reference_corpus(app):
 
 
 def load_model(app):
-
     model_path = os.environ['MODEL_PATH']
     app.logger.info(f'Loading Doc2Vec model from {model_path}')
     model = Doc2Vec.load(model_path)
@@ -80,7 +79,6 @@ def load_model(app):
 
 
 def get_ref_vectors(model, corpus):
-
     inferred_vectors = []
 
     for doc in corpus:
@@ -91,7 +89,6 @@ def get_ref_vectors(model, corpus):
 
 
 def get_keyed_vectors(vector_size, inferred_vecs):
-
     vectors = WordEmbeddingsKeyedVectors(vector_size=vector_size)
     labels = list(range(len(inferred_vecs)))
     vectors.add(entities=labels, weights=inferred_vecs)
@@ -114,7 +111,13 @@ def save_to_db(briefing_items):
 
 def parse_args():
     parser = argparse.ArgumentParser()
+
+    parser.add_argument('-t', '--similarity_threshold',
+                        type=float,
+                        help="Supply similarity threshold as necessary condition for briefing items.")
+
     command_group = parser.add_mutually_exclusive_group(required=True)
+
     command_group.add_argument('-u', '--user_ids',
                                nargs='+',
                                action='store',  # the default value
@@ -127,7 +130,6 @@ def parse_args():
 
 
 def generate_briefing():
-
     # Set up app context to be able to access extensions such as SQLAlchemy when this module is run independently
     app = create_app()
     app.app_context().push()
@@ -159,12 +161,11 @@ def generate_briefing():
         app.logger.info(f'Generating briefing for users {users}...')
 
         for user in users:
-
             app.logger.info(f'Generating briefing for user {user}...')
 
             candidates = get_candidates(app, user.id)
 
-            selected = rank_candidates(app, candidates, keyed_vectors, model, corpus)
+            selected = rank_candidates(app, candidates, keyed_vectors, model, corpus, args.similarity_threshold)
 
             app.logger.info(f'Writing {len(selected)} briefing items for user {user} to DB...')
             save_to_db(selected)

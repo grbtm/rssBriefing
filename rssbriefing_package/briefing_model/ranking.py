@@ -74,7 +74,7 @@ def query_most_similar_reference(briefing_item, keyed_vectors, model, corpus):
         briefing_item.score = score
 
 
-def rank_candidates(app, candidates, keyed_vectors, model, corpus):
+def rank_candidates(app, candidates, keyed_vectors, model, corpus, similarity_threshold=None):
 
     # Enrich candidates with most similar reference and respective similarity score
     app.logger.info('Enriching candidates w most similar reference...')
@@ -106,8 +106,10 @@ def rank_candidates(app, candidates, keyed_vectors, model, corpus):
     app.logger.info(f'After handling of candidates with same reference: {len(candidates)} candidates point to a ref.')
     app.logger.info(f'Scores of the remaining candidates: {[candidate.score for candidate in candidates]}.')
 
-    # Sort candidates according to their similarity score and pick only top 10 candidates
+    # Sort candidates according to their similarity score and apply threshold if supplied
     candidates = sorted(candidates, key=lambda cand: cand.score, reverse=True)
-    candidates = candidates[:10]
+
+    if similarity_threshold:
+        candidates = [candidate for candidate in candidates if candidate.score >= similarity_threshold]
 
     return candidates
