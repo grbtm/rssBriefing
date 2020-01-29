@@ -30,19 +30,21 @@
 
 {% for item in items %}
 <article class="item">
-
+    <header>
+        <h5>{{ item['title'] }}</h5>
+    </header>
     <p class="body">{{ item['description'] }}</p>
 
     <small>
 
-        <i>Source:</i> <mark>{{ item['feed_title'] }}</mark>
+        <i>Source:</i>
+        <a href="{{ url_for('rss_reader.single', feed_id=item.feed.id) }}">
+        <mark>{{ item['feed_title'] }}</mark>
+        </a>
 
         |
 
-        <i>Link:</i>
-            <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}">
-                {{ item['title'] }}
-            </a>
+        <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}">Link</a>
 
     </small>
 
