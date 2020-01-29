@@ -14,8 +14,9 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
+
         if g.user is None:
-            return redirect(url_for('auth.login'))
+            return redirect(url_for('briefing.landing_page'))
 
         return view(**kwargs)
 
