@@ -2,4 +2,4 @@
 
 A RSS/Atom fuelled daily briefing app.
 
-Going live soon...
+Beta testing has started: https://rssbriefing.eu-central-1.elasticbeanstalk.com/
