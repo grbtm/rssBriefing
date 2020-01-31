@@ -8,7 +8,6 @@ from rssbriefing_package.models import Item, Feed, Users, Briefing
 
 
 def get_candidates(app, user_id):
-
     app.logger.info('Getting briefing candidates from last 24h...')
 
     # Consider only feed entries from the last 24h
@@ -74,15 +73,8 @@ def query_most_similar_reference(briefing_item, keyed_vectors, model, corpus):
         briefing_item.score = score
 
 
-def rank_candidates(app, candidates, keyed_vectors, model, corpus, similarity_threshold=None):
+def pick_highest_scoring_candidate_of_each_reference(app, candidates):
 
-    # Enrich candidates with most similar reference and respective similarity score
-    app.logger.info('Enriching candidates w most similar reference...')
-
-    for candidate in candidates:
-        query_most_similar_reference(candidate, keyed_vectors, model, corpus)
-
-    # Check for candidates with same reference
     references = [candidate.reference for candidate in candidates if candidate.reference is not 'None']
     multiple_assignments = [item for item, count in collections.Counter(references).items() if count > 1]
 
@@ -101,6 +93,30 @@ def rank_candidates(app, candidates, keyed_vectors, model, corpus, similarity_th
             for candidate in same_ref_candidates[1:]:
                 candidate.reference = 'None'
 
+    return candidates
+
+
+def rank_candidates(app, candidates, keyed_vectors, model, corpus, similarity_threshold=None):
+    """ Takes a list of feed items and returns the subset which is most similar to the given reference docs/vectors.
+
+    :param app: [flask.Flask] The flask object implements a WSGI application
+    :param candidates: [lst[rssbriefing_package.models.Item]]
+    :param keyed_vectors: [gensim.models.keyedvectors.WordEmbeddingsKeyedVectors] representing the reference vectors
+    :param model: [gensim.models.doc2vec.Doc2Vec] trained Doc2Vec model
+    :param corpus: [lst[str]] of tokenized documents
+    :param similarity_threshold: [float] optional condition of a minimum threshold for the similarity score
+    :return: [lst[rssbriefing_package.models.Item]]
+    """
+    # Enrich candidates with most similar reference and respective similarity score
+    app.logger.info('Enriching candidates w most similar reference...')
+
+    for candidate in candidates:
+        query_most_similar_reference(candidate, keyed_vectors, model, corpus)
+
+    # Check for candidates with same reference
+    candidates = pick_highest_scoring_candidate_of_each_reference(app, candidates)
+
+    # Keep only the candidates with an assigned reference document
     candidates = [candidate for candidate in candidates if candidate.reference != 'None']
 
     app.logger.info(f'After handling of candidates with same reference: {len(candidates)} candidates point to a ref.')

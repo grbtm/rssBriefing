@@ -80,6 +80,8 @@ def load_model(app):
 
 
 def get_ref_vectors(model, corpus):
+    """ Project the reference documents into the vector space of the trained Doc2Vec model. """
+
     inferred_vectors = []
 
     for doc in corpus:
@@ -90,6 +92,8 @@ def get_ref_vectors(model, corpus):
 
 
 def get_keyed_vectors(vector_size, inferred_vecs):
+    """ Use the gensim.models.keyedvectors.WordEmbeddingsKeyedVectors class to store the inferred vectors. """
+
     vectors = WordEmbeddingsKeyedVectors(vector_size=vector_size)
     labels = list(range(len(inferred_vecs)))
     vectors.add(entities=labels, weights=inferred_vecs)
