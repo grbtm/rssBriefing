@@ -50,6 +50,7 @@ class Briefing(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(), index=True, nullable=False)
     description = db.Column(db.String())
+    summary = db.Column(db.String())
     link = db.Column(db.String(), nullable=False)
     reference = db.Column(db.String())
     score = db.Column(db.Float())
