@@ -6,16 +6,26 @@
         Latest
     </a>
 </li>
-<li class="nav-item">
-    <a class="nav-link" href="{{ url_for('rss_reader.add_feed') }}">
-        Add feed
+
+<li class="nav-item dropdown">
+
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+        Edit feeds
     </a>
+
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+        <a class="nav-link" href="{{ url_for('rss_reader.add_feed') }}">
+            Add feed
+        </a>
+
+        <a class="nav-link" href="{{ url_for('rss_reader.delete_feed') }}">
+            Delete feed
+        </a>
+    </div>
+
 </li>
-<li class="nav-item">
-    <a class="nav-link" href="{{ url_for('rss_reader.delete_feed') }}">
-        Delete feed
-    </a>
-</li>
+
 {% endblock %}
 
 {% block title %}Briefing{% endblock %}
@@ -34,7 +44,7 @@
     <header>
         <h5>{{ item['title'] }}</h5>
     </header>
-    <p class="body">{{ item['description'] }}</p>
+    <p class="text-justify">{{ item['summary'] }}</p>
 
     <small>
 
@@ -45,7 +55,7 @@
 
         |
 
-        <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}">Link</a>
+        <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}" class="text-secondary">Article link</a>
 
     </small>
 
