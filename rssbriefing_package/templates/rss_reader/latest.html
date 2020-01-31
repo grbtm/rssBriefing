@@ -6,16 +6,26 @@
         {% block title %}Latest{% endblock %}
     </a>
 </li>
-<li class="nav-item">
-    <a class="nav-link" href="{{ url_for('rss_reader.add_feed') }}">
-        Add feed
+
+<li class="nav-item dropdown">
+
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+        Edit feeds
     </a>
+
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+        <a class="nav-link" href="{{ url_for('rss_reader.add_feed') }}">
+            Add feed
+        </a>
+
+        <a class="nav-link" href="{{ url_for('rss_reader.delete_feed') }}">
+            Delete feed
+        </a>
+    </div>
+
 </li>
-<li class="nav-item">
-    <a class="nav-link" href="{{ url_for('rss_reader.delete_feed') }}">
-        Delete feed
-    </a>
-</li>
+
 {% endblock %}
 
 
@@ -24,13 +34,15 @@
 <article class="item">
     <header>
         <div>
-            <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}">{{ item['title'] }}</a>
-            <div class="about">
+            <h5>{{ item['title'] }}</h5>
+            <small>
                 Published: {{ item['created'] }}
-            </div>
+                |
+                <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}" class="text-secondary">Link</a>
+            </small>
         </div>
     </header>
-    <p class="body">{{ item['description'] }}</p>
+    <p class="text-justify">{{ item['description'] }}</p>
 </article>
 {% if not loop.last %}
 <hr>

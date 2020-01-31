@@ -18,6 +18,7 @@ from rssbriefing_package import create_app
 from rssbriefing_package import db
 from rssbriefing_package.briefing_model.preparation import preprocess
 from rssbriefing_package.briefing_model.ranking import get_candidates, rank_candidates
+from rssbriefing_package.briefing_model.summarization import enrich_with_summary
 from rssbriefing_package.db_utils import get_user_by_id, get_all_users
 
 
@@ -79,6 +80,8 @@ def load_model(app):
 
 
 def get_ref_vectors(model, corpus):
+    """ Project the reference documents into the vector space of the trained Doc2Vec model. """
+
     inferred_vectors = []
 
     for doc in corpus:
@@ -89,6 +92,8 @@ def get_ref_vectors(model, corpus):
 
 
 def get_keyed_vectors(vector_size, inferred_vecs):
+    """ Use the gensim.models.keyedvectors.WordEmbeddingsKeyedVectors class to store the inferred vectors. """
+
     vectors = WordEmbeddingsKeyedVectors(vector_size=vector_size)
     labels = list(range(len(inferred_vecs)))
     vectors.add(entities=labels, weights=inferred_vecs)
@@ -166,6 +171,8 @@ def generate_briefing():
             candidates = get_candidates(app, user.id)
 
             selected = rank_candidates(app, candidates, keyed_vectors, model, corpus, args.similarity_threshold)
+
+            selected = enrich_with_summary(selected)
 
             app.logger.info(f'Writing {len(selected)} briefing items for user {user} to DB...')
             save_to_db(selected)
