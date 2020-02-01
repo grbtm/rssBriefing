@@ -1,7 +1,7 @@
 from newspaper import Article
 
 COOKIE_RESPONSE = 'Cookies help us deliver our Services.'
-SEARCH_RESPONSE = 'What term do you want to search? Search with google'
+SEARCH_RESPONSE = 'What term do you want to search?'
 
 
 def get_summary(url):
