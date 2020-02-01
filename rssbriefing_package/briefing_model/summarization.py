@@ -1,6 +1,7 @@
 from newspaper import Article
 
-cookie_message = 'Cookies help us deliver our Services.'
+COOKIE_RESPONSE = 'Cookies help us deliver our Services.'
+SEARCH_RESPONSE = 'What term do you want to search? Search with google'
 
 
 def get_summary(url):
@@ -20,7 +21,7 @@ def enrich_with_summary(briefing_items):
 
         summary = get_summary(item.link)
 
-        if not summary or summary.startswith(cookie_message):
+        if not summary or summary.startswith((COOKIE_RESPONSE, SEARCH_RESPONSE)):
             item.summary = item.description
         else:
             item.summary = summary
