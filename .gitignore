@@ -28,3 +28,6 @@ donkey_env/
 !.elasticbeanstalk/*.global.yml
 .ebextensions/https*.config
 .ebextensions/options.config
+
+# jupyter notebooks
+*ipynb*

@@ -1,17 +1,23 @@
-from newspaper import Article
+import newspaper
 
 COOKIE_RESPONSE = 'Cookies help us deliver our Services.'
 SEARCH_RESPONSE = 'What term do you want to search?'
 
 
 def get_summary(url):
-    article = Article(url)
+    article = newspaper.Article(url)
 
-    article.download()
-    article.parse()
-    article.nlp()
+    try:
 
-    summary = article.summary
+        article.download()
+        article.parse()
+        article.nlp()
+
+        summary = article.summary
+
+    except newspaper.article.ArticleException as a_err:
+        print(f"Article exception: {a_err}")
+        summary = None
 
     return summary
 
