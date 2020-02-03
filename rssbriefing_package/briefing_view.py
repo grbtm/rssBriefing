@@ -72,3 +72,8 @@ def example_briefing():
     latest_briefing_date = latest_briefing_date.strftime("%B %d, %Y at %I:%M %p")
 
     return render_template('landing_page/example_briefing.html', items=items, briefing_date=latest_briefing_date)
+
+
+@bp.route('/how_it_works')
+def how_it_works():
+    return render_template('landing_page/how_it_works.html')

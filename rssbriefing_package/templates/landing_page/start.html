@@ -51,12 +51,16 @@
     </div>
     <div class="mr-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden" style="background-color: #F0FFF0;">
         <div class="my-3 p-3">
-            <h2 class="display-5">How does it work?</h2>
+            <a href="{{ url_for('briefing.how_it_works') }}" class="text-dark">
+                <h2 class="display-5">How does it work?</h2>
+            </a>
             <p class="lead">Find out how human curation and AI work together.</p>
         </div>
 <!--        <div class="bg-dark shadow-sm mx-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;"></div>-->
     </div>
 </div>
+
+{% include "footer.html" %}
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

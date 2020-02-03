@@ -1,0 +1,27 @@
+<footer class="container py-5">
+    <div class="row">
+        <div class="col-12 col-md">
+            <a class="text-muted h6" href="{{ url_for('briefing.index') }}">
+                rssBriefing<span class="badge badge-pill badge-secondary" style="vertical-align: top">Beta</span>
+            </a>
+        </div>
+
+
+        <div class="col-6 col-md">
+            <h5>Login</h5>
+            <ul class="list-unstyled text-small">
+                <li><a class="text-muted" href="{{ url_for('auth.login') }}">Login</a></li>
+                <li><a class="text-muted" href="{{ url_for('auth.register') }}">Register</a></li>
+            </ul>
+        </div>
+
+        <div class="col-6 col-md">
+            <h5>About</h5>
+            <ul class="list-unstyled text-small">
+                <li><a class="text-muted" href="{{ url_for('briefing.how_it_works') }}">How it works</a></li>
+                <li><a class="text-muted" href="{{ url_for('briefing.example_briefing') }}">Example briefing</a></li>
+                <li><a class="text-muted" href="mailto:beta.testing.rssbriefing@posteo.net">Contact</a></li>
+            </ul>
+        </div>
+    </div>
+</footer>
