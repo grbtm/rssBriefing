@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Example Briefing{% endblock %}
+
+{% block content %}
+<p></p>
+<h1>Your rssBriefing</h1>
+
+<p>Your briefing was generated on {{ briefing_date }}</p>
+
+
+{% for item in items %}
+<article class="item">
+    <header>
+        <h5>{{ item['title'] }}</h5>
+    </header>
+    <p class="text-justify">{{ item['summary'] }}</p>
+
+    <small>
+
+        <i>Source:</i>
+        <a href="{{ item.feed.link }}">
+            <mark>{{ item['feed_title'] }}</mark>
+        </a>
+
+        |
+
+        <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}" class="text-secondary">Article link</a>
+
+    </small>
+
+
+</article>
+{% if not loop.last %}
+<hr>
+{% endif %}
+{% endfor %}
+{% endblock %}
