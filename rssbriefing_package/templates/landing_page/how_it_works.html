@@ -8,28 +8,28 @@
 
 <br>
 
-<h4> 1. <mark>Humans:</mark> Collect and curate trending topics &#x1F9D0;</h4>
+<h4>1. Humans collect and curate trending topics</h4>
 <p class="text-justify">
-    We collect the trending headlines of the past 24h from a range of aggregators.
-    Afterwards we handpick a small number
-    of topics which we define as the set of current trending news.
-    For that we focus on the most important global headlines.
+    We collect the trending headlines of the past 24 hours from a wide range of news sources.
+    We then handpick a small number
+    of topics that become the set of current trending news.
+    We focus on the most important global headlines.
 </p>
-<h4> 2. <mark>AI:</mark> Select the most relevant feed posts from the past 24h &#x1F50D;</h4>
+<h4>2. AI selects the most relevant posts of the past 24h from your feeds</h4>
 <p class="text-justify">
-    Based on the list of rss and Atom feeds of an user, a machine learning model picks the feed posts
-    which are most similar to the above defined set of trending news.
+    Based on the list of a user's source feeds, a machine learning model picks the posts
+    that are most similar to our set of trending news.
 </p>
-<h4> 3. <mark>AI:</mark> Summarize the picked articles &#x1F4DD;</h4>
+<h4>3. AI summarizes the chosen articles</h4>
 <p class="text-justify">
-    Afterwards we collect the full articles of the selected feed posts and use another machine learning model
-    to summarize the articles. In the end you get a summary for each trending topic, based on your list of
+    Then we collect the full articles from the selected posts and use another machine learning model
+    to summarize the articles. In the end, you get a summary of each trending topic based on your list of
     news sources.
 </p>
-<h4> 4. Provide the briefing to each user &#x1F5DE;</h4>
+<h4>4. rssBriefing delivers the briefing to each user</h4>
 <p class="text-justify">
-    Now that the custom briefing is generated, you can log in to your rssBriefing account and view your personal
-    briefing - based on the current trending news, summarized according to your list of feeds.
+    Now that the custom briefing has been generated, you can log in to your rssBriefing account and view your personal
+    briefing.
 </p>
 
 <br>
@@ -46,8 +46,8 @@
     <dt>Flask</dt>
     <dd>The app is written using the Python micro web framework Flask.</dd>
 
-    <dt>Feedparser</dt>
-    <dd>To parse rss and Atom feeds, as the name suggests...</dd>
+    <dt>feedparser</dt>
+    <dd>We use feedparser to process RSS and Atom feeds.</dd>
 
     <dt>newspaper3k</dt>
     <dd>The newspaper3k library allows us to parse the actual news articles.</dd>
