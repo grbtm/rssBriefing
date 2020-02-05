@@ -18,7 +18,7 @@ def latest():
         join(Feed.users). \
         filter(Users.id == g.user.id). \
         order_by(Item.created.desc()). \
-        all()
+        limit(20)
 
     feeds = get_feedlist_for_dropdown(g.user.id)
 
