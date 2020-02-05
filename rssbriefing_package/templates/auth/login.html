@@ -5,15 +5,25 @@
 {% endblock %}
 
 {% block content %}
-<form method="post">
-    <p>
-        <label for="username">Username</label><br>
-        <input name="username" id="username" required>
-    </p>
-    <p>
-        <label for="password">Password</label><br>
-        <input type="password" name="password" id="password" required>
-    </p>
-    <input type="submit" value="Log In">
-</form>
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+
+            <form method="post">
+                <p>
+                    <label for="username">Username</label><br>
+                    <input name="username" id="username" required>
+                </p>
+                <p>
+                    <label for="password">Password</label><br>
+                    <input type="password" name="password" id="password" required>
+                </p>
+                <input type="submit" value="Log In">
+            </form>
+
+        </div>
+    </div>
+</div>
+
 {% endblock %}

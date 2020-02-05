@@ -31,38 +31,46 @@
 {% block title %}Briefing{% endblock %}
 
 {% block content %}
-<p></p>
-<h1>Your rssBriefing</h1>
-{% if items %}
-    <p>Your briefing was generated on {{ briefing_date }}</p>
-{% else %}
-    <p>Unfortunately you don't have a briefing yet. Add feeds to your profile and try again later!</p>
-{% endif %}
 
-{% for item in items %}
-<article class="item">
-    <header>
-        <h5>{{ item['title'] }}</h5>
-    </header>
-    <p class="text-justify">{{ item['summary'] }}</p>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <p></p>
+            <h1>Your rssBriefing</h1>
+            {% if items %}
+                <p>Your briefing was generated on {{ briefing_date }}</p>
+            {% else %}
+                <p>Unfortunately you don't have a briefing yet. Add feeds to your profile and try again later!</p>
+            {% endif %}
 
-    <small>
+            {% for item in items %}
+            <article class="item">
+                <header>
+                    <h5>{{ item['title'] }}</h5>
+                </header>
+                <p class="text-justify">{{ item['summary'] }}</p>
 
-        <i>Source:</i>
-        <a href="{{ url_for('rss_reader.single', feed_id=item.feed.id) }}">
-        <mark>{{ item['feed_title'] }}</mark>
-        </a>
+                <small>
 
-        |
+                    <i>Source:</i>
+                    <a href="{{ url_for('rss_reader.single', feed_id=item.feed.id) }}">
+                    <mark>{{ item['feed_title'] }}</mark>
+                    </a>
 
-        <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}" class="text-secondary">Article link</a>
+                    |
 
-    </small>
+                    <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}" class="text-secondary">Article link</a>
+
+                </small>
 
 
-</article>
-{% if not loop.last %}
-<hr>
-{% endif %}
-{% endfor %}
+            </article>
+            {% if not loop.last %}
+            <hr>
+            {% endif %}
+            {% endfor %}
+
+        </div>
+    </div>
+</div>
 {% endblock %}

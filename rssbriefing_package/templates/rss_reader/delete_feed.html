@@ -19,21 +19,27 @@
 {% endblock %}
 
 {% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col">
 
-<form action="{{ url_for('rss_reader.delete_feed') }}" method="post">
+            <form action="{{ url_for('rss_reader.delete_feed') }}" method="post">
 
-    <div class="form-group">
-        <label for="FormControlSelect">Select feed to delete:</label>
-        <select class="form-control" name="FormControlSelect" id="FormControlSelect">
-            {% for feed in feeds %}
-            <option value="{{ feed['title'] }}">
-                {{ feed['title'] }}
-            </option>
-            {% endfor %}
-        </select>
+                <div class="form-group">
+                    <label for="FormControlSelect">Select feed to delete:</label>
+                    <select class="form-control" name="FormControlSelect" id="FormControlSelect">
+                        {% for feed in feeds %}
+                        <option value="{{ feed['title'] }}">
+                            {{ feed['title'] }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+            </form>
+
+        </div>
     </div>
-
-    <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
-</form>
-
+</div>
 {% endblock %}

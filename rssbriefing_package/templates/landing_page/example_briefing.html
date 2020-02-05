@@ -2,37 +2,74 @@
 
 {% block title %}Example Briefing{% endblock %}
 
-{% block content %}
-<p></p>
-<h1>Your rssBriefing</h1>
+{% block header %}
+{% if g.user %}
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('rss_reader.latest') }}">
+        Latest
+    </a>
+</li>
 
-<p>Your briefing was generated on {{ briefing_date }}</p>
+<li class="nav-item dropdown">
 
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+        Edit feeds
+    </a>
 
-{% for item in items %}
-<article class="item">
-    <header>
-        <h5>{{ item['title'] }}</h5>
-    </header>
-    <p class="text-justify">{{ item['summary'] }}</p>
-
-    <small>
-
-        <i>Source:</i>
-        <a href="{{ item.feed.link }}">
-            <mark>{{ item['feed_title'] }}</mark>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+        <a class="nav-link" href="{{ url_for('rss_reader.add_feed') }}">
+            Add feed
         </a>
 
-        |
+        <a class="nav-link" href="{{ url_for('rss_reader.delete_feed') }}">
+            Delete feed
+        </a>
+    </div>
 
-        <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}" class="text-secondary">Article link</a>
-
-    </small>
-
-
-</article>
-{% if not loop.last %}
-<hr>
+</li>
 {% endif %}
-{% endfor %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <p></p>
+            <h1>Your rssBriefing</h1>
+
+            <p>Your briefing was generated on {{ briefing_date }}</p>
+
+
+            {% for item in items %}
+            <article class="item">
+                <header>
+                    <h5>{{ item['title'] }}</h5>
+                </header>
+                <p class="text-justify">{{ item['summary'] }}</p>
+
+                <small>
+
+                    <i>Source:</i>
+                    <a href="{{ item.feed.link }}">
+                        <mark>{{ item['feed_title'] }}</mark>
+                    </a>
+
+                    |
+
+                    <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}" class="text-secondary">Article link</a>
+
+                </small>
+
+
+            </article>
+            {% if not loop.last %}
+            <hr>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
 {% endblock %}

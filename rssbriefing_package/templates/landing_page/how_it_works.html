@@ -2,57 +2,95 @@
 
 {% block title %}Briefing explanation{% endblock %}
 
+{% block header %}
+{% if g.user %}
+<li class="nav-item">
+    <a class="nav-link" href="{{ url_for('rss_reader.latest') }}">
+        Latest
+    </a>
+</li>
+
+<li class="nav-item dropdown">
+
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+        Edit feeds
+    </a>
+
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+        <a class="nav-link" href="{{ url_for('rss_reader.add_feed') }}">
+            Add feed
+        </a>
+
+        <a class="nav-link" href="{{ url_for('rss_reader.delete_feed') }}">
+            Delete feed
+        </a>
+    </div>
+
+</li>
+{% endif %}
+{% endblock %}
+
 {% block content %}
-<p></p>
-<h1>So, how does this actually work? &#x1F914;</h1>
 
-<br>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <p></p>
+            <h1>So, how does this actually work? &#x1F914;</h1>
 
-<h4>1. Humans collect and curate trending topics</h4>
-<p class="text-justify">
-    We collect the trending headlines of the past 24 hours from a wide range of news sources.
-    We then handpick a small number
-    of topics that become the set of current trending news.
-    We focus on the most important global headlines.
-</p>
-<h4>2. AI selects the most relevant posts of the past 24h from your feeds</h4>
-<p class="text-justify">
-    Based on the list of a user's source feeds, a machine learning model picks the posts
-    that are most similar to our set of trending news.
-</p>
-<h4>3. AI summarizes the chosen articles</h4>
-<p class="text-justify">
-    Then we collect the full articles from the selected posts and use another machine learning model
-    to summarize the articles. In the end, you get a summary of each trending topic based on your list of
-    news sources.
-</p>
-<h4>4. rssBriefing delivers the briefing to each user</h4>
-<p class="text-justify">
-    Now that the custom briefing has been generated, you can log in to your rssBriefing account and view your personal
-    briefing.
-</p>
+            <br>
 
-<br>
-<br>
+            <h4>1. Humans collect and curate trending topics</h4>
+            <p class="text-justify">
+                We collect the trending headlines of the past 24 hours from a wide range of news sources.
+                We then handpick a small number
+                of topics that become the set of current trending news.
+                We focus on the most important global headlines.
+            </p>
+            <h4>2. AI selects the most relevant posts of the past 24h from your feeds</h4>
+            <p class="text-justify">
+                Based on the list of a user's source feeds, a machine learning model picks the posts
+                that are most similar to our set of trending news.
+            </p>
+            <h4>3. AI summarizes the chosen articles</h4>
+            <p class="text-justify">
+                Then we collect the full articles from the selected posts and use another machine learning model
+                to summarize the articles. In the end, you get a summary of each trending topic based on your list of
+                news sources.
+            </p>
+            <h4>4. rssBriefing delivers the briefing to each user</h4>
+            <p class="text-justify">
+                Now that the custom briefing has been generated, you can log in to your rssBriefing account and view your personal
+                briefing.
+            </p>
 
-<h4>Technologies we use:</h4>
-<dl>
-    <dt>gensim</dt>
-    <dd>
-        We trained a document similarity model based on gensim's implementation of Doc2Vec and we use
-        gensim's built-in summarization model.
-    </dd>
+            <br>
+            <br>
 
-    <dt>Flask</dt>
-    <dd>The app is written using the Python micro web framework Flask.</dd>
+            <h4>Technologies we use:</h4>
+            <dl>
+                <dt>gensim</dt>
+                <dd>
+                    We trained a document similarity model based on gensim's implementation of Doc2Vec and we use
+                    gensim's built-in summarization model.
+                </dd>
 
-    <dt>feedparser</dt>
-    <dd>We use feedparser to process RSS and Atom feeds.</dd>
+                <dt>Flask</dt>
+                <dd>The app is written using the Python micro web framework Flask.</dd>
 
-    <dt>newspaper3k</dt>
-    <dd>The newspaper3k library allows us to parse the actual news articles.</dd>
+                <dt>feedparser</dt>
+                <dd>We use feedparser to process RSS and Atom feeds.</dd>
 
-    <dt>AWS Elastic Beanstalk</dt>
-    <dd>For hosting.</dd>
-</dl>
+                <dt>newspaper3k</dt>
+                <dd>The newspaper3k library allows us to parse the actual news articles.</dd>
+
+                <dt>AWS Elastic Beanstalk</dt>
+                <dd>For hosting.</dd>
+            </dl>
+
+
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -38,22 +38,32 @@
 
 
 {% block content %}
-{% for item in items %}
-<article class="item">
-    <header>
-        <div>
-            <h5>{{ item['title'] }}</h5>
-            <small>
-                Published: {{ item['created'] }}
-                |
-                <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}" class="text-secondary">Link</a>
-            </small>
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+
+
+            {% for item in items %}
+            <article class="item">
+                <header>
+                    <div>
+                        <h5>{{ item['title'] }}</h5>
+                        <small>
+                            Published: {{ item['created'] }}
+                            |
+                            <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}" class="text-secondary">Link</a>
+                        </small>
+                    </div>
+                </header>
+                <p class="text-justify">{{ item['description'] }}</p>
+            </article>
+            {% if not loop.last %}
+            <hr>
+            {% endif %}
+            {% endfor %}
+
         </div>
-    </header>
-    <p class="text-justify">{{ item['description'] }}</p>
-</article>
-{% if not loop.last %}
-<hr>
-{% endif %}
-{% endfor %}
+    </div>
+</div>
 {% endblock %}

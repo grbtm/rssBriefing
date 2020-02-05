@@ -35,6 +35,9 @@ def load_logged_in_user():
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
+    # If user is already logged in, redirect to index
+    if g.user:
+        return redirect(url_for('index'))
 
     if request.method == 'POST':
 
@@ -79,6 +82,10 @@ def register():
 
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
+    # If user is already logged in, redirect to index
+    if g.user:
+        return redirect(url_for('index'))
+
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']

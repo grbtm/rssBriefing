@@ -19,11 +19,21 @@
 {% endblock %}
 
 {% block content %}
-<form method="post">
-    <div class="form-group">
-        <label for="xml_href">Link to xml file</label>
-        <input name="xml_href" class="form-control" id="xml_href" placeholder="for example https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml" value="{{ request.form['xml_href'] }}" required>
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+
+            <form method="post">
+                <div class="form-group">
+                    <label for="xml_href">Link to xml file</label>
+                    <input name="xml_href" class="form-control" id="xml_href" placeholder="for example https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml" value="{{ request.form['xml_href'] }}" required>
+                </div>
+                <button type="submit">Save</button>
+            </form>
+
+        </div>
     </div>
-    <button type="submit">Save</button>
-</form>
+</div>
+
 {% endblock %}

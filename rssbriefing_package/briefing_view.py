@@ -9,7 +9,6 @@ bp = Blueprint('briefing', __name__)
 
 
 def get_latest_briefing_date(user):
-
     datetime_obj = db.session.query(
         db.func.max(Briefing.briefing_created)). \
         filter(Briefing.user_id == user). \
@@ -19,7 +18,6 @@ def get_latest_briefing_date(user):
 
 
 def get_briefing_items(user, briefing_date):
-
     items = Briefing.query. \
         filter(Briefing.user_id == user). \
         filter(Briefing.briefing_created == briefing_date). \
@@ -28,10 +26,18 @@ def get_briefing_items(user, briefing_date):
     return items
 
 
+def get_feedlist_for_logged_in_user():
+    if g.user:
+        feedlist = get_feedlist_for_dropdown(g.user.id)
+    else:
+        feedlist = None
+
+    return feedlist
+
+
 @bp.route('/')
 @login_required
 def index():
-
     # Get the date of the most recent briefing
     latest_briefing_date = get_latest_briefing_date(user=g.user.id)
 
@@ -45,24 +51,30 @@ def index():
     # Get all feeds of user for the dropdown in the header navbar
     feeds = get_feedlist_for_dropdown(g.user.id)
 
-    return render_template('briefing/index.html', items=items, feeds=feeds, briefing_date=latest_briefing_date)
+    return render_template('briefing/index.html',
+                           items=items,
+                           feeds=feeds,
+                           briefing_date=latest_briefing_date)
 
 
 @bp.route('/start')
 def landing_page():
-
     # Get the date of the most recent briefing
     latest_briefing_date = get_latest_briefing_date(user=1)
 
     # Convert briefing date to custom string format for display
     latest_briefing_date = latest_briefing_date.strftime("%B %d, %Y at %I:%M %p")
 
-    return render_template('landing_page/start.html', briefing_date=latest_briefing_date)
+    # For logged in user: Get all feeds of user for the dropdown in the header navbar
+    feeds = get_feedlist_for_logged_in_user()
+
+    return render_template('landing_page/start.html',
+                           feeds=feeds,
+                           briefing_date=latest_briefing_date)
 
 
 @bp.route('/example')
 def example_briefing():
-
     # Get the date of the most recent briefing for example user
     latest_briefing_date = get_latest_briefing_date(user=1)
 
@@ -72,9 +84,19 @@ def example_briefing():
     # Convert briefing date to custom string format for display
     latest_briefing_date = latest_briefing_date.strftime("%B %d, %Y at %I:%M %p")
 
-    return render_template('landing_page/example_briefing.html', items=items, briefing_date=latest_briefing_date)
+    # For logged in user: Get all feeds of user for the dropdown in the header navbar
+    feeds = get_feedlist_for_logged_in_user()
+
+    return render_template('landing_page/example_briefing.html',
+                           items=items,
+                           feeds=feeds,
+                           briefing_date=latest_briefing_date)
 
 
 @bp.route('/how_it_works')
 def how_it_works():
-    return render_template('landing_page/how_it_works.html')
+    # For logged in user: Get all feeds of user for the dropdown in the header navbar
+    feeds = get_feedlist_for_logged_in_user()
+
+    return render_template('landing_page/how_it_works.html',
+                           feeds=feeds)
