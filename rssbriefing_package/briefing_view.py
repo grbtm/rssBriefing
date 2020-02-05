@@ -38,8 +38,9 @@ def index():
     # Get all items of most recent briefing
     items = get_briefing_items(user=g.user.id, briefing_date=latest_briefing_date)
 
-    # Convert briefing date to custom string format for display
-    latest_briefing_date = latest_briefing_date.strftime("%B %d, %Y at %I:%M %p")
+    # If briefing available: Convert briefing date to custom string format for display
+    if latest_briefing_date:
+        latest_briefing_date = latest_briefing_date.strftime("%B %d, %Y at %I:%M %p")
 
     # Get all feeds of user for the dropdown in the header navbar
     feeds = get_feedlist_for_dropdown(g.user.id)
