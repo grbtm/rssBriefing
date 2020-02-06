@@ -22,6 +22,11 @@ def get_summary(url):
         print(f"Article exception: {a_err}")
         summary = None
 
+    except ValueError as v_err:
+
+        print(f"Value error: {v_err}")
+        summary = None
+
     return summary
 
 

@@ -39,7 +39,7 @@ def single(feed_id):
         join(Feed). \
         filter(Feed.id == feed_id). \
         order_by(Item.created.desc()). \
-        all()
+        limit(50)
 
     # Get all feeds of user for dropdown menu
     feeds = get_feedlist_for_dropdown(g.user.id)
