@@ -63,7 +63,7 @@ def landing_page():
     latest_briefing_date = get_latest_briefing_date(user=1)
 
     # Convert briefing date to custom string format for display
-    latest_briefing_date = latest_briefing_date.strftime("%B %d, %Y at %I:%M %p")
+    latest_briefing_date = latest_briefing_date.strftime("%B %d, %Y at %I:%M %p") if latest_briefing_date else None
 
     # For logged in user: Get all feeds of user for the dropdown in the header navbar
     feeds = get_feedlist_for_logged_in_user()

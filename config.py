@@ -12,7 +12,7 @@ class Config(object):
     DEBUG = False
     TESTING = False
     CSRF_ENABLED = True
-    SECRET_KEY = os.environ.get('SECRET_FLASK_KEY')
+    SECRET_KEY = os.environ.get('SECRET_FLASK_KEY') or 'dev-secret-key'
     API_KEY = os.environ.get('API_KEY')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
