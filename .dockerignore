@@ -3,3 +3,6 @@
 
 # bash scripts
 *.sh
+
+# local environment variables
+.env
