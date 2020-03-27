@@ -40,36 +40,40 @@
         <div class="col">
             <p></p>
             <h1>Example rssBriefing</h1>
-
-            <p>This briefing was generated on {{ briefing_date }} UTC.</p>
-
-
-            {% for item in items %}
-            <article class="item">
-                <header>
-                    <h5>{{ item['title'] }}</h5>
-                </header>
-                <p class="text-justify">{{ item['summary'] }}</p>
-
-                <small>
-
-                    <i>Source:</i>
-                    <a href="{{ item.feed.link }}">
-                        <mark>{{ item['feed_title'] }}</mark>
-                    </a>
-
-                    |
-
-                    <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}" class="text-secondary">Article link</a>
-
-                </small>
+            {% if items %}
+                <p>This briefing was generated on {{ briefing_date }} UTC.</p>
 
 
-            </article>
-            {% if not loop.last %}
-            <hr>
+                {% for item in items %}
+                    <article class="item">
+                        <header>
+                            <h5>{{ item['title'] }}</h5>
+                        </header>
+                        <p class="text-justify">{{ item['summary'] }}</p>
+
+                        <small>
+
+                            <i>Source:</i>
+                            <a href="{{ item.feed.link }}">
+                                <mark>{{ item['feed_title'] }}</mark>
+                            </a>
+
+                            |
+
+                            <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}" class="text-secondary">Article link</a>
+
+                        </small>
+
+
+                    </article>
+                    {% if not loop.last %}
+                    <hr>
+                    {% endif %}
+                {% endfor %}
+
+            {% else %}
+                <p>Currently no example briefing available.</p>
             {% endif %}
-            {% endfor %}
         </div>
     </div>
 </div>

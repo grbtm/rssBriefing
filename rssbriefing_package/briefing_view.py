@@ -78,14 +78,17 @@ def example_briefing():
     # Get the date of the most recent briefing for example user
     latest_briefing_date = get_latest_briefing_date(user=1)
 
-    # Get all items of most recent briefing
-    items = get_briefing_items(user=1, briefing_date=latest_briefing_date)
+    if latest_briefing_date:
+        # Get all items of most recent briefing
+        items = get_briefing_items(user=1, briefing_date=latest_briefing_date)
 
-    # Convert briefing date to custom string format for display
-    latest_briefing_date = latest_briefing_date.strftime("%B %d, %Y at %I:%M %p")
+        # Convert briefing date to custom string format for display
+        latest_briefing_date = latest_briefing_date.strftime("%B %d, %Y at %I:%M %p")
 
-    # For logged in user: Get all feeds of user for the dropdown in the header navbar
-    feeds = get_feedlist_for_logged_in_user()
+        # For logged in user: Get all feeds of user for the dropdown in the header navbar
+        feeds = get_feedlist_for_logged_in_user()
+    else:
+        items, latest_briefing_date, feeds = None, None, None
 
     return render_template('landing_page/example_briefing.html',
                            items=items,
