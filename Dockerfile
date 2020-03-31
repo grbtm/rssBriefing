@@ -8,7 +8,7 @@ COPY . .
 
 RUN apt-get update -y && \
     apt-get install -y gcc python3-dev libpq-dev && \
-    python -m pip install --no-cache-dir -r requirements.txt &&
+    python -m pip install --no-cache-dir -r requirements.txt
 
 RUN chmod +x entrypoint.sh
 RUN chown -R rssbriefing:rssbriefing ./
