@@ -18,9 +18,6 @@ dist/
 build/
 *.egg-info/
 
-# Virtual environment
-donkey_env/
-
 # Elastic Beanstalk Files
 .ebignore
 .elasticbeanstalk/*

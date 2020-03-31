@@ -1,23 +1,22 @@
-FROM python:3.7.4-slim
+FROM python:3.7-slim-buster
 
-ENV FLASK_APP "application.py"
-ENV FLASK_ENV "development"
-ENV FLASK_DEBUG True
-ENV APP_SETTINGS "config.DevelopmentConfig"
-ENV BETA_CODE "test"
+RUN useradd --create-home rssbriefing
 
-WORKDIR /
+WORKDIR /home/rssbriefing
 
 COPY . .
 
 RUN apt-get update -y && \
     apt-get install -y gcc python3-dev libpq-dev && \
-    python -m pip install --no-cache-dir -r requirements.txt && \
-    flask db upgrade
+    python -m pip install --no-cache-dir -r requirements.txt &&
+
+RUN chmod +x entrypoint.sh
+RUN chown -R rssbriefing:rssbriefing ./
+USER rssbriefing
+
+ENV FLASK_APP "application.py"
 
 EXPOSE 5000
 
-ENTRYPOINT ["python"]
-
-CMD ["application.py"]
+CMD ["./entrypoint.sh"]
 
