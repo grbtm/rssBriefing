@@ -8,5 +8,5 @@ if [ -v DB_UPGRADE ]; then
 fi
 
 # Always launch the gunicorn app server
-exec gunicorn -b :5000 --workers=2 --threads=4 --worker-class=gthread --worker-tmp-dir /dev/shm .:application
+exec gunicorn -b :5000 --workers=2 --threads=4 --worker-class=gthread --worker-tmp-dir /dev/shm rssBriefing:rssbriefing_package
 
