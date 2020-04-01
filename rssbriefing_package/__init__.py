@@ -23,7 +23,7 @@ def create_app(test_config=None):
 
     if test_config is None:
         # Load Config subclass according to environment variable
-        app.config.from_object(os.environ.get('APP_SETTINGS'))
+        app.config.from_object(os.environ.get('APP_SETTINGS', 'config.DevelopmentConfig'))
     else:
         # Load the test config if passed
         app.config.update(test_config)
