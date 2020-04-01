@@ -7,5 +7,6 @@ if [ -v DB_UPGRADE ]; then
     flask db upgrade
 fi
 
-# Always launch the app
-exec python application.py
+# Always launch the gunicorn app server
+exec gunicorn -b :5000 --workers=2 --threads=4 --worker-class=gthread --worker-tmp-dir /dev/shm .:application
+
