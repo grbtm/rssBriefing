@@ -1,7 +1,7 @@
 import os
 import functools
 
-from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for
+from flask import Blueprint, current_app as app, flash, g, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from rssbriefing_package import db
@@ -57,7 +57,7 @@ def register():
         elif not beta_code:
             error = 'Invitation code is required.'
 
-        elif beta_code != os.environ.get('BETA_CODE'):
+        elif beta_code != app.config["BETA_CODE"]:
             error = 'Wrong invitation code.'
 
         elif not password:
