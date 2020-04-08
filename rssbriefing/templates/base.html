@@ -35,11 +35,15 @@
                     All feeds
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    {% for feed in feeds %}
-                    <a class="dropdown-item" href="{{ url_for('rss_reader.single', feed_id=feed.id) }}">
-                        {{ feed['title'] }}
-                    </a>
-                    {% endfor %}
+                    {% if feeds %}
+                        {% for feed in feeds %}
+                        <a class="dropdown-item" href="{{ url_for('rss_reader.single', feed_id=feed.id) }}">
+                            {{ feed['title'] }}
+                        </a>
+                        {% endfor %}
+                    {% else %}
+                        No feeeds added yet.
+                    {% endif %}
                 </div>
             </li>
             {% endif %}

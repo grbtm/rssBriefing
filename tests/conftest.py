@@ -9,8 +9,8 @@ import tempfile
 
 import pytest
 
-from rssbriefing_package import create_app
-from rssbriefing_package import db
+from rssbriefing import create_app
+from rssbriefing import db
 
 with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
     _data_sql = f.read().decode('utf8')
@@ -22,7 +22,8 @@ def app():
 
     app = create_app({'TESTING': True,
                       'SECRET_KEY': 'test',
-                      'SQLALCHEMY_DATABASE_URI': 'sqlite:///' + db_path})
+                      'SQLALCHEMY_DATABASE_URI': 'sqlite:///' + db_path,
+                      'BETA_CODE': 'test'})
 
     with app.app_context():
         # Create all tables in temp database

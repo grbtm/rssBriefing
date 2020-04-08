@@ -12,9 +12,11 @@ class Config(object):
     DEBUG = False
     TESTING = False
     CSRF_ENABLED = True
-    SECRET_KEY = os.environ.get('SECRET_FLASK_KEY')
+    SECRET_KEY = os.environ.get('SECRET_FLASK_KEY') or 'dev-secret-key'
     API_KEY = os.environ.get('API_KEY')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(module_path, 'app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    BETA_CODE = os.environ.get('BETA_CODE') or 'test'
 
 
 class ProductionConfig(Config):
@@ -35,4 +37,3 @@ class StagingConfig(Config):
 class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
