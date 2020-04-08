@@ -1,5 +1,0 @@
-# Jupyter notebooks
-*.ipynb
-
-# virtual env
-donkey_env/
