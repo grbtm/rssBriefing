@@ -5,8 +5,8 @@ from datetime import datetime
 import feedparser
 import html2text
 
-from rssbriefing_package import db
-from rssbriefing_package.models import Item, Feed
+from rssbriefing import db
+from rssbriefing.models import Item, Feed
 
 # Set timeout in seconds for new socket objects, needed for feedparser connections
 socket.setdefaulttimeout(10)

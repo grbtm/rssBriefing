@@ -1,10 +1,10 @@
 from flask import Blueprint, flash, g, redirect, render_template, request, url_for
 
-from rssbriefing_package import db
-from rssbriefing_package.auth import login_required
-from rssbriefing_package.db_utils import get_user_by_id, get_feedlist_for_dropdown
-from rssbriefing_package.feed import parse_feed, update_feed_db, well_formed, get_latest_feed_dict
-from rssbriefing_package.models import Feed, Users, Item
+from rssbriefing import db
+from rssbriefing.auth import login_required
+from rssbriefing.db_utils import get_user_by_id, get_feedlist_for_dropdown
+from rssbriefing.feed import parse_feed, update_feed_db, well_formed, get_latest_feed_dict
+from rssbriefing.models import Feed, Users, Item
 
 bp = Blueprint('rss_reader', __name__)
 

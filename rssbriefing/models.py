@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from rssbriefing_package import db
+from rssbriefing import db
 
 user_feed = db.Table('user_feed',
                      db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),

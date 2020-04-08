@@ -2,7 +2,7 @@ import pytest
 from flask import g, session
 
 
-from rssbriefing_package.db_utils import get_user_by_username
+from rssbriefing.db_utils import get_user_by_username
 
 
 def test_register(client, app):

@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 
 import pytz
 
-from rssbriefing_package.briefing_model.preparation import preprocess
-from rssbriefing_package.models import Item, Feed, Users, Briefing
+from rssbriefing.briefing_model.preparation import preprocess
+from rssbriefing.models import Item, Feed, Users, Briefing
 
 
 def get_candidates(app, user_id):

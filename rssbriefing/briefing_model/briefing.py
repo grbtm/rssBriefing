@@ -14,12 +14,12 @@ from gensim.corpora import Dictionary
 from gensim.models.doc2vec import Doc2Vec
 from gensim.models.keyedvectors import WordEmbeddingsKeyedVectors
 
-from rssbriefing_package import create_app
-from rssbriefing_package import db
-from rssbriefing_package.briefing_model.preparation import preprocess
-from rssbriefing_package.briefing_model.ranking import get_candidates, rank_candidates
-from rssbriefing_package.briefing_model.summarization import enrich_with_summary
-from rssbriefing_package.db_utils import get_user_by_id, get_all_users
+from rssbriefing import create_app
+from rssbriefing import db
+from rssbriefing.briefing_model.preparation import preprocess
+from rssbriefing.briefing_model.ranking import get_candidates, rank_candidates
+from rssbriefing.briefing_model.summarization import enrich_with_summary
+from rssbriefing.db_utils import get_user_by_id, get_all_users
 
 
 def get_reference_documents():
