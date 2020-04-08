@@ -23,7 +23,7 @@ build/
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
-.ebextensions/
+.ebextensions/*
 
 # jupyter notebooks
 *ipynb*

@@ -19,8 +19,8 @@ Build a Docker image from the Dockerfile:
 docker build -t rssbriefing .
 ```
 
-Run the app in a Docker container, by default a sqlite db will be initiated with
-a database migration
+Run the app in a Docker container, by default a temporary sqlite db will be initiated inside the container with
+a database migration:
 ```
 docker run -e DB_UPGRADE=1 -p 5000:5000 rssbriefing
 ```
@@ -40,4 +40,9 @@ export APP_SETTINGS=""
 
 # set a code for the registration process
 export BETA_CODE="test"
+```
+
+Finally open in browser:
+```
+0.0.0.0:5000/
 ```
