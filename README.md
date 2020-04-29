@@ -3,7 +3,7 @@
 rssBriefing is a RSS/Atom fuelled daily briefing app built with Flask, Bootstrap and Natural Language Processing models
 from gensim.
 
-Beta testing has started: https://rssbriefing.eu-central-1.elasticbeanstalk.com/
+Beta testing has started: https://rssbriefing.live
 
 
 ## How to run with Docker
