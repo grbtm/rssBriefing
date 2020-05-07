@@ -27,3 +27,6 @@ build/
 
 # jupyter notebooks
 *ipynb*
+
+# Virtual environments/pyenv
+.python-version
