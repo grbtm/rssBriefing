@@ -55,7 +55,7 @@ def parse_entry_attribute(entry, attribute):
 
             value = datetime_from_time_struct(entry[attribute])
 
-        elif attribute == 'description':  # HTML parsing of description
+        elif attribute in ('description', 'title'):  # HTML parsing of title and description
 
             text_maker = html2text.HTML2Text()
             text_maker.ignore_links = True
