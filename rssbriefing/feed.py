@@ -60,6 +60,7 @@ def parse_entry_attribute(entry, attribute):
             text_maker = html2text.HTML2Text()
             text_maker.ignore_links = True
             text_maker.ignore_images = True
+            text_maker.body_width = 0   # Remove html2text default newline wrapping
 
             value = text_maker.handle(entry[attribute])
 
