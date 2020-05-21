@@ -5,6 +5,7 @@ from gensim.corpora import Dictionary
 from gensim.models import Phrases, LdaModel
 from spacy.lang.en.stop_words import STOP_WORDS
 
+from rssbriefing import create_app
 from rssbriefing.briefing_model.configs import reference_feeds, stop_words, stop_words_to_remove, common_terms, \
     NUM_TOPICS, PASSES
 from rssbriefing.briefing_model.ranking import get_candidates
@@ -121,7 +122,7 @@ def compute_bigrams(corpus):
     return corpus
 
 
-def preprocess(posts):
+def preprocess(app, posts):
     """ Preprocess documents and thus create corpus ready for model training.
 
     :param posts: [Lst[rssbriefing.models.Briefing]]
@@ -155,7 +156,7 @@ def get_bow_representation(corpus, dictionary):
     return bow_corpus
 
 
-def train_model(app, corpus, dictionary):
+def train_model(app, bow_corpus, dictionary):
     """ Initialize and train LDA model. Since no iteration param supplied, it trains until topics converge.
 
     :param corpus:
@@ -166,7 +167,7 @@ def train_model(app, corpus, dictionary):
     temp = dictionary[0]  # Load dictionary into memory, necessary due to lazy evaluation
 
     model = LdaModel(
-        corpus=corpus,
+        corpus=bow_corpus,
 
         # id2word: mapping of id -> token/word
         id2word=dictionary.id2token,
@@ -204,10 +205,18 @@ def compute_topics(app):
 
     bow_corpus = get_bow_representation(corpus, dictionary)
 
-    model = train_model(app, corpus, dictionary)
+    model = train_model(app, bow_corpus, dictionary)
 
-    model.save(os.path.join(module_path, 'instance', 'LDA_model'))
+    #model.save(os.path.join(module_path, 'instance', 'LDA_model'))
 
     show_model_stats(app, model, bow_corpus, corpus, dictionary)
 
     return model
+
+
+if __name__ == '__main__':
+    # Set up app context to be able to access extensions such as SQLAlchemy when this module is run independently
+    app = create_app()
+    app.app_context().push()
+
+    compute_topics(app)
