@@ -40,7 +40,7 @@ def preprocess(app, posts):
     """ Preprocess documents and thus create corpus ready for model training.
 
     :param posts: [Lst[rssbriefing.models.Briefing]]
-    :return:
+    :return: corpus: [Lst[Lst[str]] corpus consisting of documents, each document represented as list of tokens
     """
     app.logger.info('Preprocessing the collected posts ....')
     corpus = tokenize_and_lemmatize(posts)
@@ -54,8 +54,8 @@ def preprocess(app, posts):
 def get_dictionary(corpus):
     """ Construct a mapping between words/tokens and their respective integer ids - with gensim's Dictionary class
 
-    :param corpus:
-    :return:
+    :param corpus: [Lst[Lst[str]] corpus consisting of documents, each document represented as list of tokens
+    :return: dictionary: [gensim.corpora.dictionary.Dictionary]
     """
     dictionary = Dictionary(corpus)
 
@@ -91,7 +91,7 @@ def train_model(app, bow_corpus, dictionary):
         # We initialize it with uniform distribution.
         alpha=np.full(shape=NUM_TOPICS, fill_value=(1 / NUM_TOPICS), dtype=np.float),
 
-        # A-priori belief on word probability: the string ‘auto’ to learn the asymmetric prior from the data.
+        # eta: a-priori belief on word probability, ‘auto’ means: to learn the asymmetric prior from the data.
         eta='auto',
 
         num_topics=NUM_TOPICS,
@@ -114,17 +114,17 @@ def show_model_stats(app, model, bow_corpus, corpus, dictionary):
 def compute_topics(app):
     posts = collect_posts(app)
 
-    corpus = preprocess(app, posts)
+    tokenized_corpus = preprocess(app, posts)
 
-    dictionary = get_dictionary(corpus)
+    dictionary = get_dictionary(tokenized_corpus)
 
-    bow_corpus = get_bow_representation(corpus, dictionary)
+    bow_corpus = get_bow_representation(tokenized_corpus, dictionary)
 
     model = train_model(app, bow_corpus, dictionary)
 
     #model.save(os.path.join(module_path, 'instance', 'LDA_model'))
 
-    show_model_stats(app, model, bow_corpus, corpus, dictionary)
+    show_model_stats(app, model, bow_corpus, tokenized_corpus, dictionary)
 
     return model
 
