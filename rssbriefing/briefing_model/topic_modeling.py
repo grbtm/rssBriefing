@@ -19,6 +19,7 @@ def collect_posts(app):
     :param app:
     :return: posts: [Lst[rssbriefing.models.Briefing]]
     """
+    app.logger.info('Collecting posts from past 24h for topic modeling ... ')
     posts = get_candidates(app, user_id=1)
 
     posts = [candidate for candidate in posts if candidate.feed_title in reference_feeds]
@@ -29,6 +30,7 @@ def collect_posts(app):
     # Remove advertising posts for Bloomberg products
     posts = [candidate for candidate in posts if '(Source: Bloomberg)' not in candidate.description]
 
+    app.logger.info(f'Successfully collected {len(posts)} posts.')
     return posts
 
 
@@ -125,9 +127,11 @@ def preprocess(posts):
     :param posts: [Lst[rssbriefing.models.Briefing]]
     :return:
     """
+    app.logger.info('Preprocessing the collected posts ....')
     corpus = tokenize_and_lemmatize(posts)
 
     corpus = compute_bigrams(corpus)
+    app.logger.info('Finished preprocessing.')
 
     return corpus
 
@@ -151,14 +155,14 @@ def get_bow_representation(corpus, dictionary):
     return bow_corpus
 
 
-def train_model(corpus, dictionary):
+def train_model(app, corpus, dictionary):
     """ Initialize and train LDA model. Since no iteration param supplied, it trains until topics converge.
 
     :param corpus:
     :param dictionary:
     :return:
     """
-
+    app.logger.info(f'Training LDA model with {NUM_TOPICS} topics ...')
     temp = dictionary[0]  # Load dictionary into memory, necessary due to lazy evaluation
 
     model = LdaModel(
@@ -179,20 +183,31 @@ def train_model(corpus, dictionary):
         passes=PASSES
     )
 
+    app.logger.info('Finished training.')
     return model
+
+
+def show_model_stats(app, model, bow_corpus, corpus, dictionary):
+    top_topics = model.top_topics(corpus=bow_corpus, texts=corpus, dictionary=dictionary, coherence='c_v')
+    avg_topic_coherence = sum([t[1] for t in top_topics]) / NUM_TOPICS
+
+    app.logger.info(f'Topic model training finished. Average topic coherence: {avg_topic_coherence}')
+    app.logger.info(f'Top topics: {top_topics}')
 
 
 def compute_topics(app):
     posts = collect_posts(app)
 
-    corpus = preprocess(posts)
+    corpus = preprocess(app, posts)
 
     dictionary = get_dictionary(corpus)
 
     bow_corpus = get_bow_representation(corpus, dictionary)
 
-    model = train_model(corpus, dictionary)
+    model = train_model(app, corpus, dictionary)
 
     model.save(os.path.join(module_path, 'instance', 'LDA_model'))
+
+    show_model_stats(app, model, bow_corpus, corpus, dictionary)
 
     return model
