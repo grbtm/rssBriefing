@@ -2,6 +2,7 @@ import en_core_web_sm
 from spacy.lang.en.stop_words import STOP_WORDS
 
 from gensim.models import Phrases
+from gensim.corpora import Dictionary
 
 from rssbriefing.briefing_model.ranking import get_candidates
 from rssbriefing.briefing_model.data_structures import TopicModel
@@ -87,6 +88,7 @@ def compute_bigrams(corpus):
             if '_' in token:
                 # Token is a bigram, add to document.
                 corpus[idx].append(token)
+
     return corpus
 
 
@@ -101,6 +103,25 @@ def preprocess(posts):
     corpus = compute_bigrams(corpus)
 
     return corpus
+
+
+def get_dictionary(corpus):
+    """ Construct a mapping between words/tokens and their respective integer ids - with gensim's Dictionary class
+
+    :param corpus:
+    :return:
+    """
+    dictionary = Dictionary(corpus)
+
+    # Filter out words that occur less than 4 documents, or more than 60% of the documents.
+    dictionary.filter_extremes(no_below=4, no_above=0.6)
+
+    return dictionary
+
+
+def get_bow_representation(corpus, dictionary):
+    bow_corpus = [dictionary.doc2bow(doc) for doc in corpus]
+    return bow_corpus
 
 
 def compute_topics(app):
