@@ -33,7 +33,12 @@ reference_feeds = [
 ]
 
 # Custom stop words for spaCy's English language model
-stop_words = ["Mrs.", "Ms.", "Mr.", "say", "WASHINGTON", "'s"]
+stop_words = ["Mrs.", "Ms.", "Mr.", "say", "WASHINGTON", "'s", "’"]
+stop_words_to_remove = ["show"]
 
 # Common terms for gensim's Phrases
-common_terms = ("bank_of_america", "new_york", "united_states")
+common_terms = ("bank_of_america", "new_york", "united_states", "talk_show")
+
+# LDA model parameters
+NUM_TOPICS = 18
+PASSES = 30

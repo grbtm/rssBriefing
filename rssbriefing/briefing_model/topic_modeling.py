@@ -1,12 +1,16 @@
+import os
 import en_core_web_sm
+import numpy as np
+from gensim.corpora import Dictionary
+from gensim.models import Phrases, LdaModel
 from spacy.lang.en.stop_words import STOP_WORDS
 
-from gensim.models import Phrases
-from gensim.corpora import Dictionary
-
+from rssbriefing.briefing_model.configs import reference_feeds, stop_words, stop_words_to_remove, common_terms, \
+    NUM_TOPICS, PASSES
 from rssbriefing.briefing_model.ranking import get_candidates
-from rssbriefing.briefing_model.data_structures import TopicModel
-from rssbriefing.briefing_model.configs import reference_feeds, stop_words, common_terms
+
+
+module_path = os.path.abspath(os.path.dirname(__file__))
 
 
 def collect_posts(app):
@@ -20,18 +24,21 @@ def collect_posts(app):
     posts = [candidate for candidate in posts if candidate.feed_title in reference_feeds]
 
     # Remove posts with Live updates, since these cover multiple topics and thus deviate from the average post
-    posts = [candidate for candidate in posts if 'Live' not in candidate.title]
+    posts = [candidate for candidate in posts if 'Live ' not in candidate.title]
 
     # Remove advertising posts for Bloomberg products
     posts = [candidate for candidate in posts if '(Source: Bloomberg)' not in candidate.description]
 
-    app.logger.info(f'Fetched {len(posts)} posts for subsequent topic modeling.')
     return posts
 
 
 def load_language_model():
     nlp = en_core_web_sm.load()
+
+    # Update stop words according to custom use case
     nlp.Defaults.stop_words.update(stop_words)
+    for word in stop_words_to_remove:
+        nlp.Defaults.stop_words.remove(word)
 
     for word in STOP_WORDS:
         lexeme = nlp.vocab[word]
@@ -40,8 +47,21 @@ def load_language_model():
     return nlp
 
 
+# def entity_recognition(doc):
+#     full_string = doc.text
+#     for entity in doc.ents:
+#
+#     return doc
+
 def preprocess_document(post, nlp):
-    """
+    """ Perform preprocessing on a single document.
+
+    Preprocessing covers:
+        - Normalization: lowering all string
+
+        - Tokenization
+        - Lemmatization
+        - custom filtering
 
     :param post:
     :param nlp:
@@ -53,6 +73,8 @@ def preprocess_document(post, nlp):
     doc = doc.lower()
 
     doc = nlp(doc)
+
+    # doc = entity_recognition(doc)
 
     doc = [word.lemma_ for word in doc
            if word.text != '\n' and
@@ -79,9 +101,14 @@ def tokenize_and_lemmatize(posts):
 
 
 def compute_bigrams(corpus):
+    """ Enrich documents (consisting of list of tokens) with composite tokens of bigrams such as "new_york".
+
+    :param corpus: [Lst[Lst[str]]]
+    :return: corpus: [Lst[Lst[str]]]
+    """
     bigram = Phrases(corpus,
-                     min_count=5,   # Ignore all words and bigrams with total collected count lower than this value.
-                     common_terms=common_terms) # List of stop words that won’t affect frequency count of expressions containing them.
+                     min_count=5,  # Ignore all words and bigrams with total collected count lower than this value.
+                     common_terms=common_terms)  # List of stop words that won’t affect frequency count of expressions containing them.
 
     for idx in range(len(corpus)):
         for token in bigram[corpus[idx]]:
@@ -93,7 +120,7 @@ def compute_bigrams(corpus):
 
 
 def preprocess(posts):
-    """
+    """ Preprocess documents and thus create corpus ready for model training.
 
     :param posts: [Lst[rssbriefing.models.Briefing]]
     :return:
@@ -124,6 +151,37 @@ def get_bow_representation(corpus, dictionary):
     return bow_corpus
 
 
+def train_model(corpus, dictionary):
+    """ Initialize and train LDA model. Since no iteration param supplied, it trains until topics converge.
+
+    :param corpus:
+    :param dictionary:
+    :return:
+    """
+
+    temp = dictionary[0]  # Load dictionary into memory, necessary due to lazy evaluation
+
+    model = LdaModel(
+        corpus=corpus,
+
+        # id2word: mapping of id -> token/word
+        id2word=dictionary.id2token,
+
+        # alpha: Can be set to an 1D array of length equal to the number of expected topics
+        # that expresses our a-priori belief for the each topics’ probability.
+        # We initialize it with uniform distribution.
+        alpha=np.full(shape=NUM_TOPICS, fill_value=(1 / NUM_TOPICS), dtype=np.float),
+
+        # A-priori belief on word probability: the string ‘auto’ to learn the asymmetric prior from the data.
+        eta='auto',
+
+        num_topics=NUM_TOPICS,
+        passes=PASSES
+    )
+
+    return model
+
+
 def compute_topics(app):
     posts = collect_posts(app)
 
@@ -133,8 +191,8 @@ def compute_topics(app):
 
     bow_corpus = get_bow_representation(corpus, dictionary)
 
-    model = TopicModel()
+    model = train_model(corpus, dictionary)
 
-    model.save(MODEL_PATH)
+    model.save(os.path.join(module_path, 'instance', 'LDA_model'))
 
     return model
