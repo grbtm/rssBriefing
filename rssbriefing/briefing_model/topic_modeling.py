@@ -6,6 +6,7 @@ from gensim.models import Phrases, LdaModel
 from spacy.lang.en.stop_words import STOP_WORDS
 
 from rssbriefing import create_app
+from rssbriefing.briefing_model.preprocessing import tokenize_and_lemmatize, compute_bigrams
 from rssbriefing.briefing_model.configs import reference_feeds, stop_words, stop_words_to_remove, common_terms, \
     NUM_TOPICS, PASSES
 from rssbriefing.briefing_model.ranking import get_candidates
@@ -33,93 +34,6 @@ def collect_posts(app):
 
     app.logger.info(f'Successfully collected {len(posts)} posts.')
     return posts
-
-
-def load_language_model():
-    nlp = en_core_web_sm.load()
-
-    # Update stop words according to custom use case
-    nlp.Defaults.stop_words.update(stop_words)
-    for word in stop_words_to_remove:
-        nlp.Defaults.stop_words.remove(word)
-
-    for word in STOP_WORDS:
-        lexeme = nlp.vocab[word]
-        lexeme.is_stop = True
-
-    return nlp
-
-
-# def entity_recognition(doc):
-#     full_string = doc.text
-#     for entity in doc.ents:
-#
-#     return doc
-
-def preprocess_document(post, nlp):
-    """ Perform preprocessing on a single document.
-
-    Preprocessing covers:
-        - Normalization: lowering all string
-
-        - Tokenization
-        - Lemmatization
-        - custom filtering
-
-    :param post:
-    :param nlp:
-    :return:
-    """
-
-    doc = post.title + ' ' + post.description
-
-    doc = doc.lower()
-
-    doc = nlp(doc)
-
-    # doc = entity_recognition(doc)
-
-    doc = [word.lemma_ for word in doc
-           if word.text != '\n' and
-           word.text != '\n ' and
-           word.text != '\n\n' and
-           word.lemma_ not in STOP_WORDS and  # compare lemmatized string against stopwords list
-           not word.is_punct and
-           word.lemma_ != '-PRON-' and
-           not word.like_num]
-
-    # Custom filter for some RSS posts
-    if doc[-2] == 'continue' and doc[-1] == 'reading':
-        doc = doc[:-2]
-
-    return doc
-
-
-def tokenize_and_lemmatize(posts):
-    nlp = load_language_model()
-
-    corpus = [preprocess_document(post, nlp) for post in posts]
-
-    return corpus
-
-
-def compute_bigrams(corpus):
-    """ Enrich documents (consisting of list of tokens) with composite tokens of bigrams such as "new_york".
-
-    :param corpus: [Lst[Lst[str]]]
-    :return: corpus: [Lst[Lst[str]]]
-    """
-    bigram = Phrases(corpus,
-                     min_count=5,  # Ignore all words and bigrams with total collected count lower than this value.
-                     common_terms=common_terms)  # List of stop words that won’t affect frequency count of expressions containing them.
-
-    for idx in range(len(corpus)):
-        for token in bigram[corpus[idx]]:
-            if '_' in token:
-                # Token is a bigram, add to document.
-                corpus[idx].append(token)
-
-    return corpus
 
 
 def preprocess(app, posts):
@@ -193,7 +107,8 @@ def show_model_stats(app, model, bow_corpus, corpus, dictionary):
     avg_topic_coherence = sum([t[1] for t in top_topics]) / NUM_TOPICS
 
     app.logger.info(f'Topic model training finished. Average topic coherence: {avg_topic_coherence}')
-    app.logger.info(f'Top topics: {top_topics}')
+    for idx, topic in enumerate(top_topics):
+        app.logger.info(f"Topic {idx + 1}: 'c_v' coherence score: {topic[1]} \n {topic[0]}")
 
 
 def compute_topics(app):

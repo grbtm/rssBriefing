@@ -17,7 +17,7 @@ from gensim.models.keyedvectors import WordEmbeddingsKeyedVectors
 from rssbriefing import create_app
 from rssbriefing import db
 from rssbriefing.briefing_model.topic_modeling import compute_topics
-from rssbriefing.briefing_model.preparation import preprocess
+from rssbriefing.briefing_model.preprocessing import preprocess
 from rssbriefing.briefing_model.ranking import get_candidates, rank_candidates
 from rssbriefing.briefing_model.summarization import enrich_with_summary
 from rssbriefing.db_utils import get_user_by_id, get_all_users

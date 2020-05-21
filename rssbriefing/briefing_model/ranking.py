@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 import pytz
 
-from rssbriefing.briefing_model.preparation import preprocess
+from rssbriefing.briefing_model.preprocessing import preprocess
 from rssbriefing.models import Item, Feed, Users, Briefing
 
 
