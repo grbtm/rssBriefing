@@ -16,6 +16,7 @@ from gensim.models.keyedvectors import WordEmbeddingsKeyedVectors
 
 from rssbriefing import create_app
 from rssbriefing import db
+from rssbriefing.briefing_model.topic_modeling import compute_topics
 from rssbriefing.briefing_model.preparation import preprocess
 from rssbriefing.briefing_model.ranking import get_candidates, rank_candidates
 from rssbriefing.briefing_model.summarization import enrich_with_summary
@@ -151,17 +152,21 @@ def generate_briefing():
 
             users = [get_user_by_id(user_id) for user_id in args.user_ids]
 
+
+        # Compute the daily topics
+        topic_model = compute_topics(app)
+
         # Get the current reference corpus
-        corpus = get_reference_corpus(app)
+        #corpus = get_reference_corpus(app) -> used to be manually selected set of articles
 
         # Load trained Doc2Vec model
-        model = load_model(app)
+        #model = load_model(app)
 
         # Use the model to infer document vectors from reference corpus
-        reference_vectors = get_ref_vectors(model=model, corpus=corpus)
+        #reference_vectors = get_ref_vectors(model=model, corpus=corpus)
 
         # Construct Keyed Vectors set of vectors from reference vectors
-        keyed_vectors = get_keyed_vectors(vector_size=model.vector_size, inferred_vecs=reference_vectors)
+        #keyed_vectors = get_keyed_vectors(vector_size=model.vector_size, inferred_vecs=reference_vectors)
 
         app.logger.info(f'Generating briefing for users {users}...')
 
