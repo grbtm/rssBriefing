@@ -123,7 +123,12 @@ def rank_candidates(app, candidates, model, probability_threshold=None, nr_topic
         candidates = [candidate for candidate in candidates if candidate.score >= probability_threshold]
 
     # Trending topics are those which were the most probable topics across all considered posts, keep only the top
-    trending_topics = [item for item, count in collections.Counter(assigned_topics).most_common(nr_topics)]
+    most_common = collections.Counter(assigned_topics).most_common(nr_topics)
+    trending_topics = [topic_id for topic_id, count in most_common]
     candidates = [candidate for candidate in candidates if candidate.reference in trending_topics]
+
+    app.logger.info(f'The top {nr_topics} trending topics are:')
+    for topic in most_common:
+        app.logger.info(f'Topic id {topic[0]} with {topic[1]} assignments: \n {model.print_topic(topic[0], topn=10)}')
 
     return candidates
