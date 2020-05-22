@@ -152,21 +152,8 @@ def generate_briefing():
 
             users = [get_user_by_id(user_id) for user_id in args.user_ids]
 
-
-        # Compute the daily topics
+        # Compute the current trending topics
         topic_model = compute_topics(app)
-
-        # Get the current reference corpus
-        #corpus = get_reference_corpus(app) -> used to be manually selected set of articles
-
-        # Load trained Doc2Vec model
-        #model = load_model(app)
-
-        # Use the model to infer document vectors from reference corpus
-        #reference_vectors = get_ref_vectors(model=model, corpus=corpus)
-
-        # Construct Keyed Vectors set of vectors from reference vectors
-        #keyed_vectors = get_keyed_vectors(vector_size=model.vector_size, inferred_vecs=reference_vectors)
 
         app.logger.info(f'Generating briefing for users {users}...')
 

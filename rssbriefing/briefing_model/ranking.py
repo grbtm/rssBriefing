@@ -69,13 +69,7 @@ def query_most_similar_reference(briefing_item, model):
     briefing_item.score = probability
 
 
-def pick_highest_scoring_candidate_of_each_reference(app, candidates):
-
-    references = [candidate.reference for candidate in candidates if candidate.reference is not 'None']
-    multiple_assignments = [item for item, count in collections.Counter(references).items() if count > 1]
-
-    app.logger.info(f'{len(references)} candidates were assigned a most similar reference item.')
-    app.logger.info(f'{len(multiple_assignments)} reference items occurred more than once as highest sim score ref.')
+def pick_highest_scoring_candidate_of_each_topic(app, candidates, multiple_assignments):
 
     # If multiple candidates with same similarity reference exist, keep only the candidate with highest score
     if multiple_assignments:
@@ -92,35 +86,44 @@ def pick_highest_scoring_candidate_of_each_reference(app, candidates):
     return candidates
 
 
-def rank_candidates(app, candidates, model, similarity_threshold=None):
-    """ Takes a list of feed items and returns the subset which is most similar to the given reference docs/vectors.
+def rank_candidates(app, candidates, model, probability_threshold=None, nr_topics=10):
+    """ Takes a list of feed items and returns the subset which is most similar to the top trending nr_topics.
 
     :param app: [flask.Flask] The flask object implements a WSGI application
-    :param candidates: [lst[rssbriefing.models.Item]]
+    :param candidates: [Lst[rssbriefing.models.Item]]
     :param model: [gensim.models.LdaModel] the trained topic model
-    :param corpus: [lst[str]] of tokenized documents
-    :param similarity_threshold: [float] optional condition of a minimum threshold for the similarity score
-    :return: [lst[rssbriefing.models.Item]]
+    :param probability_threshold: [float] optional condition of a minimum threshold for the similarity score
+    :return: [Lst[rssbriefing.models.Item]]
     """
-    # Enrich candidates with most similar reference and respective similarity score
-    app.logger.info('Enriching candidates w most similar reference...')
+    # Enrich candidates with most likely topic and respective similarity score
+    app.logger.info('Enriching candidates w most likely topic ...')
 
     for candidate in candidates:
         query_most_similar_reference(candidate, model)
 
-    # Check for candidates with same reference
-    candidates = pick_highest_scoring_candidate_of_each_reference(app, candidates)
+    assigned_topics = [candidate.reference for candidate in candidates if candidate.reference is not 'None']
+    multiple_assignments = [item for item, count in collections.Counter(assigned_topics).items() if count > 1]
 
-    # Keep only the candidates with an assigned reference document
+    app.logger.info(f'{len(assigned_topics)} candidates were assigned a most similar reference item.')
+    app.logger.info(f'{len(multiple_assignments)} topics occurred more than once as most likely topic.')
+
+    # Check for candidates with same most likely topic
+    candidates = pick_highest_scoring_candidate_of_each_topic(app, candidates, multiple_assignments)
+
+    # Keep only the candidates with an assigned topic
     candidates = [candidate for candidate in candidates if candidate.reference != 'None']
 
-    app.logger.info(f'After handling of candidates with same reference: {len(candidates)} candidates point to a ref.')
+    app.logger.info(f'After handling of candidates with same most likely topic: {len(candidates)} candidates point to a topic.')
     app.logger.info(f'Scores of the remaining candidates: {[candidate.score for candidate in candidates]}.')
 
-    # Sort candidates according to their similarity score and apply threshold if supplied
+    # Sort candidates according to their probability and apply threshold if supplied
     candidates = sorted(candidates, key=lambda cand: cand.score, reverse=True)
 
-    if similarity_threshold:
-        candidates = [candidate for candidate in candidates if candidate.score >= similarity_threshold]
+    if probability_threshold:
+        candidates = [candidate for candidate in candidates if candidate.score >= probability_threshold]
+
+    # Trending topics are those which were the most probable topics across all considered posts, keep only the top
+    trending_topics = [item for item, count in collections.Counter(assigned_topics).most_common(nr_topics)]
+    candidates = [candidate for candidate in candidates if candidate.reference in trending_topics]
 
     return candidates
