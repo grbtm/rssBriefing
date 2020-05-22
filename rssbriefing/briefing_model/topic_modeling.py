@@ -1,6 +1,7 @@
 import os
 import en_core_web_sm
 import numpy as np
+from datetime import datetime
 from gensim.corpora import Dictionary
 from gensim.models import Phrases, LdaModel
 from spacy.lang.en.stop_words import STOP_WORDS
@@ -127,7 +128,7 @@ def compute_topics(app):
 
     model = train_model(app, bow_corpus, dictionary)
 
-    #model.save(os.path.join(module_path, 'instance', 'LDA_model'))
+    model.save(os.path.join(module_path, "models", f"LDA_model_{datetime.now().strftime('%Y-%m-%d')}"))
 
     show_model_stats(app, model, bow_corpus, tokenized_corpus, dictionary)
 
