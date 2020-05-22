@@ -175,7 +175,7 @@ def generate_briefing():
 
             candidates = get_candidates(app, user.id)
 
-            selected = rank_candidates(app, candidates, keyed_vectors, model, corpus, args.similarity_threshold)
+            selected = rank_candidates(app, candidates, topic_model, args.similarity_threshold)
 
             selected = enrich_with_summary(selected)
 

@@ -43,9 +43,9 @@ def preprocess(app, posts):
     :return: corpus: [Lst[Lst[str]] corpus consisting of documents, each document represented as list of tokens
     """
     app.logger.info('Preprocessing the collected posts ....')
-    corpus = tokenize_and_lemmatize(posts)
+    corpus = tokenize_and_lemmatize(posts=posts)
 
-    corpus = compute_bigrams(corpus)
+    corpus = compute_bigrams(tokenized_corpus=corpus)
     app.logger.info('Finished preprocessing.')
 
     return corpus
@@ -75,7 +75,7 @@ def train_model(app, bow_corpus, dictionary):
 
     :param corpus:
     :param dictionary:
-    :return:
+    :return: model: [gensim.models.LdaModel]
     """
     app.logger.info(f'Training LDA model with {NUM_TOPICS} topics ...')
     temp = dictionary[0]  # Load dictionary into memory, necessary due to lazy evaluation
@@ -112,6 +112,11 @@ def show_model_stats(app, model, bow_corpus, corpus, dictionary):
 
 
 def compute_topics(app):
+    """ Train a LDA topic model on posts from the past 24h.
+
+    :param app: [flask.Flask] object which implements a WSGI application
+    :return: model: [gensim.models.LdaModel] the trained topic model
+    """
     posts = collect_posts(app)
 
     tokenized_corpus = preprocess(app, posts)

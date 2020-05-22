@@ -2,28 +2,28 @@
     Module with functions for preprocessing
 
 """
+import os
+
 import en_core_web_sm
-from spacy.lang.en.stop_words import STOP_WORDS
 from gensim.models import Phrases
 from gensim.utils import tokenize
 from nltk.corpus import stopwords
+from spacy.lang.en.stop_words import STOP_WORDS
 
 from rssbriefing.briefing_model.configs import stop_words, stop_words_to_remove, common_terms
 
+module_path = os.path.abspath(os.path.dirname(__file__))
 
-def preprocess(doc, encoding='utf8'):
-    """ Prepare a document for either model training or prediction by tokenizing and applying further filters. """
 
-    doc = list(tokenize(doc,
-                        lowercase=True,
-                        deacc=True,  # Remove accentuation
-                        encoding=encoding))
+def preprocess(post):
+    """
 
-    commonlist = stopwords.words('english')
-
-    doc = [word for word in doc if word not in commonlist]  # remove common words
-    doc = [word for word in doc if word.isalpha()]  # remove numbers and special characters
-
+    :param post: [rssbriefing.models.Briefing]
+    :return: doc: [Lst[str]]
+    """
+    nlp = load_language_model()
+    doc = preprocess_document(post, nlp)
+    doc = compute_bigrams(single_doc=doc)
     return doc
 
 
@@ -53,12 +53,11 @@ def preprocess_document(post, nlp):
 
     Preprocessing covers:
         - Normalization: lowering all string
-
         - Tokenization
         - Lemmatization
         - custom filtering
 
-    :param post:
+    :param post: [rssbriefing.models.Briefing]
     :param nlp:
     :return:
     """
@@ -88,6 +87,11 @@ def preprocess_document(post, nlp):
 
 
 def tokenize_and_lemmatize(posts):
+    """
+
+    :param posts: [Lst[rssbriefing.models.Briefing]]
+    :return:
+    """
     nlp = load_language_model()
 
     corpus = [preprocess_document(post, nlp) for post in posts]
@@ -95,20 +99,55 @@ def tokenize_and_lemmatize(posts):
     return corpus
 
 
-def compute_bigrams(corpus):
-    """ Enrich documents (consisting of list of tokens) with composite tokens of bigrams such as "new_york".
+def train_phrases(tokenized_corpus):
+    # If no pretrained Phrases model is available, instantiate one:
+    if not os.path.isfile(os.path.join(module_path, 'models', 'Phrases_model')):
+        bigram = Phrases(tokenized_corpus,
+                         min_count=5,  # Ignore all words and bigrams with total collected count lower than this value.
+                         common_terms=common_terms)  # List of stop words that won’t affect frequency count of expressions containing them.
+        save_phrases(bigram)
 
-    :param corpus: [Lst[Lst[str]]]
-    :return: corpus: [Lst[Lst[str]]]
+    # Otherwise load the pretrained model and update it
+    else:
+        bigram = load_phrases()
+        bigram.add_vocab(tokenized_corpus)
+        save_phrases(bigram)
+
+    return bigram
+
+
+def load_phrases():
+    phrases_model = Phrases.load(os.path.join(module_path, 'models', 'Phrases_model'))
+    return phrases_model
+
+
+def save_phrases(model):
+    model.save(os.path.join(module_path, 'models', 'Phrases_model'))
+
+
+def compute_bigrams(tokenized_corpus=None, single_doc=None):
+    """ Enrich documents with composite tokens of bigrams such as "new_york". Takes either a corpus or a single doc.
+
+    :param tokenized_corpus: [Lst[Lst[str]]] corpus consisting of documents, each document represented as list of tokens
+    :param single_doc: [Lst[str]]
+    :return: tokenized_corpus: [Lst[Lst[str]]] or single_doc: [Lst[str]]
     """
-    bigram = Phrases(corpus,
-                     min_count=5,  # Ignore all words and bigrams with total collected count lower than this value.
-                     common_terms=common_terms)  # List of stop words that won’t affect frequency count of expressions containing them.
+    if tokenized_corpus:
+        bigram = train_phrases(tokenized_corpus)
 
-    for idx in range(len(corpus)):
-        for token in bigram[corpus[idx]]:
+        for idx in range(len(tokenized_corpus)):
+            for token in bigram[tokenized_corpus[idx]]:
+                if '_' in token:
+                    # Token is a bigram, add to document.
+                    tokenized_corpus[idx].append(token)
+
+    elif single_doc:
+        bigram = load_phrases()
+        for token in bigram[single_doc]:
             if '_' in token:
                 # Token is a bigram, add to document.
-                corpus[idx].append(token)
+                single_doc.append(token)
+    else:
+        raise ValueError("compute_bigrams() expects either tokenized_corpus or single_doc. Neither was provided.")
 
-    return corpus
+    return tokenized_corpus if tokenized_corpus else single_doc

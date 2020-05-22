@@ -39,28 +39,23 @@ def get_candidates(app, user_id):
     return candidates
 
 
-def query_most_similar_reference(briefing_item, keyed_vectors, model, corpus):
+def query_most_similar_reference(briefing_item, model):
     """ Get the reference with the highest similarity score for a given candidate <briefing_item>
 
     Populate the reference and score attributes of the Briefing model.
 
-    :param briefing_item: [models.Briefing] representing an rss feed entry considered a candidate for final briefing
-    :param keyed_vectors: [gensim.models.keyedvectors.WordEmbeddingsKeyedVectors] representing the reference vectors
+    :param briefing_item: [rssbriefing.models.Briefing] representing an rss feed entry considered a candidate for final briefing
     :param model: [gensim.models.doc2vec.Doc2Vec] trained Doc2Vec model
-    :param corpus: [lst[str]] of tokenized documents
     :return:
     """
 
-    # Concatenate item title and description and preprocess it with the same function used before model training
-    query = briefing_item.title + ' ' + briefing_item.description
-    tokenized_query = preprocess(query)
+    tokenized_doc = preprocess(briefing_item)
 
     # Generate a vector representation of the query, based on the trained model
-    inferred_vector = model.infer_vector(tokenized_query)
+    # Inferred vector is [Lst[tuple(topic_id, probability)]] and represents the topic probability distribution
+    inferred_vector = model[tokenized_doc]
 
-    # Compute cosine similarity between set of keyed vectors and inferred vector
-    similarities = keyed_vectors.most_similar([inferred_vector], topn=3)
-    similarities = sorted(similarities, key=lambda tupl: tupl[1], reverse=True)
+    top_topic_id = sorted(vector, key=lambda x: x[1], reverse=True)[0][0]
 
     if similarities:
         top_ranked = similarities[0]
@@ -96,22 +91,21 @@ def pick_highest_scoring_candidate_of_each_reference(app, candidates):
     return candidates
 
 
-def rank_candidates(app, candidates, keyed_vectors, model, corpus, similarity_threshold=None):
+def rank_candidates(app, candidates, model, similarity_threshold=None):
     """ Takes a list of feed items and returns the subset which is most similar to the given reference docs/vectors.
 
     :param app: [flask.Flask] The flask object implements a WSGI application
-    :param candidates: [lst[rssbriefing_package.models.Item]]
-    :param keyed_vectors: [gensim.models.keyedvectors.WordEmbeddingsKeyedVectors] representing the reference vectors
-    :param model: [gensim.models.doc2vec.Doc2Vec] trained Doc2Vec model
+    :param candidates: [lst[rssbriefing.models.Item]]
+    :param model: [gensim.models.LdaModel] the trained topic model
     :param corpus: [lst[str]] of tokenized documents
     :param similarity_threshold: [float] optional condition of a minimum threshold for the similarity score
-    :return: [lst[rssbriefing_package.models.Item]]
+    :return: [lst[rssbriefing.models.Item]]
     """
     # Enrich candidates with most similar reference and respective similarity score
     app.logger.info('Enriching candidates w most similar reference...')
 
     for candidate in candidates:
-        query_most_similar_reference(candidate, keyed_vectors, model, corpus)
+        query_most_similar_reference(candidate, model)
 
     # Check for candidates with same reference
     candidates = pick_highest_scoring_candidate_of_each_reference(app, candidates)
