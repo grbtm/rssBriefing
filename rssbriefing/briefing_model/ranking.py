@@ -1,6 +1,6 @@
 import collections
 from datetime import datetime, timedelta
-
+from tqdm import tqdm
 import pytz
 
 from rssbriefing.briefing_model.preprocessing import preprocess, load_current_dictionary, collect_latest_models
@@ -62,10 +62,10 @@ def query_most_similar_reference(briefing_item, model, dictionary, phrases, lang
 
     # Update the briefing_item attributes with most probable topic
     topic_id = top_topic[0]
-    briefing_item.reference = topic_id
+    briefing_item.reference = str(topic_id)
 
     probability = top_topic[1]
-    briefing_item.score = probability
+    briefing_item.score = float(probability)
 
 
 def pick_highest_scoring_candidate_of_each_topic(app, candidates, multiple_assignments):
@@ -98,7 +98,7 @@ def rank_candidates(app, candidates, model, probability_threshold=None, nr_topic
     app.logger.info('Enriching candidates w most likely topic ...')
 
     dictionary, phrases, language_model = collect_latest_models()
-    for candidate in candidates:
+    for candidate in tqdm(candidates):
         query_most_similar_reference(candidate, model, dictionary, phrases, language_model)
 
     assigned_topics = [candidate.reference for candidate in candidates if candidate.reference is not 'None']
@@ -129,6 +129,6 @@ def rank_candidates(app, candidates, model, probability_threshold=None, nr_topic
 
     app.logger.info(f'The top {nr_topics} trending topics are:')
     for topic in most_common:
-        app.logger.info(f'Topic id {topic[0]} with {topic[1]} assignments: \n {model.print_topic(topic[0], topn=10)}')
+        app.logger.info(f'Topic id {topic[0]} with {topic[1]} assignments: \n {model.print_topic(int(topic[0]), topn=10)}')
 
     return candidates
