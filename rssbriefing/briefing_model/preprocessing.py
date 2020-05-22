@@ -3,12 +3,12 @@
 
 """
 import os
+from datetime import datetime
 
 import en_core_web_sm
-from datetime import datetime
-from gensim.models import Phrases
 from gensim.corpora import Dictionary
-
+from gensim.models import Phrases
+from spacy.lang.en import English
 from spacy.lang.en.stop_words import STOP_WORDS
 
 from rssbriefing.briefing_model.configs import stop_words, stop_words_to_remove, common_terms
@@ -17,7 +17,7 @@ module_path = os.path.abspath(os.path.dirname(__file__))
 
 
 def preprocess(post):
-    """
+    """ Preprocessing logic for a single document. Identical with the preprocessing logic used for LDA model training.
 
     :param post: [rssbriefing.models.Briefing]
     :return: doc: [Lst[str]]
@@ -28,7 +28,7 @@ def preprocess(post):
     return doc
 
 
-def load_language_model():
+def initiate_language_model():
     nlp = en_core_web_sm.load()
 
     # Update stop words according to custom use case
@@ -40,7 +40,13 @@ def load_language_model():
         lexeme = nlp.vocab[word]
         lexeme.is_stop = True
 
+    nlp.to_disk(os.path.join(module_path, "models", f"spaCy_language_model_{datetime.now().strftime('%Y-%m-%d')}"))
     return nlp
+
+
+def load_language_model():
+    return English().from_disk(
+        os.path.join(module_path, "models", f"spaCy_language_model_{datetime.now().strftime('%Y-%m-%d')}"))
 
 
 # def entity_recognition(doc):
@@ -93,7 +99,7 @@ def tokenize_and_lemmatize(posts):
     :param posts: [Lst[rssbriefing.models.Briefing]]
     :return:
     """
-    nlp = load_language_model()
+    nlp = initiate_language_model()
 
     corpus = [preprocess_document(post, nlp) for post in posts]
 

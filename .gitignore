@@ -30,3 +30,6 @@ build/
 
 # Virtual environments/pyenv
 .python-version
+
+# Briefing related temporary models
+rssbriefing/briefing_model/models/

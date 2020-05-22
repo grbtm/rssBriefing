@@ -1,13 +1,10 @@
 import os
-import en_core_web_sm
 import numpy as np
 from datetime import datetime
-from gensim.corpora import Dictionary
-from gensim.models import Phrases, LdaModel
-from spacy.lang.en.stop_words import STOP_WORDS
+from gensim.models import LdaModel
 
 from rssbriefing import create_app
-from rssbriefing.briefing_model.preprocessing import tokenize_and_lemmatize, compute_bigrams
+from rssbriefing.briefing_model.preprocessing import tokenize_and_lemmatize, compute_bigrams, get_dictionary
 from rssbriefing.briefing_model.configs import reference_feeds, stop_words, stop_words_to_remove, common_terms, \
     NUM_TOPICS, PASSES
 from rssbriefing.briefing_model.ranking import get_candidates
@@ -50,20 +47,6 @@ def preprocess(app, posts):
     app.logger.info('Finished preprocessing.')
 
     return corpus
-
-
-def get_dictionary(corpus):
-    """ Construct a mapping between words/tokens and their respective integer ids - with gensim's Dictionary class
-
-    :param corpus: [Lst[Lst[str]] corpus consisting of documents, each document represented as list of tokens
-    :return: dictionary: [gensim.corpora.dictionary.Dictionary]
-    """
-    dictionary = Dictionary(corpus)
-
-    # Filter out words that occur less than 4 documents, or more than 60% of the documents.
-    dictionary.filter_extremes(no_below=4, no_above=0.6)
-
-    return dictionary
 
 
 def get_bow_representation(corpus, dictionary):
