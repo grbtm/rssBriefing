@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 import pytz
 
-from rssbriefing.briefing_model.preprocessing import preprocess, load_current_dictionary
+from rssbriefing.briefing_model.preprocessing import preprocess, load_current_dictionary, collect_latest_models
 from rssbriefing.models import Item, Feed, Users, Briefing
 
 
@@ -39,7 +39,7 @@ def get_candidates(app, user_id):
     return candidates
 
 
-def query_most_similar_reference(briefing_item, model):
+def query_most_similar_reference(briefing_item, model, dictionary, phrases, language_model):
     """ Get the topic with the highest probability score for a given briefing_item
 
     :param briefing_item: [rssbriefing.models.Briefing] representing an rss feed entry considered a candidate for final briefing
@@ -47,8 +47,7 @@ def query_most_similar_reference(briefing_item, model):
     :return:
     """
 
-    tokenized_doc = preprocess(briefing_item)
-    dictionary = load_current_dictionary()
+    tokenized_doc = preprocess(briefing_item, phrases, language_model)
     bow_representation = dictionary.doc2bow(tokenized_doc)
 
     # If the bag-of-words vector is empty, it doesn't make sense to calculate a probability distribution
@@ -98,8 +97,9 @@ def rank_candidates(app, candidates, model, probability_threshold=None, nr_topic
     # Enrich candidates with most likely topic and respective similarity score
     app.logger.info('Enriching candidates w most likely topic ...')
 
+    dictionary, phrases, language_model = collect_latest_models()
     for candidate in candidates:
-        query_most_similar_reference(candidate, model)
+        query_most_similar_reference(candidate, model, dictionary, phrases, language_model)
 
     assigned_topics = [candidate.reference for candidate in candidates if candidate.reference is not 'None']
     multiple_assignments = [item for item, count in collections.Counter(assigned_topics).items() if count > 1]

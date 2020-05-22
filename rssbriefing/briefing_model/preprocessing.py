@@ -16,15 +16,14 @@ from rssbriefing.briefing_model.configs import stop_words, stop_words_to_remove,
 module_path = os.path.abspath(os.path.dirname(__file__))
 
 
-def preprocess(post):
+def preprocess(post, phrases, nlp):
     """ Preprocessing logic for a single document. Identical with the preprocessing logic used for LDA model training.
 
     :param post: [rssbriefing.models.Briefing]
     :return: doc: [Lst[str]]
     """
-    nlp = load_language_model()
     doc = preprocess_document(post, nlp)
-    doc = compute_bigrams(single_doc=doc)
+    doc = predict_bigrams(doc, phrases)
     return doc
 
 
@@ -132,32 +131,30 @@ def save_phrases(model):
     model.save(os.path.join(module_path, 'models', 'Phrases_model'))
 
 
-def compute_bigrams(tokenized_corpus=None, single_doc=None):
-    """ Enrich documents with composite tokens of bigrams such as "new_york". Takes either a corpus or a single doc.
+def compute_bigrams(tokenized_corpus=None):
+    """ Enrich documents with composite tokens of bigrams such as "new_york".
 
     :param tokenized_corpus: [Lst[Lst[str]]] corpus consisting of documents, each document represented as list of tokens
-    :param single_doc: [Lst[str]]
-    :return: tokenized_corpus: [Lst[Lst[str]]] or single_doc: [Lst[str]]
+    :return: tokenized_corpus: [Lst[Lst[str]]]
     """
-    if tokenized_corpus:
-        bigram = train_phrases(tokenized_corpus)
 
-        for idx in range(len(tokenized_corpus)):
-            for token in bigram[tokenized_corpus[idx]]:
-                if '_' in token:
-                    # Token is a bigram, add to document.
-                    tokenized_corpus[idx].append(token)
+    bigram = train_phrases(tokenized_corpus)
 
-    elif single_doc:
-        bigram = load_phrases()
-        for token in bigram[single_doc]:
+    for idx in range(len(tokenized_corpus)):
+        for token in bigram[tokenized_corpus[idx]]:
             if '_' in token:
                 # Token is a bigram, add to document.
-                single_doc.append(token)
-    else:
-        raise ValueError("compute_bigrams() expects either tokenized_corpus or single_doc. Neither was provided.")
+                tokenized_corpus[idx].append(token)
 
-    return tokenized_corpus if tokenized_corpus else single_doc
+    return tokenized_corpus
+
+
+def predict_bigrams(doc, phrases):
+    for token in phrases[doc]:
+        if '_' in token:
+            # Token is a bigram, add to document.
+            doc.append(token)
+    return doc
 
 
 def get_dictionary(corpus):
@@ -178,3 +175,10 @@ def get_dictionary(corpus):
 
 def load_current_dictionary():
     return Dictionary.load(os.path.join(module_path, "models", f"dictionary_{datetime.now().strftime('%Y-%m-%d')}"))
+
+
+def collect_latest_models():
+    dictionary = load_current_dictionary()
+    phrases = load_phrases()
+    language_model = load_language_model()
+    return dictionary, phrases, language_model

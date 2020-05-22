@@ -4,102 +4,17 @@ Briefing generation module
 
 """
 import argparse
-import json
-import os
 import sys
 from datetime import datetime
 
 import pytz
-from gensim.corpora import Dictionary
-from gensim.models.doc2vec import Doc2Vec
-from gensim.models.keyedvectors import WordEmbeddingsKeyedVectors
 
 from rssbriefing import create_app
 from rssbriefing import db
-from rssbriefing.briefing_model.topic_modeling import compute_topics
-from rssbriefing.briefing_model.preprocessing import preprocess
 from rssbriefing.briefing_model.ranking import get_candidates, rank_candidates
 from rssbriefing.briefing_model.summarization import enrich_with_summary
+from rssbriefing.briefing_model.topic_modeling import compute_topics
 from rssbriefing.db_utils import get_user_by_id, get_all_users
-
-
-def get_reference_documents():
-    """ Collect the reference topics for the current Briefing.
-
-    Documents are Strings containing a whole text and represent the gensim objects that make up a corpus.
-
-    :return:
-    """
-
-    with open('final.json') as f:
-        documents = json.load(f)
-
-    corpus_titles = [doc for doc in documents['articles']]
-
-    return corpus_titles
-
-
-def get_corpus_dictionary(app, corpus):
-    """ Wrapper for gensim Dictionary function.
-
-    From gensim docs: Dictionary encapsulates the mapping between normalized words and their integer ids.
-
-    :return: [gensim.corpora.Dictionary]
-    """
-    app.logger.info('Creating gensim Dictionary for corpus...')
-
-    dictionary = Dictionary(corpus)
-
-    app.logger.info('Dictionary created.')
-
-    return dictionary
-
-
-def get_reference_corpus(app):
-    """ Load the current corpus.
-
-    Since the corpus is relatively small it can be loaded fully into memory.
-
-    :return: [Lst[Str]] List of Strings containing the preprocessed text bodies
-    """
-
-    app.logger.info('Fetching reference corpus for briefing...')
-
-    corpus = [preprocess(doc) for doc in get_reference_documents()]
-
-    app.logger.info(f'Successfully fetched {len(corpus)} reference documents for corpus.')
-
-    return corpus
-
-
-def load_model(app):
-    model_path = os.environ['MODEL_PATH']
-    app.logger.info(f'Loading Doc2Vec model from {model_path}')
-    model = Doc2Vec.load(model_path)
-
-    return model
-
-
-def get_ref_vectors(model, corpus):
-    """ Project the reference documents into the vector space of the trained Doc2Vec model. """
-
-    inferred_vectors = []
-
-    for doc in corpus:
-        vec = model.infer_vector(doc)
-        inferred_vectors.append(vec)
-
-    return inferred_vectors
-
-
-def get_keyed_vectors(vector_size, inferred_vecs):
-    """ Use the gensim.models.keyedvectors.WordEmbeddingsKeyedVectors class to store the inferred vectors. """
-
-    vectors = WordEmbeddingsKeyedVectors(vector_size=vector_size)
-    labels = list(range(len(inferred_vecs)))
-    vectors.add(entities=labels, weights=inferred_vecs)
-
-    return vectors
 
 
 def save_to_db(briefing_items):
