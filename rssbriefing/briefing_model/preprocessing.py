@@ -5,9 +5,10 @@
 import os
 
 import en_core_web_sm
+from datetime import datetime
 from gensim.models import Phrases
-from gensim.utils import tokenize
-from nltk.corpus import stopwords
+from gensim.corpora import Dictionary
+
 from spacy.lang.en.stop_words import STOP_WORDS
 
 from rssbriefing.briefing_model.configs import stop_words, stop_words_to_remove, common_terms
@@ -151,3 +152,23 @@ def compute_bigrams(tokenized_corpus=None, single_doc=None):
         raise ValueError("compute_bigrams() expects either tokenized_corpus or single_doc. Neither was provided.")
 
     return tokenized_corpus if tokenized_corpus else single_doc
+
+
+def get_dictionary(corpus):
+    """ Construct a mapping between words/tokens and their respective integer ids - with gensim's Dictionary class
+
+    :param corpus: [Lst[Lst[str]] corpus consisting of documents, each document represented as list of tokens
+    :return: dictionary: [gensim.corpora.dictionary.Dictionary]
+    """
+    dictionary = Dictionary(corpus)
+
+    # Filter out words that occur less than 4 documents, or more than 60% of the documents.
+    dictionary.filter_extremes(no_below=4, no_above=0.6)
+
+    dictionary.save(os.path.join(module_path, "models", f"dictionary_{datetime.now().strftime('%Y-%m-%d')}"))
+
+    return dictionary
+
+
+def load_current_dictionary():
+    return Dictionary.load(os.path.join(module_path, "models", f"dictionary_{datetime.now().strftime('%Y-%m-%d')}"))

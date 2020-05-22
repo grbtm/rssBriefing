@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 import pytz
 
-from rssbriefing.briefing_model.preprocessing import preprocess
+from rssbriefing.briefing_model.preprocessing import preprocess, load_current_dictionary
 from rssbriefing.models import Item, Feed, Users, Briefing
 
 
@@ -40,9 +40,7 @@ def get_candidates(app, user_id):
 
 
 def query_most_similar_reference(briefing_item, model):
-    """ Get the reference with the highest similarity score for a given candidate <briefing_item>
-
-    Populate the reference and score attributes of the Briefing model.
+    """ Get the topic with the highest probability score for a given briefing_item
 
     :param briefing_item: [rssbriefing.models.Briefing] representing an rss feed entry considered a candidate for final briefing
     :param model: [gensim.models.doc2vec.Doc2Vec] trained Doc2Vec model
@@ -50,22 +48,25 @@ def query_most_similar_reference(briefing_item, model):
     """
 
     tokenized_doc = preprocess(briefing_item)
+    dictionary = load_current_dictionary()
+    bow_representation = dictionary.doc2bow(tokenized_doc)
+
+    # If the bag-of-words vector is empty, it doesn't make sense to calculate a probability distribution
+    if not bow_representation:
+        return
 
     # Generate a vector representation of the query, based on the trained model
     # Inferred vector is [Lst[tuple(topic_id, probability)]] and represents the topic probability distribution
-    inferred_vector = model[tokenized_doc]
+    inferred_vector = model[bow_representation]
 
-    top_topic_id = sorted(vector, key=lambda x: x[1], reverse=True)[0][0]
+    top_topic = sorted(inferred_vector, key=lambda x: x[1], reverse=True)[0]
 
-    if similarities:
-        top_ranked = similarities[0]
+    # Update the briefing_item attributes with most probable topic
+    topic_id = top_topic[0]
+    briefing_item.reference = topic_id
 
-        corpus_ref_idx = top_ranked[0]
-        reference_words = " ".join(corpus[corpus_ref_idx])
-        briefing_item.reference = reference_words
-
-        score = top_ranked[1]
-        briefing_item.score = score
+    probability = top_topic[1]
+    briefing_item.score = probability
 
 
 def pick_highest_scoring_candidate_of_each_reference(app, candidates):
