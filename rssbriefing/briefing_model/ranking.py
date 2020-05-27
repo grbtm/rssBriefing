@@ -68,7 +68,8 @@ def query_most_similar_reference(briefing_item, model, dictionary, phrases, lang
     briefing_item.score = float(probability)
 
 
-def pick_highest_scoring_candidate_of_each_topic(app, candidates, multiple_assignments):
+def pick_highest_scoring_candidate_of_each_topic(candidates, multiple_assignments, ordered_topics):
+    topic_ranking = [item for item, count in ordered_topics]
 
     # If multiple candidates with same similarity reference exist, keep only the candidate with highest score
     if multiple_assignments:
@@ -81,6 +82,10 @@ def pick_highest_scoring_candidate_of_each_topic(app, candidates, multiple_assig
             # Reset the reference for all candidates except for the one with the highest score
             for candidate in same_ref_candidates[1:]:
                 candidate.reference = 'None'
+
+            # Update with topic ranking - currently saved under the guid attribute #TODO change
+            highest_prob_post = same_ref_candidates[0]
+            highest_prob_post.guid = str(topic_ranking.index(reference) + 1)
 
     return candidates
 
@@ -102,13 +107,14 @@ def rank_candidates(app, candidates, model, probability_threshold=None, nr_topic
         query_most_similar_reference(candidate, model, dictionary, phrases, language_model)
 
     assigned_topics = [candidate.reference for candidate in candidates if candidate.reference is not 'None']
+    ordered_topics = collections.Counter(assigned_topics).most_common()
     multiple_assignments = [item for item, count in collections.Counter(assigned_topics).items() if count > 1]
 
     app.logger.info(f'{len(assigned_topics)} candidates were assigned a most similar reference item.')
     app.logger.info(f'{len(multiple_assignments)} topics occurred more than once as most likely topic.')
 
     # Check for candidates with same most likely topic
-    candidates = pick_highest_scoring_candidate_of_each_topic(app, candidates, multiple_assignments)
+    candidates = pick_highest_scoring_candidate_of_each_topic(candidates, multiple_assignments, ordered_topics)
 
     # Keep only the candidates with an assigned topic
     candidates = [candidate for candidate in candidates if candidate.reference != 'None']
@@ -123,12 +129,11 @@ def rank_candidates(app, candidates, model, probability_threshold=None, nr_topic
         candidates = [candidate for candidate in candidates if candidate.score >= probability_threshold]
 
     # Trending topics are those which were the most probable topics across all considered posts, keep only the top
-    most_common = collections.Counter(assigned_topics).most_common(nr_topics)
-    trending_topics = [topic_id for topic_id, count in most_common]
+    trending_topics = [topic_id for topic_id, count in ordered_topics[:nr_topics]]
     candidates = [candidate for candidate in candidates if candidate.reference in trending_topics]
 
     app.logger.info(f'The top {nr_topics} trending topics are:')
-    for topic in most_common:
+    for topic in ordered_topics[:nr_topics]:
         app.logger.info(f'Topic id {topic[0]} with {topic[1]} assignments: \n {model.print_topic(int(topic[0]), topn=10)}')
 
     return candidates

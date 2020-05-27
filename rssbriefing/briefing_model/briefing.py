@@ -81,6 +81,16 @@ def generate_briefing():
 
             selected = enrich_with_summary(selected)
 
+            app.logger.info(f'The chosen briefing items are:')
+            for post in selected:
+                app.logger.info('----------------------------------------------------')
+                app.logger.info(f'Post title: \n{post.title}')
+                app.logger.info('----------------------------------------------------')
+                app.logger.info(f'Post description: \n{post.description}')
+                app.logger.info(f'Post summary: \n{post.summary}')
+                app.logger.info(f'Post topic id {post.reference}, ranked {post.guid}: \n {topic_model.print_topic(int(post.reference), topn=10)}')
+                app.logger.info(f'topic probability: \n{post.score}')
+
             app.logger.info(f'Writing {len(selected)} briefing items for user {user} to DB...')
             save_to_db(selected)
             app.logger.info('DB write done.')
