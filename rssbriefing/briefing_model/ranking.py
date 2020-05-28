@@ -8,6 +8,12 @@ from rssbriefing.models import Item, Feed, Users, Briefing
 
 
 def get_candidates(app, user_id):
+    """ Collect RSS/Atom posts from last 24h of a given user.
+
+    :param app: [flask.Flask] The flask object implements a WSGI application
+    :param user_id: [int]
+    :return candidates: [Lst[rssbriefing.models.Briefing]]
+    """
     app.logger.info('Getting briefing candidates from last 24h...')
 
     # Consider only feed entries from the last 24h
@@ -40,7 +46,7 @@ def get_candidates(app, user_id):
 
 
 def query_most_similar_reference(briefing_item, model, dictionary, phrases, language_model):
-    """ Get the topic with the highest probability score for a given briefing_item
+    """ Get the topic with the highest probability score for a given briefing_item. Update briefing item attributes.
 
     :param briefing_item: [rssbriefing.models.Briefing] representing an rss feed entry considered a candidate for final briefing
     :param model: [gensim.models.doc2vec.Doc2Vec] trained Doc2Vec model

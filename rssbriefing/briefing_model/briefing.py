@@ -11,6 +11,7 @@ import pytz
 
 from rssbriefing import create_app
 from rssbriefing import db
+from rssbriefing.briefing_model.configs import DISCARD_FEEDS
 from rssbriefing.briefing_model.ranking import get_candidates, rank_candidates
 from rssbriefing.briefing_model.summarization import enrich_with_summary
 from rssbriefing.briefing_model.topic_modeling import compute_topics
@@ -28,6 +29,11 @@ def save_to_db(briefing_items):
 
     # Commit to db only after looping over all selected Briefing items
     db.session.commit()
+
+
+def filter_posts(posts):
+    posts = [post for post in posts if post.feed_title in DISCARD_FEEDS]
+    return posts
 
 
 def parse_args():
@@ -77,6 +83,8 @@ def generate_briefing():
 
             candidates = get_candidates(app, user.id)
 
+            candidates = filter_posts(candidates)
+
             selected = rank_candidates(app, candidates, topic_model, args.similarity_threshold)
 
             selected = enrich_with_summary(selected)
@@ -88,7 +96,8 @@ def generate_briefing():
                 app.logger.info('----------------------------------------------------')
                 app.logger.info(f'Post description: \n{post.description}')
                 app.logger.info(f'Post summary: \n{post.summary}')
-                app.logger.info(f'Post topic id {post.reference}, ranked {post.guid}: \n {topic_model.print_topic(int(post.reference), topn=10)}')
+                app.logger.info(
+                    f'Post topic id {post.reference}, ranked {post.guid}: \n {topic_model.print_topic(int(post.reference), topn=10)}')
                 app.logger.info(f'topic probability: \n{post.score}')
 
             app.logger.info(f'Writing {len(selected)} briefing items for user {user} to DB...')

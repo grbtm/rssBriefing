@@ -42,3 +42,6 @@ common_terms = ("bank_of_america", "new_york", "united_states", "talk_show")
 # LDA model parameters
 NUM_TOPICS = 18
 PASSES = 30
+
+# RSS/Atom feeds to discard for briefing generation
+DISCARD_FEEDS = ["Bloomberg.com"]
