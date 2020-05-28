@@ -6,7 +6,9 @@ from gensim.
 Beta testing has started: https://rssbriefing.live
 
 ## TO DO
-handling of python -m spacy download en to obtain 'en_core_web_sm'
+- handling of python -m spacy download en to obtain 'en_core_web_sm'
+- AttributeError 'dict' object has no attribute 'batch_encode_plus' -> necessity to install transformers from source
+
 
 ## How to run with Docker
 

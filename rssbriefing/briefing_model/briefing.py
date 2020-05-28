@@ -32,7 +32,7 @@ def save_to_db(briefing_items):
 
 
 def filter_posts(posts):
-    posts = [post for post in posts if post.feed_title in DISCARD_FEEDS]
+    posts = [post for post in posts if post.feed_title not in DISCARD_FEEDS]
     return posts
 
 
