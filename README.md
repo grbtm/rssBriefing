@@ -5,6 +5,8 @@ from gensim.
 
 Beta testing has started: https://rssbriefing.live
 
+## TO DO
+handling of python -m spacy download en to obtain 'en_core_web_sm'
 
 ## How to run with Docker
 

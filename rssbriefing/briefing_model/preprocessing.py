@@ -39,7 +39,11 @@ def initiate_language_model():
         lexeme = nlp.vocab[word]
         lexeme.is_stop = True
 
-    nlp.to_disk(os.path.join(module_path, "models", f"spaCy_language_model_{datetime.now().strftime('%Y-%m-%d')}"))
+    designated_model_path = os.path.join(module_path, "models")
+    if not os.path.isdir(designated_model_path):
+        os.makedirs(designated_model_path)
+
+    nlp.to_disk(os.path.join(designated_model_path, f"spaCy_language_model_{datetime.now().strftime('%Y-%m-%d')}"))
     return nlp
 
 
