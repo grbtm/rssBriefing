@@ -6,7 +6,7 @@ from gensim.models import LdaModel
 from rssbriefing import create_app
 from rssbriefing.briefing_model.preprocessing import tokenize_and_lemmatize, compute_bigrams, get_dictionary
 from rssbriefing.briefing_model.configs import reference_feeds, stop_words, stop_words_to_remove, common_terms, \
-    NUM_TOPICS, PASSES
+    NUM_TOPICS, PASSES, DISCARD_KEYWORDS
 from rssbriefing.briefing_model.ranking import get_candidates
 
 
@@ -22,13 +22,13 @@ def collect_posts(app):
     app.logger.info('Collecting posts from past 24h for topic modeling ... ')
     posts = get_candidates(app, user_id=1)
 
-    posts = [candidate for candidate in posts if candidate.feed_title in reference_feeds]
+    posts = [post for post in posts if post.feed_title in reference_feeds]
 
     # Remove posts with Live updates, since these cover multiple topics and thus deviate from the average post
-    posts = [candidate for candidate in posts if 'Live ' not in candidate.title]
+    posts = [post for post in posts if all(keyword not in post.title for keyword in DISCARD_KEYWORDS)]
 
     # Remove advertising posts for Bloomberg products
-    posts = [candidate for candidate in posts if '(Source: Bloomberg)' not in candidate.description]
+    posts = [post for post in posts if '(Source: Bloomberg)' not in post.description]
 
     app.logger.info(f'Successfully collected {len(posts)} posts.')
     return posts
