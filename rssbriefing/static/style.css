@@ -1,4 +1,45 @@
-.container{
-    max-width:800px;
-    margin:0 auto;
+body{
+    font-family: "Merriweather";
 }
+
+body nav.navbar.navbar-expand-lg.navbar-light {
+    background-color: #599acf;
+}
+
+h1{
+    margin-top: 2rem;
+}
+
+div article.item {
+    margin-bottom:40px;
+}
+
+
+article h5 {
+    margin-top: 2.4rem;
+    margin-bottom: 1.2rem;
+    font-size: 1.6rem;
+    line-height: 1.4;
+    font-weight: 700;
+}
+
+article p.text-justify{
+    font-size: 1.2rem;
+    line-height: 1.6;
+    font-weight: 100;
+    text-align: left;
+}
+
+@media (min-width: 1200px) {
+    .container{
+        max-width: 799px;
+    }
+}
+
+@media (min-width: 992px) {
+    .container{
+      max-width: 799px;
+}
+}
+
+

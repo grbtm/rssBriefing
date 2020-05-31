@@ -50,3 +50,9 @@ DISCARD_FEEDS = ["Bloomberg.com", "Bloomberg Politics"]
 
 # Black list of keywords to filter for topic modeling
 DISCARD_KEYWORDS = ["Live ", "Coronavirus latest"]
+
+# transformers BERT summarization model parameters
+SUMMARIZATION_MODEL = "bart-large-cnn"
+TOKENIZER = "facebook/bart-large-cnn"
+MIN_LENGTH = 190
+MAX_LENGTH = 300

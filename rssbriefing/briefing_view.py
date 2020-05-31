@@ -43,7 +43,9 @@ def index():
 
     # Get all items of most recent briefing
     items = get_briefing_items(user=g.user.id, briefing_date=latest_briefing_date)
-    items = sorted(items, key=lambda item: int(item.guid), reverse=False)
+
+    if all([item.guid for item in items]):
+        items = sorted(items, key=lambda item: int(item.guid), reverse=False)
 
     # If briefing available: Convert briefing date to custom string format for display
     if latest_briefing_date:

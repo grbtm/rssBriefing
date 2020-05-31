@@ -87,7 +87,7 @@ def generate_briefing():
 
             selected = rank_candidates(app, candidates, topic_model, args.similarity_threshold)
 
-            selected = enrich_with_summary(selected)
+            selected = enrich_with_summary(app, selected)
 
             app.logger.info(f'The chosen briefing items are:')
             for post in selected:

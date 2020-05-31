@@ -1,11 +1,13 @@
 import newspaper
 from transformers import pipeline, AutoTokenizer
+from rssbriefing.briefing_model.configs import SUMMARIZATION_MODEL, TOKENIZER, MIN_LENGTH, MAX_LENGTH
+
 
 COOKIE_RESPONSE = 'Cookies help us deliver our Services.'
 SEARCH_RESPONSE = 'What term do you want to search?'
 
 
-def get_summary(url, nlp, tokenizer):
+def get_summary(app, url, nlp, tokenizer):
     article = newspaper.Article(url)
 
     try:
@@ -16,11 +18,15 @@ def get_summary(url, nlp, tokenizer):
         text = article.text
         text = text.replace("\n", "")
 
-        if len(tokenizer.tokenize(text)) > 920:
+        if len(tokenizer.tokenize(text)) > 1024:
             text = text[:4000]
+        if len(tokenizer.tokenize(text)) < MIN_LENGTH:
+            return None
 
-        output = nlp(text, max_length=300, min_length=190)
+        output = nlp(text, max_length=MAX_LENGTH, min_length=MIN_LENGTH)
         summary = output[0]['summary_text']
+
+        app.logger.info(f"{'-'*40}\n Summary done. Original text:\n {text}\n {'-'*40}\n summary: {summary}\n {'-'*40}")
 
     except newspaper.article.ArticleException as a_err:
 
@@ -35,13 +41,18 @@ def get_summary(url, nlp, tokenizer):
     return summary
 
 
-def enrich_with_summary(briefing_items):
-    nlp = pipeline('summarization')
-    tokenizer = AutoTokenizer.from_pretrained("t5-base")
+def enrich_with_summary(app, briefing_items):
+
+    app.logger.info(f'Loading summarization model: {SUMMARIZATION_MODEL} and tokenizer: {TOKENIZER}...')
+
+    nlp = pipeline('summarization', model=SUMMARIZATION_MODEL)
+    tokenizer = AutoTokenizer.from_pretrained(TOKENIZER)
+
+    app.logger.info(f'Generating summarization for {len(briefing_items)}:')
 
     for item in briefing_items:
 
-        summary = get_summary(item.link, nlp, tokenizer)
+        summary = get_summary(app, item.link, nlp, tokenizer)
 
         if not summary or summary.startswith((COOKIE_RESPONSE, SEARCH_RESPONSE)):
             item.summary = item.description

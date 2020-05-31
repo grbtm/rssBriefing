@@ -7,17 +7,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 
     {% block stylesheet %}{% endblock %}
-
     <title>{% block title %}{% endblock %} - rssBriefing</title>
 </head>
 
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #FFB6C1;">
+<nav class="navbar navbar-expand-lg navbar-light">
     <a class="navbar-brand" href="{{ url_for('briefing.index') }}">
         rssBriefing <span class="badge badge-pill badge-secondary" style="vertical-align: top">Beta</span>
     </a>
@@ -36,13 +38,13 @@
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                     {% if feeds %}
-                        {% for feed in feeds %}
-                        <a class="dropdown-item" href="{{ url_for('rss_reader.single', feed_id=feed.id) }}">
-                            {{ feed['title'] }}
-                        </a>
-                        {% endfor %}
+                    {% for feed in feeds %}
+                    <a class="dropdown-item" href="{{ url_for('rss_reader.single', feed_id=feed.id) }}">
+                        {{ feed['title'] }}
+                    </a>
+                    {% endfor %}
                     {% else %}
-                        No feeeds added yet.
+                    No feeeds added yet.
                     {% endif %}
                 </div>
             </li>
