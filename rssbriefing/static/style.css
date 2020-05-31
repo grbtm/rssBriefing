@@ -1,5 +1,10 @@
+@font-face{
+    font-family: merryw;
+    src: url(/static/Merriweather-Regular.ttf);
+}
+
 body{
-    font-family: "Merriweather";
+    font-family: merryw;
 }
 
 body nav.navbar.navbar-expand-lg.navbar-light {
