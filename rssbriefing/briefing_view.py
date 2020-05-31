@@ -85,6 +85,9 @@ def example_briefing():
         # Get all items of most recent briefing
         items = get_briefing_items(user=1, briefing_date=latest_briefing_date)
 
+        if all([item.guid for item in items]):
+            items = sorted(items, key=lambda item: int(item.guid), reverse=False)
+
         # Convert briefing date to custom string format for display
         latest_briefing_date = latest_briefing_date.strftime("%B %d, %Y at %I:%M %p")
 
