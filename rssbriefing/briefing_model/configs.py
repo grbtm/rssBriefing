@@ -51,6 +51,9 @@ DISCARD_FEEDS = ["Bloomberg.com", "Bloomberg Politics"]
 # Black list of keywords to filter for topic modeling
 DISCARD_KEYWORDS = ["Live ", "Coronavirus latest"]
 
+# Stop words for preprocessing before summarization
+SUMM_PREPROCESSING_PHRASES = ["Read More", "(The refiled story fixes spelling error in first paragraph)", "[L8N2DC056]"]
+
 # transformers BERT summarization model parameters
 SUMMARIZATION_MODEL = "bart-large-cnn"
 TOKENIZER = "facebook/bart-large-cnn"

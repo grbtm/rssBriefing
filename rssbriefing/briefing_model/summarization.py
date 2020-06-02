@@ -1,7 +1,7 @@
 import newspaper
 from transformers import pipeline, AutoTokenizer
 from rssbriefing.briefing_model.configs import SUMMARIZATION_MODEL, TOKENIZER, MIN_LENGTH, MAX_LENGTH
-
+from rssbriefing.briefing_model.preprocessing import preprocess_for_summarization
 
 COOKIE_RESPONSE = 'Cookies help us deliver our Services.'
 SEARCH_RESPONSE = 'What term do you want to search?'
@@ -16,7 +16,7 @@ def get_summary(app, url, nlp, tokenizer):
         article.parse()
 
         text = article.text
-        text = text.replace("\n", "")
+        text = preprocess_for_summarization(text)
 
         if len(tokenizer.tokenize(text)) > 1024:
             text = text[:4000]
