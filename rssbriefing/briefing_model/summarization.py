@@ -1,4 +1,5 @@
 import newspaper
+from tqdm import tqdm
 from transformers import pipeline, AutoTokenizer
 from rssbriefing.briefing_model.configs import SUMMARIZATION_MODEL, TOKENIZER, MIN_LENGTH, MAX_LENGTH
 from rssbriefing.briefing_model.preprocessing import preprocess_for_summarization
@@ -16,6 +17,7 @@ def get_summary(app, url, nlp, tokenizer):
         article.parse()
 
         text = article.text
+        app.logger.info(f"{'-'*40}\n Obtained original text for summarization:\n {text}\n {'-'*40}")
         text = preprocess_for_summarization(text)
 
         if len(tokenizer.tokenize(text)) > 1024:
@@ -26,7 +28,7 @@ def get_summary(app, url, nlp, tokenizer):
         output = nlp(text, max_length=MAX_LENGTH, min_length=MIN_LENGTH)
         summary = output[0]['summary_text']
 
-        app.logger.info(f"{'-'*40}\n Summary done. Original text:\n {text}\n {'-'*40}\n summary: {summary}\n {'-'*40}")
+        app.logger.info(f"{'-'*40}\n Summary done. Preprocessed text:\n {text}\n {'-'*40}\n Summary: {summary}\n {'-'*40}")
 
     except newspaper.article.ArticleException as a_err:
 
@@ -48,9 +50,9 @@ def enrich_with_summary(app, briefing_items):
     nlp = pipeline('summarization', model=SUMMARIZATION_MODEL)
     tokenizer = AutoTokenizer.from_pretrained(TOKENIZER)
 
-    app.logger.info(f'Generating summarization for {len(briefing_items)}:')
+    app.logger.info(f'Generating summarization for {len(briefing_items)} briefing items:')
 
-    for item in briefing_items:
+    for item in tqdm(briefing_items):
 
         summary = get_summary(app, item.link, nlp, tokenizer)
 

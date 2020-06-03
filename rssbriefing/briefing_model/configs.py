@@ -51,7 +51,8 @@ DISCARD_FEEDS = ["Bloomberg.com", "Bloomberg Politics"]
 # Black list of keywords to filter for topic modeling
 DISCARD_KEYWORDS = ["Live ", "Coronavirus latest"]
 
-# Stop words for preprocessing before summarization
+# Regexes and phrases for preprocessing before summarization
+SUMM_PREPROCESSING_REGEXES = ["FILE PHOTO:[\s\S]*\\bREUTERS\/\\b", "[\s\S]*WASHINGTON —"]
 SUMM_PREPROCESSING_PHRASES = ["Read More", "(The refiled story fixes spelling error in first paragraph)", "[L8N2DC056]"]
 
 # transformers BERT summarization model parameters

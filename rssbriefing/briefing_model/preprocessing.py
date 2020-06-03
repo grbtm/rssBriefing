@@ -3,6 +3,7 @@
 
 """
 import os
+import re
 from datetime import datetime
 
 import en_core_web_sm
@@ -11,7 +12,8 @@ from gensim.models import Phrases
 from spacy.lang.en import English
 from spacy.lang.en.stop_words import STOP_WORDS
 
-from rssbriefing.briefing_model.configs import stop_words, stop_words_to_remove, common_terms, SUMM_PREPROCESSING_PHRASES
+from rssbriefing.briefing_model.configs import stop_words, stop_words_to_remove, common_terms, \
+    SUMM_PREPROCESSING_PHRASES, SUMM_PREPROCESSING_REGEXES
 
 module_path = os.path.abspath(os.path.dirname(__file__))
 
@@ -19,12 +21,22 @@ module_path = os.path.abspath(os.path.dirname(__file__))
 def preprocess_for_summarization(doc):
     """ Preprocessing step after scraping of article and before passing the scraped text to summarization model.
 
-        Remove newline characters and blacklisted phrases.
+        - Remove newline characters
+        - Filter out parts of the document based on regexes
+        - Filter out phrases
 
     :param doc: [Str]
     :return doc: [Str]
     """
     doc = doc.replace("\n", "")
+
+    for regex in SUMM_PREPROCESSING_REGEXES:
+        matches = re.findall(regex, doc)
+        if matches:
+            for match in matches:
+                start_index = doc.find(match)
+                end_index = start_index + len(match)
+                doc = doc[:start_index] + doc[end_index:]
 
     for phrase in SUMM_PREPROCESSING_PHRASES:
         start_index = doc.find(phrase)
