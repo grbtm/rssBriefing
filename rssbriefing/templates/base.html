@@ -15,6 +15,9 @@
 
     {% block stylesheet %}{% endblock %}
     <title>{% block title %}{% endblock %} - rssBriefing</title>
+
+    <!-- Osano cookie consent -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />
 </head>
 
 <body>
@@ -94,6 +97,22 @@
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" data-cfasync="false"></script>
+<script>
+window.cookieconsent.initialise({
+  "palette": {
+    "popup": {
+      "background": "#eaf7f7",
+      "text": "#5c7291"
+    },
+    "button": {
+      "background": "transparent",
+      "text": "#56cbdb",
+      "border": "#56cbdb"
+    }
+  }
+});
+</script>
 </body>
 
 </html>
