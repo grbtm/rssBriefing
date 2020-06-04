@@ -2,6 +2,7 @@ from datetime import datetime
 from time import time
 import jwt
 from flask import current_app as app
+from werkzeug.security import generate_password_hash
 from rssbriefing import db
 
 user_feed = db.Table('user_feed',
@@ -20,6 +21,9 @@ class Users(db.Model):
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
 
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
