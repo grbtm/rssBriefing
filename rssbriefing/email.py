@@ -13,6 +13,7 @@
 """
 
 from django.core.mail import send_mail, send_mass_mail
+from django.core.mail.backends.smtp import EmailBackend
 from flask import current_app as app
 from flask import render_template
 

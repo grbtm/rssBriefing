@@ -119,7 +119,7 @@ def login():
     return render_template('auth/login.html')
 
 
-@app.route('/reset_password_request', methods=['GET', 'POST'])
+@bp.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
     # If user is already logged in, redirect to index
     if g.user:
@@ -136,11 +136,11 @@ def reset_password_request():
 
         return redirect(url_for('auth.login'))
 
-    return render_template('reset_password_request.html',
+    return render_template('auth/reset_password_request.html',
                            title='Reset Password', form=form)
 
 
-@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+@bp.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     # If user is already logged in, redirect to index
     if g.user:
@@ -158,7 +158,7 @@ def reset_password(token):
 
         return redirect(url_for('auth.login'))
 
-    return render_template('reset_password.html', form=form)
+    return render_template('auth/reset_password.html', form=form)
 
 
 @bp.route('/logout')

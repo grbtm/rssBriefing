@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired, Email, EqualTo
 
 
 class ResetPasswordRequestForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email()])
+    email = StringField('Your Email:', validators=[DataRequired(), Email()])
     submit = SubmitField('Request Password Reset')
 
 
