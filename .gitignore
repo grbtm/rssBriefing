@@ -33,3 +33,6 @@ build/
 
 # Briefing related temporary models
 rssbriefing/briefing_model/models/
+
+# Logs
+*.log
