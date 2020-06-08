@@ -1,4 +1,5 @@
 import os
+import django
 
 from dotenv import load_dotenv
 from django.conf import settings
@@ -16,7 +17,7 @@ settings.configure({},
                    EMAIL_HOST_PASSWORD=os.environ.get('EMAIL_HOST_PASSWORD'),
                    EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend',
                    EMAIL_USE_TLS=False,
-                   EMAIL_USE_SSL=False,
+                   EMAIL_USE_SSL=os.environ.get('EMAIL_USE_SSL'),
                    EMAIL_TIMEOUT=None,
                    EMAIL_SSL_KEYFILE=None,
                    EMAIL_SSL_CERTFILE=None,
