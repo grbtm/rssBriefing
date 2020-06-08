@@ -1,0 +1,31 @@
+Hi {{ user.username }},
+
+Here's the freshly generated RoboBriefing:
+
+{% for item in items %}
+
+{{ item['title'] }}
+
+{{ item['summary'] }}
+
+
+Source:
+ <a href="{{ url_for('rss_reader.single', feed_id=item.feed.id) }}">
+{{ item['feed_title'] }}
+<a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}" class="text-secondary">Article link</a>
+
+
+
+
+
+{% if not loop.last %}
+---------------------------------
+{% endif %}
+{% endfor %}
+
+
+
+
+Cheers,
+
+The RoboBriefing Team

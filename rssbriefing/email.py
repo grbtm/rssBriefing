@@ -17,6 +17,8 @@ from django.core.mail import send_mail, send_mass_mail
 from flask import current_app as app
 from flask import render_template
 
+from rssbriefing.briefing_utils import get_standard_briefing
+
 
 def send_single_mail(subject,
                      from_email,
@@ -91,3 +93,13 @@ def send_password_reset_email(user):
                                                user=user, token=token),
                      html_body=render_template('email/reset_password.html',
                                                user=user, token=token))
+
+def send_standard_briefing(user):
+    briefing_items, latest_briefing_date = get_standard_briefing()
+
+    if briefing_items:
+        send_single_mail(subject="Today's RoboBriefing",
+                         from_email=app.config['ADMINS'][0],
+                         recipient_list=[user.email],
+                         text_body=render_template('briefing/briefing_email.txt',
+                                                   user=user, items=briefing_items))
