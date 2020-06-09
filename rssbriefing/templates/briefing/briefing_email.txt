@@ -1,31 +1,15 @@
 Hi {{ user.username }},
 
-Here's the freshly generated RoboBriefing:
-
+Here's the latest RoboBriefing, freshly generated on {{ briefing_date }} UTC:
 {% for item in items %}
-
+------------------------------------------------------------------
 {{ item['title'] }}
-
+------------------------------------------------------------------
 {{ item['summary'] }}
 
-
-Source:
- <a href="{{ url_for('rss_reader.single', feed_id=item.feed.id) }}">
-{{ item['feed_title'] }}
-<a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}" class="text-secondary">Article link</a>
-
-
-
-
-
-{% if not loop.last %}
----------------------------------
-{% endif %}
+Source: {{ item['feed_title'] }} | Article link: {{ item['link'] }}
 {% endfor %}
 
-
-
-
-Cheers,
+Have a great day,
 
 The RoboBriefing Team

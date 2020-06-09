@@ -13,7 +13,6 @@
 """
 
 from django.core.mail import send_mail, send_mass_mail
-
 from flask import current_app as app
 from flask import render_template
 
@@ -94,6 +93,7 @@ def send_password_reset_email(user):
                      html_body=render_template('email/reset_password.html',
                                                user=user, token=token))
 
+
 def send_standard_briefing(user):
     briefing_items, latest_briefing_date = get_standard_briefing()
 
@@ -102,4 +102,4 @@ def send_standard_briefing(user):
                          from_email=app.config['ADMINS'][0],
                          recipient_list=[user.email],
                          text_body=render_template('briefing/briefing_email.txt',
-                                                   user=user, items=briefing_items))
+                                                   user=user, items=briefing_items, briefing_date=latest_briefing_date))
