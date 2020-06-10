@@ -3,8 +3,7 @@ Hi {{ user.username }},
 Here's the latest RoboBriefing, freshly generated on {{ briefing_date }} UTC:
 {% for item in items %}
 ------------------------------------------------------------------
-{{ item['title'] }}
-------------------------------------------------------------------
+{{ item['title'] }}------------------------------------------------------------------
 {{ item['summary'] }}
 
 Source: {{ item['feed_title'] }} | Article link: {{ item['link'] }}
@@ -13,3 +12,14 @@ Source: {{ item['feed_title'] }} | Article link: {{ item['link'] }}
 Have a great day,
 
 The RoboBriefing Team
+
+  ---Ω--
+ | O  O |
+(|  u   |)
+ |  0   |   \))
+  ------    /
+    |------/
+
+
+----
+To unsubscribe from the daily RoboBriefing just send an empty response to this email.
