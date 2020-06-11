@@ -54,6 +54,7 @@ def main():
             # Wrap each summary into a paragraph of max width 70 chars
             wrapper = TextWrapper()
             for item in briefing_items:
+                item.title = wrapper.fill(item.title)
                 item.summary = wrapper.fill(item.summary)
 
             for user in users:

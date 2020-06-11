@@ -1,9 +1,11 @@
-Hi {{ user.username }},
+Hi {{ user.username }}!
 
 Here's the latest RoboBriefing, freshly generated on {{ briefing_date }} UTC:
+[Or read it in the browser: https://rssbriefing.live/example]
 {% for item in items %}
 ------------------------------------------------------------------
-{{ item['title'] }}------------------------------------------------------------------
+{{ item['title'] }}
+------------------------------------------------------------------
 {{ item['summary'] }}
 
 Source: {{ item['feed_title'] }} | Article link: {{ item['link'] }}
