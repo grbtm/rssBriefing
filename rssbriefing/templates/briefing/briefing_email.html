@@ -1,0 +1,46 @@
+<style type=text/css>{{ get_resource_as_string('static/bootstrap450.css') }}</style>
+<style type=text/css>{{ get_resource_as_string('static/style.css') }}</style>
+<style>
+    @font-face{
+    font-family: merryw;
+    src: {{ url_for('static',filename='Merriweather-Regular.ttf') }};
+}
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <p></p>
+            <h1>Your RoboBriefing &#x1f916;</h1>
+
+            {% for item in items %}
+            <article class="item">
+                <header>
+                    <h5>{{ item['title'] }}</h5>
+                </header>
+                <p class="text-justify">{{ item['summary'] }}</p>
+
+                <small>
+
+                    <i>Source:</i>
+                    <a href="{{ url_for('rss_reader.single', feed_id=item.feed.id) }}">
+                        <mark>{{ item['feed_title'] }}</mark>
+                    </a>
+
+                    |
+
+                    <a target="_blank" rel="noopener noreferrer" href="{{ item['link'] }}" class="text-secondary">Article link</a>
+
+                </small>
+
+
+            </article>
+            {% if not loop.last %}
+            <hr>
+            {% endif %}
+            {% endfor %}
+
+        </div>
+    </div>
+</div>
+

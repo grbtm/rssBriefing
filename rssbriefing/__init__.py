@@ -14,7 +14,6 @@ from rssbriefing import models
 
 
 def create_app(test_config=None):
-
     logging.basicConfig(format='%(asctime)s | %(module)s | %(levelname)s | %(message)s',
                         level=logging.DEBUG)
 
@@ -42,4 +41,10 @@ def create_app(test_config=None):
     app.register_blueprint(briefing_view.bp)
     app.add_url_rule('/', endpoint='index')
 
+    # Register a function to load css files with jinja2
+    def get_resource_as_string(name, charset='utf-8'):
+        with app.open_resource(name) as f:
+            return f.read().decode(charset)
+
+    app.jinja_env.globals['get_resource_as_string'] = get_resource_as_string
     return app
