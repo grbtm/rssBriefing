@@ -1,6 +1,7 @@
 *.pyc
 __pycache__/
 *.json
+/static/.DS_Store
 
 # Environment variables
 .env
@@ -30,3 +31,9 @@ build/
 
 # Virtual environments/pyenv
 .python-version
+
+# Briefing related temporary models
+rssbriefing/briefing_model/models/
+
+# Logs
+*.log

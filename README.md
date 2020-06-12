@@ -1,10 +1,35 @@
-# rssBriefing
+# rssBriefing a.k.a. RoboBriefing &#x1f916;
 
-rssBriefing is a RSS/Atom fuelled daily briefing app built with Flask, Bootstrap and Natural Language Processing models
-from gensim.
+rssBriefing (recently "re-branded" RoboBriefing &#x1f916;) is a RSS/Atom fuelled fully automated daily news briefing app,
+powered by Natural Language Processing models ([gensim's LDA](https://radimrehurek.com/gensim/models/ldamodel.html), [Facebook's BART](https://github.com/pytorch/fairseq/tree/master/examples/bart)).
 
 Beta testing has started: https://rssbriefing.live
 
+## TO DO
+- handling of `python -m spacy download en` to obtain 'en_core_web_sm'
+- `AttributeError 'dict' object has no attribute 'batch_encode_plus'` -> necessity to install `transformers` from source
+- add standard bash scripts to run the full briefing generation pipeline:
+    - `python -m rssbriefing.scripts.update_all_feeds`
+    - `python -m rssbriefing.briefing_model.briefing`
+    - `python -m rssbriefing.scripts.send_briefing_emails`
+
+
+## How to run with pyenv virtualenv
+Having [`pyenv`](https://github.com/pyenv/pyenv) installed, clone the repo and `cd` into the directory:
+```
+git clone https://github.com/grbtm/rssBriefing.git
+cd rssBriefing
+```
+Then create a virtual environment with `pyenv` specifying python version 3.7.4 (if necessary first install:
+`pyenv install 3.7.4`) and activate it:
+```
+pyenv virtualenv 3.7.4 <environment_name>
+pyenv local  <environment_name>
+```
+Run the flask app in development mode:
+```
+flask run
+```
 
 ## How to run with Docker
 

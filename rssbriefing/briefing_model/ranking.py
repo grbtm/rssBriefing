@@ -1,13 +1,19 @@
 import collections
 from datetime import datetime, timedelta
-
+from tqdm import tqdm
 import pytz
 
-from rssbriefing.briefing_model.preparation import preprocess
+from rssbriefing.briefing_model.preprocessing import preprocess, load_current_dictionary, collect_latest_models
 from rssbriefing.models import Item, Feed, Users, Briefing
 
 
 def get_candidates(app, user_id):
+    """ Collect RSS/Atom posts from last 24h of a given user.
+
+    :param app: [flask.Flask] The flask object implements a WSGI application
+    :param user_id: [int]
+    :return candidates: [Lst[rssbriefing.models.Briefing]]
+    """
     app.logger.info('Getting briefing candidates from last 24h...')
 
     # Consider only feed entries from the last 24h
@@ -39,47 +45,37 @@ def get_candidates(app, user_id):
     return candidates
 
 
-def query_most_similar_reference(briefing_item, keyed_vectors, model, corpus):
-    """ Get the reference with the highest similarity score for a given candidate <briefing_item>
+def query_most_similar_reference(briefing_item, model, dictionary, phrases, language_model):
+    """ Get the topic with the highest probability score for a given briefing_item. Update briefing item attributes.
 
-    Populate the reference and score attributes of the Briefing model.
-
-    :param briefing_item: [models.Briefing] representing an rss feed entry considered a candidate for final briefing
-    :param keyed_vectors: [gensim.models.keyedvectors.WordEmbeddingsKeyedVectors] representing the reference vectors
+    :param briefing_item: [rssbriefing.models.Briefing] representing an rss feed entry considered a candidate for final briefing
     :param model: [gensim.models.doc2vec.Doc2Vec] trained Doc2Vec model
-    :param corpus: [lst[str]] of tokenized documents
     :return:
     """
 
-    # Concatenate item title and description and preprocess it with the same function used before model training
-    query = briefing_item.title + ' ' + briefing_item.description
-    tokenized_query = preprocess(query)
+    tokenized_doc = preprocess(briefing_item, phrases, language_model)
+    bow_representation = dictionary.doc2bow(tokenized_doc)
+
+    # If the bag-of-words vector is empty, it doesn't make sense to calculate a probability distribution
+    if not bow_representation:
+        return
 
     # Generate a vector representation of the query, based on the trained model
-    inferred_vector = model.infer_vector(tokenized_query)
+    # Inferred vector is [Lst[tuple(topic_id, probability)]] and represents the topic probability distribution
+    inferred_vector = model[bow_representation]
 
-    # Compute cosine similarity between set of keyed vectors and inferred vector
-    similarities = keyed_vectors.most_similar([inferred_vector], topn=3)
-    similarities = sorted(similarities, key=lambda tupl: tupl[1], reverse=True)
+    top_topic = sorted(inferred_vector, key=lambda x: x[1], reverse=True)[0]
 
-    if similarities:
-        top_ranked = similarities[0]
+    # Update the briefing_item attributes with most probable topic
+    topic_id = top_topic[0]
+    briefing_item.reference = str(topic_id)
 
-        corpus_ref_idx = top_ranked[0]
-        reference_words = " ".join(corpus[corpus_ref_idx])
-        briefing_item.reference = reference_words
-
-        score = top_ranked[1]
-        briefing_item.score = score
+    probability = top_topic[1]
+    briefing_item.score = float(probability)
 
 
-def pick_highest_scoring_candidate_of_each_reference(app, candidates):
-
-    references = [candidate.reference for candidate in candidates if candidate.reference is not 'None']
-    multiple_assignments = [item for item, count in collections.Counter(references).items() if count > 1]
-
-    app.logger.info(f'{len(references)} candidates were assigned a most similar reference item.')
-    app.logger.info(f'{len(multiple_assignments)} reference items occurred more than once as highest sim score ref.')
+def pick_highest_scoring_candidate_of_each_topic(candidates, multiple_assignments, ordered_topics):
+    topic_ranking = [item for item, count in ordered_topics]
 
     # If multiple candidates with same similarity reference exist, keep only the candidate with highest score
     if multiple_assignments:
@@ -93,39 +89,57 @@ def pick_highest_scoring_candidate_of_each_reference(app, candidates):
             for candidate in same_ref_candidates[1:]:
                 candidate.reference = 'None'
 
+            # Update with topic ranking - currently saved under the guid attribute #TODO change
+            highest_prob_post = same_ref_candidates[0]
+            highest_prob_post.guid = str(topic_ranking.index(reference) + 1)
+
     return candidates
 
 
-def rank_candidates(app, candidates, keyed_vectors, model, corpus, similarity_threshold=None):
-    """ Takes a list of feed items and returns the subset which is most similar to the given reference docs/vectors.
+def rank_candidates(app, candidates, model, probability_threshold=None, nr_topics=10):
+    """ Takes a list of feed items and returns the subset which is most similar to the top trending nr_topics.
 
     :param app: [flask.Flask] The flask object implements a WSGI application
-    :param candidates: [lst[rssbriefing_package.models.Item]]
-    :param keyed_vectors: [gensim.models.keyedvectors.WordEmbeddingsKeyedVectors] representing the reference vectors
-    :param model: [gensim.models.doc2vec.Doc2Vec] trained Doc2Vec model
-    :param corpus: [lst[str]] of tokenized documents
-    :param similarity_threshold: [float] optional condition of a minimum threshold for the similarity score
-    :return: [lst[rssbriefing_package.models.Item]]
+    :param candidates: [Lst[rssbriefing.models.Item]]
+    :param model: [gensim.models.LdaModel] the trained topic model
+    :param probability_threshold: [float] optional condition of a minimum threshold for the similarity score
+    :return: [Lst[rssbriefing.models.Item]]
     """
-    # Enrich candidates with most similar reference and respective similarity score
-    app.logger.info('Enriching candidates w most similar reference...')
+    # Enrich candidates with most likely topic and respective similarity score
+    app.logger.info('Enriching candidates w most likely topic ...')
 
-    for candidate in candidates:
-        query_most_similar_reference(candidate, keyed_vectors, model, corpus)
+    dictionary, phrases, language_model = collect_latest_models()
+    for candidate in tqdm(candidates):
+        query_most_similar_reference(candidate, model, dictionary, phrases, language_model)
 
-    # Check for candidates with same reference
-    candidates = pick_highest_scoring_candidate_of_each_reference(app, candidates)
+    assigned_topics = [candidate.reference for candidate in candidates if candidate.reference is not 'None']
+    ordered_topics = collections.Counter(assigned_topics).most_common()
+    multiple_assignments = [item for item, count in collections.Counter(assigned_topics).items() if count > 1]
 
-    # Keep only the candidates with an assigned reference document
+    app.logger.info(f'{len(assigned_topics)} candidates were assigned a most similar reference item.')
+    app.logger.info(f'{len(multiple_assignments)} topics occurred more than once as most likely topic.')
+
+    # Check for candidates with same most likely topic
+    candidates = pick_highest_scoring_candidate_of_each_topic(candidates, multiple_assignments, ordered_topics)
+
+    # Keep only the candidates with an assigned topic
     candidates = [candidate for candidate in candidates if candidate.reference != 'None']
 
-    app.logger.info(f'After handling of candidates with same reference: {len(candidates)} candidates point to a ref.')
+    app.logger.info(f'After handling of candidates with same most likely topic: {len(candidates)} candidates point to a topic.')
     app.logger.info(f'Scores of the remaining candidates: {[candidate.score for candidate in candidates]}.')
 
-    # Sort candidates according to their similarity score and apply threshold if supplied
+    # Sort candidates according to their probability and apply threshold if supplied
     candidates = sorted(candidates, key=lambda cand: cand.score, reverse=True)
 
-    if similarity_threshold:
-        candidates = [candidate for candidate in candidates if candidate.score >= similarity_threshold]
+    if probability_threshold:
+        candidates = [candidate for candidate in candidates if candidate.score >= probability_threshold]
+
+    # Trending topics are those which were the most probable topics across all considered posts, keep only the top
+    trending_topics = [topic_id for topic_id, count in ordered_topics[:nr_topics]]
+    candidates = [candidate for candidate in candidates if candidate.reference in trending_topics]
+
+    app.logger.info(f'The top {nr_topics} trending topics are:')
+    for topic in ordered_topics[:nr_topics]:
+        app.logger.info(f'Topic id {topic[0]} with {topic[1]} assignments: \n {model.print_topic(int(topic[0]), topn=10)}')
 
     return candidates

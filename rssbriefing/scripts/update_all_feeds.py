@@ -1,4 +1,5 @@
 import socket
+from tqdm import tqdm
 
 from rssbriefing import create_app
 from rssbriefing.feed import get_latest_feed_dict, update_feed_db
@@ -18,7 +19,7 @@ def main():
 
     app.logger.info(f'Updating a total of {len(feeds)} feeds...')
 
-    for feed in feeds:
+    for feed in tqdm(feeds):
         app.logger.info(f'Getting the latest posts from feed: {feed.title}')
         feed_dict = get_latest_feed_dict(feed_id=feed.id)
 

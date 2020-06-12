@@ -4,101 +4,18 @@ Briefing generation module
 
 """
 import argparse
-import json
-import os
 import sys
 from datetime import datetime
 
 import pytz
-from gensim.corpora import Dictionary
-from gensim.models.doc2vec import Doc2Vec
-from gensim.models.keyedvectors import WordEmbeddingsKeyedVectors
 
 from rssbriefing import create_app
 from rssbriefing import db
-from rssbriefing.briefing_model.preparation import preprocess
+from rssbriefing.briefing_model.configs import DISCARD_FEEDS
 from rssbriefing.briefing_model.ranking import get_candidates, rank_candidates
 from rssbriefing.briefing_model.summarization import enrich_with_summary
+from rssbriefing.briefing_model.topic_modeling import compute_topics
 from rssbriefing.db_utils import get_user_by_id, get_all_users
-
-
-def get_reference_documents():
-    """ Collect the reference topics for the current Briefing.
-
-    Documents are Strings containing a whole text and represent the gensim objects that make up a corpus.
-
-    :return:
-    """
-
-    with open('final.json') as f:
-        documents = json.load(f)
-
-    corpus_titles = [doc for doc in documents['articles']]
-
-    return corpus_titles
-
-
-def get_corpus_dictionary(app, corpus):
-    """ Wrapper for gensim Dictionary function.
-
-    From gensim docs: Dictionary encapsulates the mapping between normalized words and their integer ids.
-
-    :return: [gensim.corpora.Dictionary]
-    """
-    app.logger.info('Creating gensim Dictionary for corpus...')
-
-    dictionary = Dictionary(corpus)
-
-    app.logger.info('Dictionary created.')
-
-    return dictionary
-
-
-def get_reference_corpus(app):
-    """ Load the current corpus.
-
-    Since the corpus is relatively small it can be loaded fully into memory.
-
-    :return: [Lst[Str]] List of Strings containing the preprocessed text bodies
-    """
-
-    app.logger.info('Fetching reference corpus for briefing...')
-
-    corpus = [preprocess(doc) for doc in get_reference_documents()]
-
-    app.logger.info(f'Successfully fetched {len(corpus)} reference documents for corpus.')
-
-    return corpus
-
-
-def load_model(app):
-    model_path = os.environ['MODEL_PATH']
-    app.logger.info(f'Loading Doc2Vec model from {model_path}')
-    model = Doc2Vec.load(model_path)
-
-    return model
-
-
-def get_ref_vectors(model, corpus):
-    """ Project the reference documents into the vector space of the trained Doc2Vec model. """
-
-    inferred_vectors = []
-
-    for doc in corpus:
-        vec = model.infer_vector(doc)
-        inferred_vectors.append(vec)
-
-    return inferred_vectors
-
-
-def get_keyed_vectors(vector_size, inferred_vecs):
-    """ Use the gensim.models.keyedvectors.WordEmbeddingsKeyedVectors class to store the inferred vectors. """
-
-    vectors = WordEmbeddingsKeyedVectors(vector_size=vector_size)
-    labels = list(range(len(inferred_vecs)))
-    vectors.add(entities=labels, weights=inferred_vecs)
-
-    return vectors
 
 
 def save_to_db(briefing_items):
@@ -112,6 +29,11 @@ def save_to_db(briefing_items):
 
     # Commit to db only after looping over all selected Briefing items
     db.session.commit()
+
+
+def filter_posts(posts):
+    posts = [post for post in posts if post.feed_title not in DISCARD_FEEDS]
+    return posts
 
 
 def parse_args():
@@ -151,17 +73,8 @@ def generate_briefing():
 
             users = [get_user_by_id(user_id) for user_id in args.user_ids]
 
-        # Get the current reference corpus
-        corpus = get_reference_corpus(app)
-
-        # Load trained Doc2Vec model
-        model = load_model(app)
-
-        # Use the model to infer document vectors from reference corpus
-        reference_vectors = get_ref_vectors(model=model, corpus=corpus)
-
-        # Construct Keyed Vectors set of vectors from reference vectors
-        keyed_vectors = get_keyed_vectors(vector_size=model.vector_size, inferred_vecs=reference_vectors)
+        # Compute the current trending topics
+        topic_model = compute_topics(app)
 
         app.logger.info(f'Generating briefing for users {users}...')
 
@@ -170,9 +83,22 @@ def generate_briefing():
 
             candidates = get_candidates(app, user.id)
 
-            selected = rank_candidates(app, candidates, keyed_vectors, model, corpus, args.similarity_threshold)
+            candidates = filter_posts(candidates)
 
-            selected = enrich_with_summary(selected)
+            selected = rank_candidates(app, candidates, topic_model, args.similarity_threshold)
+
+            selected = enrich_with_summary(app, selected)
+
+            app.logger.info(f'The chosen briefing items are:')
+            for post in selected:
+                app.logger.info('----------------------------------------------------')
+                app.logger.info(f'Post title: \n{post.title}')
+                app.logger.info('----------------------------------------------------')
+                app.logger.info(f'Post description: \n{post.description}')
+                app.logger.info(f'Post summary: \n{post.summary}')
+                app.logger.info(
+                    f'Post topic id {post.reference}, ranked {post.guid}: \n {topic_model.print_topic(int(post.reference), topn=10)}')
+                app.logger.info(f'topic probability: \n{post.score}')
 
             app.logger.info(f'Writing {len(selected)} briefing items for user {user} to DB...')
             save_to_db(selected)

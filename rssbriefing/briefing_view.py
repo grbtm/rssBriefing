@@ -1,9 +1,10 @@
-from flask import Blueprint, g, render_template
+from flask import Blueprint, g, render_template, request
 
 from rssbriefing import db
 from rssbriefing.auth import login_required
-from rssbriefing.db_utils import get_feedlist_for_dropdown
+from rssbriefing.db_utils import get_feedlist_for_dropdown, get_user_by_id
 from rssbriefing.models import Briefing
+from rssbriefing.briefing_utils import get_standard_briefing
 
 bp = Blueprint('briefing', __name__)
 
@@ -39,10 +40,13 @@ def get_feedlist_for_logged_in_user():
 @login_required
 def index():
     # Get the date of the most recent briefing
-    latest_briefing_date = get_latest_briefing_date(user=g.user.id)
+    latest_briefing_date = get_latest_briefing_date(user=1)
 
     # Get all items of most recent briefing
-    items = get_briefing_items(user=g.user.id, briefing_date=latest_briefing_date)
+    items = get_briefing_items(user=1, briefing_date=latest_briefing_date)
+
+    if all([item.guid for item in items]):
+        items = sorted(items, key=lambda item: int(item.guid), reverse=False)
 
     # If briefing available: Convert briefing date to custom string format for display
     if latest_briefing_date:
@@ -75,23 +79,14 @@ def landing_page():
 
 @bp.route('/example')
 def example_briefing():
-    # Get the date of the most recent briefing for example user
-    latest_briefing_date = get_latest_briefing_date(user=1)
 
-    if latest_briefing_date:
-        # Get all items of most recent briefing
-        items = get_briefing_items(user=1, briefing_date=latest_briefing_date)
+    briefing_items, latest_briefing_date = get_standard_briefing()
 
-        # Convert briefing date to custom string format for display
-        latest_briefing_date = latest_briefing_date.strftime("%B %d, %Y at %I:%M %p")
-
-        # For logged in user: Get all feeds of user for the dropdown in the header navbar
-        feeds = get_feedlist_for_logged_in_user()
-    else:
-        items, latest_briefing_date, feeds = None, None, None
+    # For logged in user: Get all feeds of user for the dropdown in the header navbar
+    feeds = get_feedlist_for_logged_in_user()
 
     return render_template('landing_page/example_briefing.html',
-                           items=items,
+                           items=briefing_items,
                            feeds=feeds,
                            briefing_date=latest_briefing_date)
 

@@ -7,6 +7,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from rssbriefing import db
 from rssbriefing.db_utils import get_user_by_username
 from rssbriefing.models import Users
+from rssbriefing.forms import ResetPasswordRequestForm, ResetPasswordForm
+from rssbriefing.email import send_password_reset_email
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -115,6 +117,48 @@ def login():
         flash(error)
 
     return render_template('auth/login.html')
+
+
+@bp.route('/reset_password_request', methods=['GET', 'POST'])
+def reset_password_request():
+    # If user is already logged in, redirect to index
+    if g.user:
+        return redirect(url_for('index'))
+
+    form = ResetPasswordRequestForm()
+    if form.validate_on_submit():
+        user = Users.query.filter_by(email=form.email.data).first()
+
+        if user:
+            send_password_reset_email(user)
+
+        flash('Check your email for the instructions to reset your password.')
+
+        return redirect(url_for('auth.login'))
+
+    return render_template('auth/reset_password_request.html',
+                           title='Reset Password', form=form)
+
+
+@bp.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    # If user is already logged in, redirect to index
+    if g.user:
+        return redirect(url_for('index'))
+
+    user = Users.verify_reset_password_token(token)
+    if not user:
+        return redirect(url_for('index'))
+
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user.set_password(form.password.data)
+        db.session.commit()
+        flash('Your password has been reset.')
+
+        return redirect(url_for('auth.login'))
+
+    return render_template('auth/reset_password.html', form=form)
 
 
 @bp.route('/logout')

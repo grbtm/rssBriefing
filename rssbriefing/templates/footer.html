@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-12 col-md">
             <a class="text-muted h6" href="{{ url_for('briefing.index') }}">
-                rssBriefing<span class="badge badge-pill badge-secondary" style="vertical-align: top">Beta</span>
+                RoboBriefing &#x1f916;
             </a>
             <small class="d-block mb-3 text-muted">Stay up to date.<br>Minimize distractions.</small>
         </div>
@@ -10,7 +10,7 @@
 
         <div class="col-6 col-md">
             {% if not g.user %}
-            <h5>Login</h5>
+            <h5>Account</h5>
             <ul class="list-unstyled text-small">
                 <li><a class="text-muted" href="{{ url_for('auth.login') }}">Login</a></li>
                 <li><a class="text-muted" href="{{ url_for('auth.register') }}">Register</a></li>
@@ -22,8 +22,8 @@
             <h5>About</h5>
             <ul class="list-unstyled text-small">
                 <li><a class="text-muted" href="{{ url_for('briefing.how_it_works') }}">How it works</a></li>
-                <li><a class="text-muted" href="{{ url_for('briefing.example_briefing') }}">Example briefing</a></li>
-                <li><a class="text-muted" href="mailto:beta.testing.rssbriefing@posteo.net">Contact</a></li>
+                <li><a class="text-muted" href="{{ url_for('briefing.example_briefing') }}">Today's briefing</a></li>
+                <li><a class="text-muted" href="mailto:robobriefing@posteo.net">Contact</a></li>
             </ul>
         </div>
     </div>

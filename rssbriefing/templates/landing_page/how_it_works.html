@@ -43,55 +43,104 @@
 
             <br>
 
-            <h4>1. Humans collect and curate trending topics</h4>
-            <p class="text-justify">
-                We collect the trending headlines of the past 24 hours from a wide range of news sources.
-                We then handpick a small number
-                of topics that become the set of current trending news.
-                We focus on the most important global headlines.
-            </p>
-            <h4>2. AI selects the most relevant posts of the past 24h from your feeds</h4>
-            <p class="text-justify">
-                Based on the list of a user's source feeds, a machine learning model picks the posts
-                that are most similar to our set of trending news.
-            </p>
-            <h4>3. AI summarizes the chosen articles</h4>
-            <p class="text-justify">
-                Then we collect the full articles from the selected posts and use another machine learning model
-                to summarize the articles. In the end, you get a summary of each trending topic based on your list of
-                news sources.
-            </p>
-            <h4>4. rssBriefing delivers the briefing to each user</h4>
-            <p class="text-justify">
-                Now that the custom briefing has been generated, you can log in to your rssBriefing account and view your personal
-                briefing.
-            </p>
+            <h4>tl;dr</h4>
+            RoboBriefing &#x1f916; is an automated daily news briefing, powered by
+            <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Natural_language_processing" class="text-dark">
+            Natural Language processing</a> (NLP)
+            <a target="_blank" rel="noopener noreferrer" href="https://github.com/pytorch/fairseq/tree/master/examples/bart" class="text-dark">
+                models</a>, which covers the most relevant global news
+            from the past 24h.
 
             <br>
             <br>
+            <br>
+            <br>
 
-            <h4>Technologies we use:</h4>
+            <h4>The briefing generation pipeline</h4>
+            <img src="{{ url_for('static', filename='the_figure.png') }}" class="img-fluid" alt="Responsive image">
+
+            <br>
+            <br>
+            <h5>About each element in a bit more detail:</h5>
             <dl>
-                <dt>gensim</dt>
+                <dt>RSS/Atom feed posts:</dt>
                 <dd>
-                    We trained a document similarity model based on gensim's implementation of Doc2Vec and we use
-                    gensim's built-in summarization model (TextRank algorithm).
+                    To get a wide spectrum of news, we ingest a large amount of RSS and Atom feeds from news sources
+                    and blogs (that includes the feeds cited in <a href="#news-sources">*)</a> and beyond).
+                    We use <a target="_blank" rel="noopener noreferrer" href="https://github.com/kurtmckee/feedparser" class="text-dark">
+                    feedparser</a> to process these feeds.
                 </dd>
 
-                <dt>Flask</dt>
-                <dd>The app is written using the Python micro web framework Flask.</dd>
+                <dt>Trained topic model:</dt>
+                <dd>
+                    Each day we train a LDA topic model before running the briefing generation pipeline, to get a
+                    representation of the trending topics of the day.<a href="#news-sources">*)</a> We use
+                    <a target="_blank" rel="noopener noreferrer" href="https://radimrehurek.com/gensim/" class="text-dark">
+                        gensim</a>'s
+                    <a target="_blank" rel="noopener noreferrer" href="https://radimrehurek.com/gensim/models/ldamodel.html" class="text-dark">
+                        LDA topic model</a> for this. Once we have a trained topic model with a set of trending
+                    topics for the day (in this case: movies, gaming, music, sports) we can feed the topic model with new
+                    posts and obtain for each post a probability to be related to one of the discovered topics.
+                </dd>
 
-                <dt>feedparser</dt>
-                <dd>We use feedparser to process RSS and Atom feeds.</dd>
+                <dt>Sort & Rank:</dt>
+                <dd>
+                    Once we have a topic probability for each post, we <br>
+                    1.) sort all topics according to popularity
+                    (how often was a topic assigned as most probable topic for a post)
+                    and <br>
+                    2.) for each topic pick the post with the highest respective topic probability - to be used as a
+                    representative article of that particular topic.
+                </dd>
 
-                <dt>newspaper3k</dt>
-                <dd>The newspaper3k library allows us to parse the actual news articles.</dd>
+                <dt>Full article scraping:</dt>
+                <dd>
+                    To obtain the full article (not just the summary from the RSS feed) we use the Python library  <a target="_blank" rel="noopener noreferrer" href="https://github.com/codelucas/newspaper" class="text-dark">
+                    newspaper3k</a> for scraping news sites.
+                </dd>
 
-                <dt>AWS Elastic Beanstalk</dt>
-                <dd>For hosting.</dd>
+                <dt>Summarization model:</dt>
+                <dd>
+                    To generate a summary of the article we use a NLP model developed by Facebook called
+                    <a target="_blank" rel="noopener noreferrer" href="https://huggingface.co/transformers/model_doc/bart.html" class="text-dark">
+                        BART</a>. To do the actual
+                    <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Automatic_summarization#Abstraction-based_summarization" class="text-dark">
+                        abstractive summary</a> (meaning: it is not just extracting sentences, but
+                    also constructing new compound sentences) we use a
+                    <a target="_blank" rel="noopener noreferrer" href="https://github.com/pytorch/fairseq/tree/master/examples/bart" class="text-dark">
+                        pretrained</a>
+                    <a target="_blank" rel="noopener noreferrer" href="https://huggingface.co/facebook/bart-large-cnn" class="text-dark">
+                        model</a> from Facebook. For a better understanding of the underlying new NLP models that are
+                    utilized by BART, have a look at the nice illustrated posts from Jay Alammar: <br>
+                    <a target="_blank" rel="noopener noreferrer" href="https://jalammar.github.io/visualizing-neural-machine-translation-mechanics-of-seq2seq-models-with-attention/" class="text-dark">
+                        Seq2seq Models With Attention</a>,
+                    <a target="_blank" rel="noopener noreferrer" href="https://jalammar.github.io/illustrated-transformer/" class="text-dark">
+                        The Illustrated Transformer</a> and
+                    <a target="_blank" rel="noopener noreferrer" href="https://jalammar.github.io/illustrated-bert/" class="text-dark">
+                        The Illustrated BERT, ELMo, and co. (How NLP Cracked Transfer Learning)</a>.
+
+                <dt>Briefing:</dt>
+                <dd>
+                    The final briefing is sent out via email and available <a href="{{ url_for('briefing.example_briefing') }}" class="text-dark">online</a>.
+                </dd>
             </dl>
-
-
+            <br>
+            <br>
+            <h4>Source code</h4>
+            See the repository at:
+            <a target="_blank" rel="noopener noreferrer" href="https://github.com/grbtm/rssBriefing" class="text-dark">
+                https://github.com/grbtm/rssBriefing
+            </a>
+            <br>
+            <br>
+            <br>
+            <br>
+            <p id="news-sources">
+                *) RSS/Atom feeds currently considered for capturing the daily trending topics:<br>
+                BBC, New York Times, Reuters, Financial Times, Fortune magazine, CNBC, Wall Street Journal, Politico,
+                Al Jazeera, CNN, The Economist, Bloomberg, LA Times, Washington Post, Der Spiegel, CBC, The Independent,
+                Huffington Post, Deutsche Welle, The Globe and Mail
+            </p>
         </div>
     </div>
 </div>
