@@ -46,22 +46,27 @@
             <h4>tl;dr</h4>
             RoboBriefing &#x1f916; is an automated daily news briefing, powered by
             <a target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Natural_language_processing" class="text-dark">
-            Natural Language processing</a> (NLP) models, which covers the most relevant global news topics
+            Natural Language processing</a> (NLP)
+            <a target="_blank" rel="noopener noreferrer" href="https://github.com/pytorch/fairseq/tree/master/examples/bart" class="text-dark">
+                models</a>, which covers the most relevant global news topics
             from the past 24h.
 
             <br>
             <br>
-
+            <br>
+            <br>
 
             <h4>The briefing generation pipeline</h4>
             <img src="{{ url_for('static', filename='the_figure.png') }}" class="img-fluid" alt="Responsive image">
 
+            <br>
+            <br>
             <h5>About each element in a bit more detail:</h5>
             <dl>
                 <dt>RSS/Atom feed posts:</dt>
                 <dd>
                     To get a wide spectrum of news, we ingest a large amount of RSS and Atom feeds from news sources
-                    and blogs (That includes the feeds cited in <a href="#news-sources">*)</a> and beyond).
+                    and blogs (that includes the feeds cited in <a href="#news-sources">*)</a> and beyond).
                     We use <a target="_blank" rel="noopener noreferrer" href="https://github.com/kurtmckee/feedparser" class="text-dark">
                     feedparser</a> to process these feeds.
                 </dd>
@@ -90,7 +95,7 @@
 
                 <dt>Full article scraping:</dt>
                 <dd>
-                    To obtain the full article we use the Python library  <a target="_blank" rel="noopener noreferrer" href="https://github.com/codelucas/newspaper" class="text-dark">
+                    To obtain the full article (not just the summary from the RSS feed) we use the Python library  <a target="_blank" rel="noopener noreferrer" href="https://github.com/codelucas/newspaper" class="text-dark">
                     newspaper3k</a> for scraping news sites.
                 </dd>
 
