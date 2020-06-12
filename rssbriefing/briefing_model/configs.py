@@ -26,7 +26,6 @@ reference_feeds = [
     'World',  # Washington Post; 1 sentence headline, 1 sentence description
     'DER SPIEGEL - International',  # 1 sentence headline, 2-3 sentences description
     'CBC | World News',  # 1 sentence headline, 1 LONG sentence description
-    'U.S. News',  # CNBC; 1 sentence headline, 1 LONG sentence description
     'The Independent - World',  # 1 sentence headline, 1 LONG sentence description, BUT ENCODING ISSUE
     'World News - Breaking News, Top Stories',
     # Huffington Post; 1 sentence headline, 1 sentence description TODO remove 'Coronavirus Live Updates':

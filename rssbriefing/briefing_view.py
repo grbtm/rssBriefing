@@ -10,7 +10,6 @@ from rssbriefing.briefing_utils import get_standard_briefing
 bp = Blueprint('briefing', __name__)
 
 
-
 def get_latest_briefing_date(user):
     datetime_obj = db.session.query(
         db.func.max(Briefing.briefing_created)). \
@@ -42,10 +41,10 @@ def get_feedlist_for_logged_in_user():
 @login_required
 def index():
     # Get the date of the most recent briefing
-    latest_briefing_date = get_latest_briefing_date(user=g.user.id)
+    latest_briefing_date = get_latest_briefing_date(user=1)
 
     # Get all items of most recent briefing
-    items = get_briefing_items(user=g.user.id, briefing_date=latest_briefing_date)
+    items = get_briefing_items(user=1, briefing_date=latest_briefing_date)
 
     if all([item.guid for item in items]):
         items = sorted(items, key=lambda item: int(item.guid), reverse=False)
