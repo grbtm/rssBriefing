@@ -4,7 +4,6 @@ from rssbriefing import db
 from rssbriefing.auth import login_required
 from rssbriefing.db_utils import get_feedlist_for_dropdown, get_user_by_id
 from rssbriefing.models import Briefing
-from rssbriefing.email import send_standard_briefing
 from rssbriefing.briefing_utils import get_standard_briefing
 
 bp = Blueprint('briefing', __name__)
@@ -55,10 +54,6 @@ def index():
 
     # Get all feeds of user for the dropdown in the header navbar
     feeds = get_feedlist_for_dropdown(g.user.id)
-
-    send_email = request.args.get('email', None)
-    if send_email:
-        send_standard_briefing(user=get_user_by_id(g.user.id))
 
     return render_template('briefing/index.html',
                            items=items,
