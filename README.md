@@ -1,13 +1,13 @@
-# rssBriefing
+# rssBriefing a.k.a. RoboBriefing &#x1f916;
 
-rssBriefing is a RSS/Atom fuelled daily briefing app built with Flask, Bootstrap and Natural Language Processing models
-from gensim.
+rssBriefing (recently "re-branded" RoboBriefing &#x1f916;) is a RSS/Atom fuelled fully automated daily briefing app,
+powered by Natural Language Processing models ([gensim's LDA](https://radimrehurek.com/gensim/models/ldamodel.html), [Facebook's BART](https://github.com/pytorch/fairseq/tree/master/examples/bart).
 
 Beta testing has started: https://rssbriefing.live
 
-## TO DO
-- handling of python -m spacy download en to obtain 'en_core_web_sm'
-- AttributeError 'dict' object has no attribute 'batch_encode_plus' -> necessity to install transformers from source
+## TO DO (open bugs)
+- handling of `python -m spacy download en` to obtain 'en_core_web_sm'
+- `AttributeError 'dict' object has no attribute 'batch_encode_plus'` -> necessity to install transformers from source
 
 
 ## How to run with Docker
