@@ -13,7 +13,7 @@ from spacy.lang.en import English
 from spacy.lang.en.stop_words import STOP_WORDS
 
 from rssbriefing.briefing_model.configs import stop_words, stop_words_to_remove, common_terms, \
-    SUMM_PREPROCESSING_PHRASES, SUMM_PREPROCESSING_REGEXES
+    SUMM_PREPROCESSING_PHRASES, SUMM_PREPROCESSING_REGEXES, SUMM_PREPROCESSING_RAW_TEXT_REGEXES
 
 module_path = os.path.abspath(os.path.dirname(__file__))
 
@@ -28,6 +28,14 @@ def preprocess_for_summarization(doc):
     :param doc: [Str]
     :return doc: [Str]
     """
+    for regex in SUMM_PREPROCESSING_RAW_TEXT_REGEXES:
+        matches = re.findall(regex, doc)
+        if matches:
+            for match in matches:
+                start_index = doc.find(match)
+                end_index = start_index + len(match)
+                doc = doc[:start_index] + doc[end_index:]
+
     doc = doc.replace("\n", "")
 
     for regex in SUMM_PREPROCESSING_REGEXES:
