@@ -1,7 +1,7 @@
 # rssBriefing a.k.a. RoboBriefing &#x1f916;
 
 rssBriefing (recently "re-branded" RoboBriefing &#x1f916;) is a RSS/Atom fuelled fully automated daily news briefing app,
-powered by Natural Language Processing models ([gensim's LDA](https://radimrehurek.com/gensim/models/ldamodel.html), [Facebook's BART](https://github.com/pytorch/fairseq/tree/master/examples/bart).
+powered by Natural Language Processing models ([gensim's LDA](https://radimrehurek.com/gensim/models/ldamodel.html), [Facebook's BART](https://github.com/pytorch/fairseq/tree/master/examples/bart)).
 
 Beta testing has started: https://rssbriefing.live
 
