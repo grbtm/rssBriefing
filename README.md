@@ -5,9 +5,13 @@ powered by Natural Language Processing models ([gensim's LDA](https://radimrehur
 
 Beta testing has started: https://rssbriefing.live
 
-## TO DO (open bugs)
+## TO DO
 - handling of `python -m spacy download en` to obtain 'en_core_web_sm'
-- `AttributeError 'dict' object has no attribute 'batch_encode_plus'` -> necessity to install transformers from source
+- `AttributeError 'dict' object has no attribute 'batch_encode_plus'` -> necessity to install `transformers` from source
+- add standard bash scripts to run the full briefing generation pipeline:
+    - `python -m rssbriefing.scripts.update_all_feeds`
+    - `python -m rssbriefing.briefing_model.briefing`
+    - `python -m rssbriefing.scripts.send_briefing_emails`
 
 
 ## How to run with pyenv virtualenv
