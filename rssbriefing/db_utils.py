@@ -19,3 +19,7 @@ def get_feedlist_for_dropdown(user_id):
 
 def get_all_users():
     return Users.query.all()
+
+
+def get_user_by_email(email):
+    return Users.query.filter_by(email=email).first()
