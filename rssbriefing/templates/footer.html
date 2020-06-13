@@ -10,9 +10,10 @@
 
         <div class="col-6 col-md">
             {% if not g.user %}
-            <h5>Account</h5>
+            <h5>RSS reader</h5>
             <ul class="list-unstyled text-small">
                 <li><a class="text-muted" href="{{ url_for('auth.login') }}">Login</a></li>
+                <li><a class="text-muted" href="{{ url_for('auth.register') }}">Register</a></li>
             </ul>
             {% endif %}
         </div>
