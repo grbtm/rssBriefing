@@ -6,7 +6,7 @@ powered by Natural Language Processing models ([gensim's LDA](https://radimrehur
 Beta testing has started: https://rssbriefing.live
 
 ## TO DO
-- handling of `python -m spacy download en` to download spaCy English language library 'en_core_web_sm'
+- improve handling of `python -m spacy download en` to download spaCy English language library 'en_core_web_sm'
 - due to [transformers](https://github.com/huggingface/transformers) Issue [#4504](https://github.com/huggingface/transformers/issues/4504) -> current necessity to install `transformers` from source
 - add standard bash scripts to run the full briefing generation pipeline:
     - `python -m rssbriefing.scripts.update_all_feeds`
@@ -38,6 +38,7 @@ pip install .
 ```
 Run the flask app in development mode:
 ```
+cd rssBriefing
 flask run
 ```
 When done:
