@@ -1,9 +1,11 @@
 from flask import Blueprint, g, render_template, request
+from flask import current_app as app, flash, redirect, url_for
 
 from rssbriefing import db
 from rssbriefing.auth import login_required
-from rssbriefing.db_utils import get_feedlist_for_dropdown, get_user_by_id
-from rssbriefing.models import Briefing
+from rssbriefing.db_utils import get_feedlist_for_dropdown, get_user_by_email
+from rssbriefing.models import Briefing, Users
+from rssbriefing.forms import SubscribeForm
 from rssbriefing.briefing_utils import get_standard_briefing
 
 bp = Blueprint('briefing', __name__)
@@ -61,7 +63,7 @@ def index():
                            briefing_date=latest_briefing_date)
 
 
-@bp.route('/start')
+@bp.route('/start', methods=('GET', 'POST'))
 def landing_page():
     # Get the date of the most recent briefing
     latest_briefing_date = get_latest_briefing_date(user=1)
@@ -72,9 +74,37 @@ def landing_page():
     # For logged in user: Get all feeds of user for the dropdown in the header navbar
     feeds = get_feedlist_for_logged_in_user()
 
+    error = None
+
+    form = SubscribeForm()
+
+    if form.validate_on_submit():
+
+        beta_code = form.beta_code.data
+        email = form.email.data
+
+        if beta_code != app.config["BETA_CODE"]:
+            error = 'Wrong invitation code.'
+
+        elif get_user_by_email(email) is not None:
+            error = 'Subscriber with email {} is already registered.'.format(email)
+
+        if error is None:
+
+            new_user = Users(email=email)
+            db.session.add(new_user)
+            db.session.commit()
+
+            flash('Successfully subscribed!')
+
+            return redirect(url_for('briefing.index'))
+
+        flash(error)
+
     return render_template('landing_page/start.html',
                            feeds=feeds,
-                           briefing_date=latest_briefing_date)
+                           briefing_date=latest_briefing_date,
+                           form=form)
 
 
 @bp.route('/example')

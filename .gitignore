@@ -1,7 +1,7 @@
 *.pyc
 __pycache__/
 *.json
-/static/.DS_Store
+rssbriefing/static/.DS_Store
 
 # Environment variables
 .env
