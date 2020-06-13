@@ -52,7 +52,7 @@ DISCARD_KEYWORDS = ["Live ", "Coronavirus latest"]
 
 # Regexes and phrases for preprocessing before summarization
 SUMM_PREPROCESSING_RAW_TEXT_REGEXES = ["Read more:.+?\n\n"]
-SUMM_PREPROCESSING_REGEXES = ["FILE PHOTO:[\s\S]*\\bREUTERS\/\\b", "[\s\S]*WASHINGTON —"]
+SUMM_PREPROCESSING_REGEXES = ["FILE PHOTO:[\s\S]*REUTERS", "[\s\S]*WASHINGTON —"]
 SUMM_PREPROCESSING_PHRASES = ["Read More", "(The refiled story fixes spelling error in first paragraph)",
                               "[L8N2DC056]", "<U+200B>"]
 

@@ -29,7 +29,6 @@ Django==3.0.7
 dnspython==1.16.0
 docutils==0.15.2
 email-validator==1.1.1
-en-core-web-sm==2.2.5
 entrypoints==0.3
 feedfinder2==0.0.4
 feedparser==5.2.1
