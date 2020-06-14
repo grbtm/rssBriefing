@@ -1,4 +1,4 @@
-Hi {{ user.username }}!
+Good morning!
 
 Here's the latest RoboBriefing, freshly generated on {{ briefing_date }} UTC:
 [Or read it in the browser: https://rssbriefing.live/example]
@@ -11,7 +11,7 @@ Here's the latest RoboBriefing, freshly generated on {{ briefing_date }} UTC:
 Source: {{ item['feed_title'] }} | Article link: {{ item['link'] }}
 {% endfor %}
 
-Have a great day,
+That's it for today. Have a great day,
 
 The RoboBriefing Team
 
