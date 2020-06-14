@@ -21,7 +21,7 @@ def get_summary(app, url, nlp, tokenizer):
         text = preprocess_for_summarization(text)
 
         if len(tokenizer.tokenize(text)) > 1024:
-            text = text[:4000]
+            return None
         if len(tokenizer.tokenize(text)) < MIN_LENGTH:
             return None
 
