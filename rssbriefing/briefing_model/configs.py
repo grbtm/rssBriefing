@@ -52,7 +52,7 @@ DISCARD_LIVE_POSTS = ["coronavirus-usa-world"]
 DISCARD_KEYWORDS = ["Live ", "Coronavirus latest"]
 
 # Regexes and phrases for preprocessing before summarization
-SUMM_PREPROCESSING_RAW_TEXT_REGEXES = ["Read more:.+?\n\n"]
+SUMM_PREPROCESSING_RAW_TEXT_REGEXES = ["Read more:.+?\n\n", "Watch video.+?\n\n", "DW sends out a daily selection.+?Sign up here."]
 SUMM_PREPROCESSING_REGEXES = ["FILE PHOTO:[\s\S]*REUTERS", "[\s\S]*WASHINGTON —"]
 SUMM_PREPROCESSING_PHRASES = ["Read More", "(The refiled story fixes spelling error in first paragraph)",
                               "[L8N2DC056]", "<U+200B>"]
