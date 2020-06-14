@@ -11,7 +11,7 @@ import pytz
 
 from rssbriefing import create_app
 from rssbriefing import db
-from rssbriefing.briefing_model.configs import DISCARD_FEEDS
+from rssbriefing.briefing_model.configs import DISCARD_FEEDS, DISCARD_LIVE_POSTS
 from rssbriefing.briefing_model.ranking import get_candidates, rank_candidates
 from rssbriefing.briefing_model.summarization import enrich_with_summary
 from rssbriefing.briefing_model.topic_modeling import compute_topics
@@ -33,6 +33,8 @@ def save_to_db(briefing_items):
 
 def filter_posts(posts):
     posts = [post for post in posts if post.feed_title not in DISCARD_FEEDS]
+    posts = [post for post in posts if all([url_extract not in post.link for url_extract in DISCARD_LIVE_POSTS])]
+
     return posts
 
 

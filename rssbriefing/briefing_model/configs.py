@@ -46,6 +46,7 @@ PASSES = 30
 
 # RSS/Atom feeds to discard for briefing generation
 DISCARD_FEEDS = ["Bloomberg.com", "Bloomberg Politics", "The Independent - World"]
+DISCARD_LIVE_POSTS = ["coronavirus-usa-world"]
 
 # Black list of keywords to filter for topic modeling
 DISCARD_KEYWORDS = ["Live ", "Coronavirus latest"]
