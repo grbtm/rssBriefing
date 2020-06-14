@@ -47,6 +47,7 @@ pyenv deactivate
 ```
 
 ## How to run with Docker
+[Docker instructions haven't been updated yet with the notes in `TODO`]
 
 Clone the repo and `cd` into the directory:
 ```
