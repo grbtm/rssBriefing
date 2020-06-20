@@ -13,7 +13,7 @@ from spacy.lang.en import English
 from spacy.lang.en.stop_words import STOP_WORDS
 
 from rssbriefing.briefing_model.configs import stop_words, stop_words_to_remove, common_terms, \
-    SUMM_PREPROCESSING_PHRASES, SUMM_PREPROCESSING_REGEXES, SUMM_PREPROCESSING_RAW_TEXT_REGEXES
+    SUMM_PREPROCESSING_PHRASES, SUMM_PREPROCESSING_REGEXES, SUMM_PREPROCESSING_RAW_TEXT_REGEXES, REPLACEMENTS
 
 module_path = os.path.abspath(os.path.dirname(__file__))
 
@@ -21,8 +21,9 @@ module_path = os.path.abspath(os.path.dirname(__file__))
 def preprocess_for_summarization(doc):
     """ Preprocessing step after scraping of article and before passing the scraped text to summarization model.
 
+        - Filter out parts of the raw scraped document based on regexes
         - Remove newline characters
-        - Filter out parts of the document based on regexes
+        - Second filtering based on regexes
         - Filter out phrases
 
     :param doc: [Str]
@@ -36,7 +37,8 @@ def preprocess_for_summarization(doc):
                 end_index = start_index + len(match)
                 doc = doc[:start_index] + doc[end_index:]
 
-    doc = doc.replace("\n", "")
+    for replacement_tuple in REPLACEMENTS:
+        doc = doc.replace(replacement_tuple[0], replacement_tuple[1])
 
     for regex in SUMM_PREPROCESSING_REGEXES:
         matches = re.findall(regex, doc)
