@@ -1,15 +1,15 @@
 # List of reference feeds to be considered for topic model training
 reference_feeds = [
     'BBC News - Home',  # 1 sentence headline, 1 sentence description
-    'NYT > Top Stories',  # 1 sentence headline, 1 sentence description BUT TODO: EXCLUDE 'Live' in title
-    'NYT > World News',  # 1 sentence headline, 1 sentence description BUT TODO: EXCLUDE 'Live' or 'Updates' in headline
+    'NYT > Top Stories',  # 1 sentence headline, 1 sentence description
+    'NYT > World News',  # 1 sentence headline, 1 sentence description
     'NYT > Business > Economy',  # 1 sentence headline, 1 sentence description
     # 'The Guardian',
     'Reuters: Top News',  # 1 sentence headline, 1 LONG sentence description
     'Reuters: Business News',  # 1 sentence headline, 1 LONG sentence description
     'International homepage',
     # FT - PROBLEM: DUPLICATED POSTS (e.g. 'Paris, Texas offers a cautionary tale on reopening America')
-    'Fortune',  # TODO EXCUDE 'Coronavirus latest:' in headline
+    'Fortune',
     # 'VICE US - undefined US', # DOESNT SEEM TO BE RELEVANT GLOBAL NEWS COVERAGE, slightly off
     'Top News and Analysis (pro)',  # CNBC - 1 sentence headline, 1 sentence description
     'U.S. News'  # CNBC; 1 sentence headline, 1 LONG sentence description
@@ -28,7 +28,7 @@ reference_feeds = [
     'CBC | World News',  # 1 sentence headline, 1 LONG sentence description
     'The Independent - World',  # 1 sentence headline, 1 LONG sentence description, BUT ENCODING ISSUE
     'World News - Breaking News, Top Stories',
-    # Huffington Post; 1 sentence headline, 1 sentence description TODO remove 'Coronavirus Live Updates':
+    # Huffington Post; 1 sentence headline, 1 sentence description
     'Deutsche Welle',  # ALL TOP STORIES AND NEWS UPDATES;  1 sentence headline, 2-3 sentences description
     'The Globe and Mail - World'  # 1 sentence headline, 1 LONG sentence description
 ]

@@ -130,8 +130,9 @@ def preprocess_document(post, nlp):
            not word.like_num]
 
     # Custom filter for some RSS posts
-    if doc[-2] == 'continue' and doc[-1] == 'reading':
-        doc = doc[:-2]
+    if len(doc) > 2:
+        if doc[-2] == 'continue' and doc[-1] == 'reading':
+            doc = doc[:-2]
 
     return doc
 
