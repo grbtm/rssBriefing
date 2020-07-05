@@ -6,8 +6,7 @@ powered by Natural Language Processing models ([gensim's LDA](https://radimrehur
 Beta testing has started: https://rssbriefing.live
 
 ## Briefing generation pipeline with [LDA](https://radimrehurek.com/gensim/models/ldamodel.html) and [BART](https://github.com/pytorch/fairseq/tree/master/examples/bart)
-![Briefing generation outline]
-(rssbriefing/static/the_figure.png)
+![Briefing generation outline](https://rssbriefing.live/static/the_figure.png)
 
 ## TO DO
 - improve handling of `python -m spacy download en` to download spaCy English language library 'en_core_web_sm'
