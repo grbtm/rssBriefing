@@ -11,7 +11,7 @@
     and the EMAIL_USE_TLS and EMAIL_USE_SSL settings control whether a secure connection is used.
 
 """
-
+from datetime import datetime
 from django.core.mail import send_mail, send_mass_mail
 from flask import current_app as app
 from flask import render_template
@@ -98,7 +98,10 @@ def send_standard_briefing(user):
     briefing_items, latest_briefing_date = get_standard_briefing()
 
     if briefing_items:
-        send_single_mail(subject="Today's RoboBriefing",
+        today = datetime.now()
+        weekday_str = today.strftime('%A')
+
+        send_single_mail(subject=f"Your {weekday_str} RoboBriefing",
                          from_email=app.config['ADMINS'][0],
                          recipient_list=[user.email],
                          text_body=render_template('briefing/briefing_email.txt',

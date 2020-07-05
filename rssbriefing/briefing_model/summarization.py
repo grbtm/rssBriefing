@@ -20,9 +20,7 @@ def get_summary(app, url, nlp, tokenizer):
         app.logger.info(f"{'-'*40}\n Obtained original text for summarization:\n {text}\n {'-'*40}")
         text = preprocess_for_summarization(text)
 
-        if len(tokenizer.tokenize(text)) > 1024:
-            return None
-        if len(tokenizer.tokenize(text)) < MIN_LENGTH:
+        if (len(tokenizer.tokenize(text)) > 1024) or (len(tokenizer.tokenize(text)) < MIN_LENGTH):
             return None
 
         output = nlp(text, max_length=MAX_LENGTH, min_length=MIN_LENGTH)

@@ -1,7 +1,7 @@
 import argparse
 import sys
 from textwrap import TextWrapper
-
+from datetime import datetime
 from flask import render_template
 
 from rssbriefing import create_app
@@ -57,9 +57,12 @@ def main():
                 item.title = wrapper.fill(item.title)
                 item.summary = wrapper.fill(item.summary)
 
+            today = datetime.now()
+            weekday_str = today.strftime('%A')
+
             for user in users:
                 app.logger.info(f'Sending briefing for user {user}...')
-                send_single_mail(subject="Today's RoboBriefing",
+                send_single_mail(subject=f"Your {weekday_str} RoboBriefing",
                                  from_email=app.config['ADMINS'][0],
                                  recipient_list=[user.email],
                                  text_body=render_template('briefing/briefing_email.txt',
