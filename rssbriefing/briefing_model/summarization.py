@@ -49,7 +49,7 @@ def enrich_with_summary(app, briefing_items):
     nlp = pipeline('summarization',
                    model=SUMMARIZATION_MODEL,
                    device=os.environ.get('CUDA_DEVICE_ID', -1))     # run model on CUDA devide id (>=0) or CPU (-1)
-    
+
     tokenizer = AutoTokenizer.from_pretrained(TOKENIZER)
 
     app.logger.info(f'Generating summarization for {len(briefing_items)} briefing items:')

@@ -8,6 +8,7 @@ Beta testing has started: https://rssbriefing.live
 ## Briefing generation pipeline with [LDA](https://radimrehurek.com/gensim/models/ldamodel.html) and [BART](https://github.com/pytorch/fairseq/tree/master/examples/bart)
 ![Briefing generation outline](https://rssbriefing.live/static/the_figure.png)
 
+
 ## TO DO
 - improve handling of `python -m spacy download en` to download spaCy English language library 'en_core_web_sm'
 - due to [transformers](https://github.com/huggingface/transformers) Issue [#4504](https://github.com/huggingface/transformers/issues/4504) -> current necessity to install `transformers` from source
@@ -50,7 +51,6 @@ pyenv deactivate
 ```
 
 ## How to run with Docker
-[Docker instructions haven't been updated yet with the notes in `TODO`]
 
 Clone the repo and `cd` into the directory:
 ```
@@ -63,13 +63,11 @@ Build a Docker image from the Dockerfile:
 docker build -t rssbriefing .
 ```
 
-Run the app in a Docker container, by default a temporary sqlite db will be initiated inside the container with
-a database migration:
+To customize your container create an `.env` file in the repository root directory before calling `docker run`:
 ```
-docker run -e DB_UPGRADE=1 -p 5000:5000 rssbriefing
-```
-to customize your container create an `.env` file in the repository root directory before calling `docker run`:
-```
+# set CUDA devide id (>=0) to use GPU
+CUDA_DEVICE_ID=0
+
 # setting secret keys
 export SECRET_FLASK_KEY='set_your_secret_key'
 
@@ -84,6 +82,18 @@ export APP_SETTINGS=""
 
 # set a code for the registration process
 export BETA_CODE="test"
+```
+
+Run the app in a Docker container, by default a temporary sqlite db will be initiated inside the container with
+a database migration:
+```
+docker run -e DB_UPGRADE=1 -p 5000:5000 rssbriefing
+```
+
+Alternatively: to run with GPU, assuming that you have set up
+[Docker instructions to access an NVIDIA GPU](https://docs.docker.com/config/containers/resource_constraints/#gpu):
+```
+docker run --gpus -e DB_UPGRADE=1 -p 5000:5000 rssbriefing
 ```
 
 Finally open in browser:
