@@ -1,5 +1,4 @@
 import os
-import django
 
 from dotenv import load_dotenv
 from django.conf import settings
