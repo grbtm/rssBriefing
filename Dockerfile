@@ -14,7 +14,8 @@ COPY . .
 RUN apt-get update -y && \
     apt-get install -y gcc python3-dev libpq-dev && \
     python -m pip install --no-cache-dir -r requirements.txt && \
-    python -m pip install --no-cache-dir gunicorn
+    python -m pip install --no-cache-dir gunicorn && \
+    python -m spacy download en
 
 # Use the created user when running the image and adapt ownership
 RUN chmod +x entrypoint.sh
