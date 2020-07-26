@@ -4,7 +4,7 @@ import os
 from flask import Flask
 
 from rssbriefing.db_utils import get_user_by_id, seed_feeds
-from rssbriefing.models import Users, Feed
+from rssbriefing.models import Users, Feed, seed_db_command
 
 
 def create_app(test_config=None):
