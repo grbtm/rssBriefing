@@ -15,7 +15,7 @@ RoboBriefing currently consists of
   (The RSS reader functionality will be removed in the future, it's database ORM is currently used to manage feeds and users.
   The Docker deployment therefore creates a seed user and a standard set of feeds when initializing the database)
 - the briefing generation models (topic modeling, scraping, summarization) which are using the RSS feeds from the seed user
-- a Briefing page which fetches the latest briefing from DB and displays it
+- a Briefing page which fetches the latest briefing from DB and displays it in the Flask app (no need to be logged in to view)
 - a Django email backend (since flask-mail is not maintained anymore) to send out the briefing to users
 
 
