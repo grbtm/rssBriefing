@@ -38,6 +38,10 @@ seed_feeds = [
 ]
 
 
+def add_seed_db_command(app):
+    app.cli.add_command(seed_db_command)
+
+
 @click.command('seed-db')
 @with_appcontext
 def seed_db_command():
