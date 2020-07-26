@@ -1,4 +1,4 @@
-from rssbriefing.models import Users, Feed
+from .models import Users, Feed
 
 
 seed_feeds = [

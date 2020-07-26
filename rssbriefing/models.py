@@ -9,7 +9,7 @@ from werkzeug.security import generate_password_hash
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
-from rssbriefing.db_utils import get_user_by_id, seed_feeds
+from .db_utils import get_user_by_id, seed_feeds
 
 
 # Create database and migration engine instance
