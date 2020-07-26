@@ -75,13 +75,13 @@ export EMAIL_HOST_PASSWORD=""
 Run the app in a Docker container, by default a temporary sqlite db will be initiated inside the container with
 a database migration and a seed user with a standard set of news feeds will be populated:
 ```
-docker run -e DB_UPGRADE=1 DB_SEED=1 -p 5000:5000 rssbriefing
+docker run -e DB_UPGRADE=1 -e DB_SEED=1 -p 5000:5000 rssbriefing
 ```
 
 Alternatively: to run with GPU, assuming that you have set up
 [Docker instructions to access an NVIDIA GPU](https://docs.docker.com/config/containers/resource_constraints/#gpu):
 ```
-docker run --gpus -e DB_UPGRADE=1 -p 5000:5000 rssbriefing
+docker run --gpus -e DB_UPGRADE=1 -e DB_SEED=1 -p 5000:5000 rssbriefing
 ```
 
 Kick off the briefing generation modules in the Docker container (find out name of running container with `docker ps`),
