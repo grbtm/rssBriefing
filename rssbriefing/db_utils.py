@@ -1,9 +1,3 @@
-import click
-from flask import current_app as app
-from flask.cli import with_appcontext
-from werkzeug.security import generate_password_hash
-
-from rssbriefing import db
 from rssbriefing.models import Users, Feed
 
 
@@ -36,31 +30,6 @@ seed_feeds = [
     {"title": "The Globe and Mail - World", "href": "https://theglobeandmail.com/rss/section/world/"}
 
 ]
-
-
-def add_seed_db_command(app):
-    app.cli.add_command(seed_db_command)
-
-
-@click.command('seed-db')
-@with_appcontext
-def seed_db_command():
-    """ Initialize database with seed values of a minimum set of RSS/Atom feeds needed for briefing generation. """
-
-    new_user = Users(username=app.config["SEED_USER"],
-                     email=app.config["SEED_EMAIL"],
-                     password_hash=generate_password_hash(app.config["SEED_PASSWORD"]))
-    db.session.add(new_user)
-    db.session.commit()
-
-    seed_user = get_user_by_id(user_id=1)
-
-    for feed in seed_feeds:
-        feed_entry = Feed(title=feed["title"], href=feed["href"])
-        seed_user.feeds.append(feed_entry)
-
-    db.session.commit()
-    click.echo('Initialized the database with seed user and feeds.')
 
 
 def get_user_by_id(user_id):
