@@ -28,12 +28,16 @@ class Config(object):
     DEBUG = False
     TESTING = False
     CSRF_ENABLED = True
-    SECRET_KEY = os.environ.get('SECRET_FLASK_KEY') or 'dev-secret-key'
+    SECRET_KEY = os.environ.get('SECRET_FLASK_KEY', 'dev-secret-key')
     API_KEY = os.environ.get('API_KEY')
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(module_path, 'app.db')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///' + os.path.join(module_path, 'app.db'))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ADMINS = ['robobriefing@posteo.net']
-    BETA_CODE = os.environ.get('BETA_CODE') or 'test'
+    BETA_CODE = os.environ.get('BETA_CODE', 'test')
+
+    SEED_USER = os.environ.get('SEED_USER', 'seed_user')
+    SEED_PASSWORD = os.environ.get('SEED_PASSWORD', 'seed_password')
+    SEED_EMAIL = os.environ.get('SEED_EMAIL', '')
 
 
 class ProductionConfig(Config):

@@ -5,6 +5,8 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
+from rssbriefing.db_utils import seed_db_command
+
 # Create database and migration engine instance
 db = SQLAlchemy()
 migrate = Migrate()
@@ -30,6 +32,8 @@ def create_app(test_config=None):
     # Bind database and migration engine to app
     db.init_app(app)
     migrate.init_app(app, db)
+
+    app.cli.add_command(seed_db_command)
 
     from . import auth
     app.register_blueprint(auth.bp)
