@@ -2,6 +2,15 @@ import logging
 import os
 
 from flask import Flask
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+
+# Create database and migration engine instance
+db = SQLAlchemy()
+migrate = Migrate()
+
+# SQLAlchemy models inherit from db.Model, therefore importing models after instantiating db
+from rssbriefing import models
 
 
 def create_app(test_config=None):
@@ -19,10 +28,10 @@ def create_app(test_config=None):
         app.config.update(test_config)
 
     # Bind database and migration engine to app
-    from rssbriefing.models import db, migrate, seed_db_command
     db.init_app(app)
     migrate.init_app(app, db)
 
+    from rssbriefing.models import seed_db_command
     app.cli.add_command(seed_db_command)
 
     from . import auth

@@ -6,8 +6,7 @@ import click
 from flask.cli import with_appcontext
 from flask import current_app as app
 from werkzeug.security import generate_password_hash
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
+from rssbriefing import db
 
 
 seed_feeds = [
@@ -39,11 +38,6 @@ seed_feeds = [
     {"title": "The Globe and Mail - World", "href": "https://theglobeandmail.com/rss/section/world/"}
 
 ]
-
-
-# Create database and migration engine instance
-db = SQLAlchemy()
-migrate = Migrate()
 
 
 user_feed = db.Table('user_feed',
