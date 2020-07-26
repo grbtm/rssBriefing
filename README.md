@@ -64,6 +64,12 @@ export APP_SETTINGS=""
 export SEED_USER = ""
 export SEED_PASSWORD = ""
 export SEED_EMAIL = ""
+
+# set credentials for email backend
+export EMAIL_HOST=""
+export EMAIL_PORT=""
+export EMAIL_HOST_USER=""
+export EMAIL_HOST_PASSWORD=""
 ```
 
 Run the app in a Docker container, by default a temporary sqlite db will be initiated inside the container with
