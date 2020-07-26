@@ -84,13 +84,23 @@ Alternatively: to run with GPU, assuming that you have set up
 docker run --gpus -e DB_UPGRADE=1 -p 5000:5000 rssbriefing
 ```
 
-Finally open in browser:
+Kick off the briefing generation modules in the Docker container (find out name of running container with `docker ps`),
+by running one command after the other to fetch the latest feed posts and run the briefing model (with arg `-u 1`
+for the seed user):
+```
+docker exec -it <name of your container> python -m rssbriefing.scripts.update_all_feeds
+docker exec -it <name of your container> python -m rssbriefing.briefing_model.briefing -u 1
+```
+
+Finally open in browser and view the briefing:
 ```
 0.0.0.0:5000/
 ```
 
 
 ## How to run with pyenv virtualenv
+Note: pyenv instructions are not up to date, the Dockerfile based instructions are
+
 Having [`pyenv`](https://github.com/pyenv/pyenv) installed, clone the repo and `cd` into the directory:
 ```
 git clone https://github.com/grbtm/rssBriefing.git
