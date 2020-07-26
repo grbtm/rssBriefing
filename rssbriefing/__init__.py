@@ -19,7 +19,7 @@ def create_app(test_config=None):
         app.config.update(test_config)
 
     # Bind database and migration engine to app
-    from rssbriefing.models import db, migrate
+    from rssbriefing.models import db, migrate, seed_db_command
     db.init_app(app)
     migrate.init_app(app, db)
 
