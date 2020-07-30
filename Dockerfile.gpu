@@ -1,0 +1,38 @@
+# Use nvidia cude 10.2 drivers (Beware that it requires pytorch 1.5.1+)
+FROM nvidia/cuda:10.2-cudnn7-devel-ubuntu18.04
+MAINTAINER x0rzkov <x0rzkov@protonmail.com>
+
+# Create non-root user
+RUN useradd --create-home rssbriefing
+
+# Set home as working directory
+WORKDIR /home/rssbriefing
+
+# Copy all files from current workdir to workdir in container
+COPY . .
+
+# Run installations
+RUN apt-get update -y && \
+    apt-get install -y gcc python3-dev python3-pip libpq-dev && \
+    python3 -m pip install -U pip && \
+    python3 -m pip install --no-cache-dir -r requirements.txt && \
+    python3 -m pip install --no-cache-dir gunicorn && \
+    python3 -m spacy download en
+
+# Use the created user when running the image and adapt ownership
+RUN chmod +x entrypoint.sh
+RUN chown -R rssbriefing:rssbriefing ./
+USER rssbriefing
+
+# Set Flask app variable before calling the app
+ENV FLASK_APP "application.py"
+
+# Expose Flask's default port
+EXPOSE 5000
+
+env LC_ALL=C.UTF-8
+env LANG=C.UTF-8
+
+# Run app from shell script with option to trigger db upgrade if env var is given
+CMD ["./entrypoint.sh"]
+

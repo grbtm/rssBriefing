@@ -37,3 +37,4 @@ rssbriefing/briefing_model/models/
 
 # Logs
 *.log
+.env

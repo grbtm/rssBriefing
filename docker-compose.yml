@@ -1,0 +1,33 @@
+---
+version: '3.8'
+services:
+  
+  rss-briefing:
+    image: rss-briefing:cpu-latest
+    conatiner_name: ${NAMESPACE}-web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+    - ${SERVICE_PORT}:${SERVICE_PORT}
+    environment:
+    - SERVICE_PORT=${SERVICE_PORT}
+    # set CUDA devide id (>=0) to use GPU
+    - CUDA_DEVICE_ID=${CUDA_DEVICE_ID}
+    # setting secret keys
+    - SECRET_FLASK_KEY=${SECRET_FLASK_KEY}
+    # add URL to your database
+    # - DATABASE_URL=""
+    # set Flask environment: development or production (default)
+    - FLASK_ENV=${FLASK_ENV}
+    # choose App configs: config.DevelopmentConfig or config.ProductionConfig
+    # - APP_SETTINGS=${APP_SETTINGS}
+    # choose custom values for seed user
+    - SEED_USER=${SEED_USER} 
+    - SEED_PASSWORD=${SEED_PASSWORD}
+    - SEED_EMAIL=${SEED_EMAIL}
+    # set credentials for email backend
+    - EMAIL_HOST=${EMAIL_HOST}
+    - EMAIL_PORT=${EMAIL_PORT}
+    - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+    - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
