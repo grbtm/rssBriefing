@@ -48,9 +48,9 @@ user_feed = db.Table('user_feed',
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), index=True, unique=True)
-    email = db.Column(db.String(120), index=True, unique=True)
-    password_hash = db.Column(db.String(128))
+    username = db.Column(db.String(length=64), index=True, unique=True)
+    email = db.Column(db.String(length=120), index=True, unique=True)
+    password_hash = db.Column(db.String(length=128))
     feeds = db.relationship('Feed', secondary=user_feed, lazy='subquery', backref=db.backref('users', lazy=True))
     briefing_items = db.relationship('Briefing', lazy=True, backref=db.backref('user', lazy='joined'))
 
@@ -77,10 +77,10 @@ class Users(db.Model):
 
 class Feed(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(), index=True, unique=True)
-    description = db.Column(db.String())
-    link = db.Column(db.String())
-    href = db.Column(db.String())
+    title = db.Column(db.String(length=2048), index=True, unique=True)
+    description = db.Column(db.Text())
+    link = db.Column(db.String(length=2048))
+    href = db.Column(db.String(length=2048))
     items = db.relationship('Item', lazy=True, backref=db.backref('feed', lazy='joined'))
     briefing_items = db.relationship('Briefing', lazy=True, backref=db.backref('feed', lazy='joined'))
 
@@ -90,11 +90,11 @@ class Feed(db.Model):
 
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(), index=True, nullable=False)
-    description = db.Column(db.String())
-    link = db.Column(db.String(), nullable=False)
+    title = db.Column(db.String(length=2048), index=True, nullable=False)
+    description = db.Column(db.Text())
+    link = db.Column(db.String(length=2048), nullable=False)
     created = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    guid = db.Column(db.String())
+    guid = db.Column(db.String(length=255))
     feed_id = db.Column(db.Integer, db.ForeignKey('feed.id'), nullable=False)
 
     def __repr__(self):
@@ -103,17 +103,17 @@ class Item(db.Model):
 
 class Briefing(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(), index=True, nullable=False)
-    description = db.Column(db.String())
-    summary = db.Column(db.String())
-    link = db.Column(db.String(), nullable=False)
-    reference = db.Column(db.String())
+    title = db.Column(db.String(length=2048), index=True, nullable=False)
+    description = db.Column(db.Text())
+    summary = db.Column(db.Text())
+    link = db.Column(db.String(length=2048), nullable=False)
+    reference = db.Column(db.String(length=2048))
     score = db.Column(db.Float())
     created = db.Column(db.DateTime)
     briefing_created = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    guid = db.Column(db.String())
+    guid = db.Column(db.String(length=255))
 
-    feed_title = db.Column(db.String(), db.ForeignKey('feed.title'), nullable=False)
+    feed_title = db.Column(db.String(length=2048), db.ForeignKey('feed.title'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     def __repr__(self):

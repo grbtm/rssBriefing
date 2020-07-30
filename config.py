@@ -14,8 +14,9 @@ settings.configure({},
                    EMAIL_PORT=os.environ.get('EMAIL_PORT'),
                    EMAIL_HOST_USER=os.environ.get('EMAIL_HOST_USER'),
                    EMAIL_HOST_PASSWORD=os.environ.get('EMAIL_HOST_PASSWORD'),
-                   EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend',
-                   EMAIL_USE_TLS=False,
+		   EMAIL_BACKEND='django_smtp_ssl.SSLEmailBackend',
+                   # EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend',
+                   EMAIL_USE_TLS=os.environ.get('EMAIL_USE_TLS'),
                    EMAIL_USE_SSL=os.environ.get('EMAIL_USE_SSL'),
                    EMAIL_TIMEOUT=None,
                    EMAIL_SSL_KEYFILE=None,
@@ -47,7 +48,7 @@ class ProductionConfig(Config):
     HOST = os.environ.get('RDS_HOSTNAME')
     PORT = os.environ.get('RDS_PORT')
 
-    SQLALCHEMY_DATABASE_URI = f'postgres://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}'
+    SQLALCHEMY_DATABASE_URI = f'mysql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}'
 
 
 class StagingConfig(Config):

@@ -13,8 +13,10 @@ COPY . .
 
 # Run installations
 RUN apt-get update -y && \
-    apt-get install -y gcc python3-dev python3-pip libpq-dev && \
+    apt-get install -y gcc python3-dev python3-pip libpq-dev python3-mysqldb && \
     python3 -m pip install -U pip && \
+    python3 -m pip install --no-cache-dir mysql-connector && \
+    python3 -m pip install --no-cache-dir django-smtp-ssl && \
     python3 -m pip install --no-cache-dir -r requirements.txt && \
     python3 -m pip install --no-cache-dir gunicorn && \
     python3 -m spacy download en
