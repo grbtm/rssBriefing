@@ -3,27 +3,33 @@ version: '3.8'
 services:
 
   rss-briefing: &rss_briefing_base
-    image: rss-briefing:latest
+    image: rss-briefing:cpu-latest
     container_name: ${NAMESPACE}-web
     build:
       context: .
       dockerfile: Dockerfile      
+    networks:
+    - internal
     environment:
-    - SERVICE_PORT=${SERVICE_PORT}
     - DB_UPGRADE=1
     - DB_SEED=1
+    # add URL to your database
+    - DATABASE_URL=${DATABASE_URL}
 
   rss-briefing-web:
     <<: *rss_briefing_base
     container_name: ${NAMESPACE}-webui
+    networks:
+    - internal
+    - web
     environment:
+    - DB_UPGRADE=1
+    # - DB_SEED=1
     - SERVICE_PORT=${SERVICE_PORT}
-    # set CUDA devide id (>=0) to use GPU
-    - CUDA_DEVICE_ID=${CUDA_DEVICE_ID}
     # setting secret keys
     - SECRET_FLASK_KEY=${SECRET_FLASK_KEY}
     # add URL to your database
-    # - DATABASE_URL=""
+    - DATABASE_URL=${DATABASE_URL}
     # set Flask environment: development or production (default)
     - FLASK_ENV=${FLASK_ENV}
     # choose App configs: config.DevelopmentConfig or config.ProductionConfig
@@ -38,4 +44,31 @@ services:
     - EMAIL_HOST_USER=${EMAIL_HOST_USER}
     - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
     ports:
-    - 5003:5003
+    - ${SERVICE_PORT}:${SERVICE_PORT}
+
+  mysql:
+    image: mysql:5.7
+    container_name: ${NAMESPACE}-db
+    hostname: mysql
+    ports:
+    - 3308:3306
+    volumes:
+    - db-data:/var/lib/mysql
+    networks:
+    - internal
+    - web
+    environment:
+      MYSQL_DATABASE: ${RDS_DB_NAME}
+      MYSQL_PASSWORD: ${RDS_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${RDS_ROOT_PASSWORD}
+      MYSQL_USER: ${RDS_USERNAME}
+    restart: unless-stopped
+
+networks:
+  internal:
+    driver: bridge
+  web:
+    external: true
+
+volumes:
+  db-data:
