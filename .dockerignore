@@ -1,0 +1,4 @@
+Dockerfile*
+*.md
+docker-compose.*
+.env

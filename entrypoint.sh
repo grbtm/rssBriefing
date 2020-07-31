@@ -13,5 +13,5 @@ if [ -v DB_SEED ]; then
 fi
 
 # Always launch the gunicorn app server
-exec gunicorn -b :5000 --workers=2 --threads=4 --worker-class=gthread --worker-tmp-dir /dev/shm application:application
+exec gunicorn -b :${SERVICE_PORT} --workers=2 --threads=4 --worker-class=gthread --worker-tmp-dir /dev/shm application:application
 

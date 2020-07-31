@@ -97,6 +97,21 @@ Finally open in browser and view the briefing:
 0.0.0.0:5000/
 ```
 
+### docker-compose - gpu
+
+For making work the gpu version, you will have to add the following to your /etc/docker/daemon.json file:
+```json
+{
+    "default-runtime": "nvidia",
+    "runtimes": {
+        "nvidia": {
+            "path": "nvidia-container-runtime",
+            "runtimeArgs": []
+        }
+    }
+}
+```
+Then restart your docker service to apply changes
 
 ## How to run with pyenv virtualenv
 Note: pyenv instructions are not up to date, the Dockerfile based instructions are
